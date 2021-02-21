@@ -50,13 +50,11 @@ type alias Model =
   , notes : List Note
   }
 
---
+
 initialModel : Model --implemented computer-key keyboard according to common DAW practices
 initialModel =
-
-    { time = (Time.millisToPosix 0)
-    --time = Time.now
-    , notes =
+  { time = (Time.millisToPosix 0)
+  , notes =
     [ { key = "z", midi = 48, triggered = False, timeTriggered=0, clr=W }
     , { key = "s", midi = 49, triggered = False, timeTriggered=0, clr=B }
     , { key = "x", midi = 50, triggered = False, timeTriggered=0, clr=W }
@@ -114,14 +112,22 @@ type Msg
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
-  | notes = List.map (\note -> if note.key == key then { note | triggered = True  } else note) model.notes
+  | notes = List.map (\note ->
+    if note.key == key then
+      { note | triggered = True
+      , timeTriggered = (toMillis utc model.time) // 1000 }
+      else note) model.notes
   }
 
 --
 noteOff : String -> Model -> Model
 noteOff key model =
   { model
-  | notes = List.map (\note -> if note.key == key then { note | triggered = False } else note) model.notes
+  | notes = List.map (\note ->
+    if note.key == key then
+      { note | triggered = False
+      , timeTriggered = 0 }
+      else note) model.notes
   }
 
 transposeUp : Model -> Model
@@ -144,10 +150,7 @@ update msg model =
       ( { model | time = newTime }
       , Cmd.none
       )
-    {-
-    GetTime timeNow ->
-      (Just timeNow, Cmd.none)
-    -}
+
     NoOp ->
       Tuple.pair model Cmd.none
 
