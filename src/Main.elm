@@ -115,7 +115,7 @@ noteOn key model =
   | notes = List.map (\note ->
     if note.key == key then
       { note | triggered = True
-      , timeTriggered = (toMillis utc model.time) // 1000 }
+      , timeTriggered = (toMillis utc model.time) // 1000 } --number of seconds
       else note) model.notes
   }
 
