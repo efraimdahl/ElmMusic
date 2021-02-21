@@ -4,7 +4,7 @@ import Browser
 import Browser.Events
 --
 import Html exposing (Html, Attribute, a, div, pre, p, code, h1, text, main_, button)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (class, href,style)
 import Html.Events exposing (onClick)
 --
 import Json.Decode
@@ -31,10 +31,13 @@ main =
 
 -- MODEL ----------------------------------------------------------------------
 --
+--differenciate between black and white keys
+type Color  = B | W
 type alias Note =
   { key : String
   , midi : Float
   , triggered : Bool
+  , clr: Color
   }
 
 --
@@ -43,18 +46,39 @@ type alias Model =
   }
 
 --
-initialModel : Model
+initialModel : Model --implemented computer-key keyboard according to common DAW practices
 initialModel =
   { notes =
-    [ { key = "a", midi = 60, triggered = False }
-    , { key = "s", midi = 62, triggered = False }
-    , { key = "d", midi = 64, triggered = False }
-    , { key = "f", midi = 65, triggered = False }
-    , { key = "g", midi = 67, triggered = False }
-    , { key = "h", midi = 69, triggered = False }
-    , { key = "j", midi = 71, triggered = False }
-    , { key = "k", midi = 72, triggered = False }
-    , { key = "l", midi = 74, triggered = False }
+    [   
+        { key = "z", midi = 48, triggered = False, clr=W }
+    , { key = "s", midi = 49, triggered = False, clr=B }
+    , { key = "x", midi = 50, triggered = False, clr=W }
+    , { key = "d", midi = 51, triggered = False, clr=B }
+    , { key = "c", midi = 52, triggered = False, clr=W }
+    , { key = "v", midi = 53, triggered = False, clr=W }
+    , { key = "g", midi = 54, triggered = False, clr=B }
+    , { key = "b", midi = 55, triggered = False, clr=W }
+    , { key = "h", midi = 56, triggered = False, clr=B }
+    , { key = "n", midi = 57, triggered = False, clr=W }
+    , { key = "j", midi = 58, triggered = False, clr=B }
+    , { key = "m", midi = 59, triggered = False, clr=W }
+    , { key = "q", midi = 60, triggered = False, clr=W }
+    , { key = "2", midi = 61, triggered = False, clr=B }
+    , { key = "w", midi = 62, triggered = False, clr=W }
+    , { key = "3", midi = 63, triggered = False, clr=B }
+    , { key = "e", midi = 64, triggered = False, clr=W }
+    , { key = "r", midi = 65, triggered = False, clr=W }
+    , { key = "5", midi = 66, triggered = False, clr=B }
+    , { key = "t", midi = 67, triggered = False, clr=W }
+    , { key = "6", midi = 68, triggered = False, clr=B }
+    , { key = "y", midi = 69, triggered = False, clr=W }
+    , { key = "7", midi = 70, triggered = False, clr=B }
+    , { key = "u", midi = 71, triggered = False, clr=W }
+    , { key = "i", midi = 72, triggered = False, clr=W }
+    , { key = "9", midi = 73, triggered = False, clr=B }
+    , { key = "o", midi = 74, triggered = False, clr=W }
+    , { key = "0", midi = 75, triggered = False, clr=B }
+    , { key = "p", midi = 76, triggered = False, clr=W }
     ]
   }
 
@@ -154,22 +178,37 @@ audio : Model -> WebAudio.Graph
 audio model =
   List.map voice model.notes
 
+--Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
+--helper function for making black keys look pretty
+getBlackOffset: Int -> Color -> Attribute msg
+getBlackOffset num clr = 
+    case clr of 
+        B -> style "" ""--"left" (String.fromInt ((48*(num+1))-12) ++ "px")
+        W -> if (num==28) then style "border-right-width" "1px"
+             else style "" ""
+
 -- VIEW -----------------------------------------------------------------------
 -- Use this to toggle the main styling on a note based on wheter it is currently
 -- active or note. Basically just changes the background and font colour.
-noteCSS : Bool -> String
-noteCSS active =
-  if active then
-    "bg-indigo-500 text-white font-bold py-2 px-4 rounded"
-  else
-    "bg-indigo-100 text-black font-bold py-2 px-4 rounded"
+noteCSS : Int-> Bool -> Color-> String
+noteCSS i active clr =
+  case clr of 
+    W -> if active then
+        "WhiteKeyActive"
+        else
+        "WhiteKey"
+    B -> if active then 
+        "BlackKeyActive "
+        else
+        "BlackKey "
+  
 
 -- This takes a Note (as defined above) and converts that to some  Notice
 -- how we use the data for both the `voice` function and this `noteView` function.
 -- Our audio graph should never become out of sync with our view!
-noteView : Note -> Html Msg
-noteView note =
-  div [ class <| noteCSS note.triggered, class "flex-1 mx-2 text-center" ]
+noteView : Int -> Note -> Html Msg
+noteView i note =
+  div [ class <| noteCSS i note.triggered note.clr, class "Key", (getBlackOffset i note.clr)]
     [ text note.key ]
 
 audioView : List Note -> List (Html Msg)
@@ -186,37 +225,19 @@ audioView =
 --
 view : Model -> Html Msg
 view model =
-  main_ [ class "m-10" ]
+  main_ [ class "m-10 body" ]
     [ h1 [ class "text-3xl my-10" ]
-        [ text "elm-web-audio" ]
+        [ text "ElmSynth" ]
     , p [ class "p-2 my-6" ]
-        [ text """This package provides an elm/html-like API for declaring Web 
-          Audio graphs in Elm. The intention being that these `virtual` audio 
-          graphs are then sent via a port to be constructed by a javascript. 
-          There is a reference implementation of this found in the repository 
-          that you are free to copy until I or someone else releases a package 
-          formally.""" ]
-    , p [ class "p-2 my-6" ]
-        [ text """This site primarily serves as a demonstration that the library
-          actually works. If you'd like some more in depth documentation on the
-          Elm library itself you should check out the package """
-        , a [ href "https://package.elm-lang.org/packages/pd-andy/elm-web-audio/1.0.0/"
-            , class "text-indigo-500 hover:text-indigo-700"
-            ] 
-            [ text "here." ]  
-        ]
-    , p [ class "p-2 my-6" ]
-        [ text """A Web Audio context typically starts in a suspended state. 
-          If you can't hear any sound, click anywhere to resume the audio 
-          context.""" ]
+        [ text """Click to activate Web Audio context""" ]
     , div [ class "p-2 my-6" ]
         [ button [ onClick TransposeUp, class "bg-indigo-500 text-white font-bold py-2 px-4 mr-4 rounded" ]
             [ text "Transpose up" ]
         , button [ onClick TransposeDown, class "bg-indigo-500 text-white font-bold py-2 px-4 rounded" ]
             [ text "Transpose down" ]
         ]
-    , div [ class "flex" ]
-        <| List.map noteView model.notes
+    , div [ class "keaboard" ]
+        <| List.indexedMap noteView model.notes
     , div [ class "p-2 my-10" ]
         [ text """Below is the json send via ports to javascript. Active notes 
           are highlighted.""" ]

@@ -5404,18 +5404,40 @@ var $pd_andy$elm_web_audio$WebAudio$Program$element = function (_v0) {
 			view: view
 		});
 };
+var $author$project$Main$B = {$: 'B'};
+var $author$project$Main$W = {$: 'W'};
 var $author$project$Main$initialModel = {
 	notes: _List_fromArray(
 		[
-			{key: 'a', midi: 60, triggered: false},
-			{key: 's', midi: 62, triggered: false},
-			{key: 'd', midi: 64, triggered: false},
-			{key: 'f', midi: 65, triggered: false},
-			{key: 'g', midi: 67, triggered: false},
-			{key: 'h', midi: 69, triggered: false},
-			{key: 'j', midi: 71, triggered: false},
-			{key: 'k', midi: 72, triggered: false},
-			{key: 'l', midi: 74, triggered: false}
+			{clr: $author$project$Main$W, key: 'z', midi: 48, triggered: false},
+			{clr: $author$project$Main$B, key: 's', midi: 49, triggered: false},
+			{clr: $author$project$Main$W, key: 'x', midi: 50, triggered: false},
+			{clr: $author$project$Main$B, key: 'd', midi: 51, triggered: false},
+			{clr: $author$project$Main$W, key: 'c', midi: 52, triggered: false},
+			{clr: $author$project$Main$W, key: 'v', midi: 53, triggered: false},
+			{clr: $author$project$Main$B, key: 'g', midi: 54, triggered: false},
+			{clr: $author$project$Main$W, key: 'b', midi: 55, triggered: false},
+			{clr: $author$project$Main$B, key: 'h', midi: 56, triggered: false},
+			{clr: $author$project$Main$W, key: 'n', midi: 57, triggered: false},
+			{clr: $author$project$Main$B, key: 'j', midi: 58, triggered: false},
+			{clr: $author$project$Main$W, key: 'm', midi: 59, triggered: false},
+			{clr: $author$project$Main$W, key: 'q', midi: 60, triggered: false},
+			{clr: $author$project$Main$B, key: '2', midi: 61, triggered: false},
+			{clr: $author$project$Main$W, key: 'w', midi: 62, triggered: false},
+			{clr: $author$project$Main$B, key: '3', midi: 63, triggered: false},
+			{clr: $author$project$Main$W, key: 'e', midi: 64, triggered: false},
+			{clr: $author$project$Main$W, key: 'r', midi: 65, triggered: false},
+			{clr: $author$project$Main$B, key: '5', midi: 66, triggered: false},
+			{clr: $author$project$Main$W, key: 't', midi: 67, triggered: false},
+			{clr: $author$project$Main$B, key: '6', midi: 68, triggered: false},
+			{clr: $author$project$Main$W, key: 'y', midi: 69, triggered: false},
+			{clr: $author$project$Main$B, key: '7', midi: 70, triggered: false},
+			{clr: $author$project$Main$W, key: 'u', midi: 71, triggered: false},
+			{clr: $author$project$Main$W, key: 'i', midi: 72, triggered: false},
+			{clr: $author$project$Main$B, key: '9', midi: 73, triggered: false},
+			{clr: $author$project$Main$W, key: 'o', midi: 74, triggered: false},
+			{clr: $author$project$Main$B, key: '0', midi: 75, triggered: false},
+			{clr: $author$project$Main$W, key: 'p', midi: 76, triggered: false}
 		])
 };
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5994,7 +6016,6 @@ var $author$project$Main$update = F2(
 var $author$project$Main$updateAudio = _Platform_outgoingPort('updateAudio', $elm$core$Basics$identity);
 var $author$project$Main$TransposeDown = {$: 'TransposeDown'};
 var $author$project$Main$TransposeUp = {$: 'TransposeUp'};
-var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -6041,30 +6062,41 @@ var $author$project$Main$audioView = $elm$core$List$map(
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
 var $elm$html$Html$main_ = _VirtualDom_node('main');
-var $author$project$Main$noteCSS = function (active) {
-	return active ? 'bg-indigo-500 text-white font-bold py-2 px-4 rounded' : 'bg-indigo-100 text-black font-bold py-2 px-4 rounded';
-};
-var $author$project$Main$noteView = function (note) {
-	return A2(
-		$elm$html$Html$div,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$class(
-				$author$project$Main$noteCSS(note.triggered)),
-				$elm$html$Html$Attributes$class('flex-1 mx-2 text-center')
-			]),
-		_List_fromArray(
-			[
-				$elm$html$Html$text(note.key)
-			]));
-};
+var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
+var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
+var $author$project$Main$getBlackOffset = F2(
+	function (num, clr) {
+		if (clr.$ === 'B') {
+			return A2($elm$html$Html$Attributes$style, '', '');
+		} else {
+			return (num === 28) ? A2($elm$html$Html$Attributes$style, 'border-right-width', '1px') : A2($elm$html$Html$Attributes$style, '', '');
+		}
+	});
+var $author$project$Main$noteCSS = F3(
+	function (i, active, clr) {
+		if (clr.$ === 'W') {
+			return active ? 'WhiteKeyActive' : 'WhiteKey';
+		} else {
+			return active ? 'BlackKeyActive ' : 'BlackKey ';
+		}
+	});
+var $author$project$Main$noteView = F2(
+	function (i, note) {
+		return A2(
+			$elm$html$Html$div,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class(
+					A3($author$project$Main$noteCSS, i, note.triggered, note.clr)),
+					$elm$html$Html$Attributes$class('Key'),
+					A2($author$project$Main$getBlackOffset, i, note.clr)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(note.key)
+				]));
+	});
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -6088,7 +6120,7 @@ var $author$project$Main$view = function (model) {
 		$elm$html$Html$main_,
 		_List_fromArray(
 			[
-				$elm$html$Html$Attributes$class('m-10')
+				$elm$html$Html$Attributes$class('m-10 body')
 			]),
 		_List_fromArray(
 			[
@@ -6100,7 +6132,7 @@ var $author$project$Main$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('elm-web-audio')
+						$elm$html$Html$text('ElmSynth')
 					])),
 				A2(
 				$elm$html$Html$p,
@@ -6110,38 +6142,7 @@ var $author$project$Main$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('This package provides an elm/html-like API for declaring Web \r\n          Audio graphs in Elm. The intention being that these `virtual` audio \r\n          graphs are then sent via a port to be constructed by a javascript. \r\n          There is a reference implementation of this found in the repository \r\n          that you are free to copy until I or someone else releases a package \r\n          formally.')
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('p-2 my-6')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('This site primarily serves as a demonstration that the library\r\n          actually works. If you\'d like some more in depth documentation on the\r\n          Elm library itself you should check out the package '),
-						A2(
-						$elm$html$Html$a,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$href('https://package.elm-lang.org/packages/pd-andy/elm-web-audio/1.0.0/'),
-								$elm$html$Html$Attributes$class('text-indigo-500 hover:text-indigo-700')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('here.')
-							]))
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('p-2 my-6')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('A Web Audio context typically starts in a suspended state. \r\n          If you can\'t hear any sound, click anywhere to resume the audio \r\n          context.')
+						$elm$html$Html$text('Click to activate Web Audio context')
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -6178,9 +6179,9 @@ var $author$project$Main$view = function (model) {
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('flex')
+						$elm$html$Html$Attributes$class('keaboard')
 					]),
-				A2($elm$core$List$map, $author$project$Main$noteView, model.notes)),
+				A2($elm$core$List$indexedMap, $author$project$Main$noteView, model.notes)),
 				A2(
 				$elm$html$Html$div,
 				_List_fromArray(
