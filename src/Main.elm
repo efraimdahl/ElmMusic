@@ -13,6 +13,9 @@ import Json.Encode
 import WebAudio
 import WebAudio.Property as Prop
 import WebAudio.Program
+--
+import Time exposing (..)
+import Task exposing (..)
 
 -- Send the JSON encoded audio graph to javascript
 port updateAudio : Json.Encode.Value -> Cmd msg
@@ -37,21 +40,24 @@ type alias Note =
   { key : String
   , midi : Float
   , triggered : Bool
-  , timeTriggered: Int
-  , clr: Color
+  , timeTriggered : Int
+  , clr : Color
   }
 
 --
 type alias Model =
-  { notes : List Note
+  { time : Time.Posix
+  , notes : List Note
   }
 
 --
 initialModel : Model --implemented computer-key keyboard according to common DAW practices
 initialModel =
-  { notes =
-    [   
-        { key = "z", midi = 48, triggered = False, timeTriggered=0, clr=W }
+
+    { time = (Time.millisToPosix 0)
+    --time = Time.now
+    , notes =
+    [ { key = "z", midi = 48, triggered = False, timeTriggered=0, clr=W }
     , { key = "s", midi = 49, triggered = False, timeTriggered=0, clr=B }
     , { key = "x", midi = 50, triggered = False, timeTriggered=0, clr=W }
     , { key = "d", midi = 51, triggered = False, timeTriggered=0, clr=B }
@@ -83,11 +89,13 @@ initialModel =
     ]
   }
 
+
+
 --
 init : () -> (Model, Cmd Msg)
 init _ =
   ( initialModel
-  , Cmd.none
+  , Task.perform Tick Time.now
   )
 
 -- UPDATE ---------------------------------------------------------------------
@@ -99,19 +107,21 @@ type Msg
   --
   | TransposeUp
   | TransposeDown
+  --
+  | Tick Time.Posix
 
 --
 noteOn : String -> Model -> Model
-noteOn key model = 
-  { model 
-  | notes = List.map (\note -> if note.key == key then { note | triggered = True  } else note) model.notes 
+noteOn key model =
+  { model
+  | notes = List.map (\note -> if note.key == key then { note | triggered = True  } else note) model.notes
   }
 
 --
 noteOff : String -> Model -> Model
-noteOff key model = 
-  { model 
-  | notes = List.map (\note -> if note.key == key then { note | triggered = False } else note) model.notes 
+noteOff key model =
+  { model
+  | notes = List.map (\note -> if note.key == key then { note | triggered = False } else note) model.notes
   }
 
 transposeUp : Model -> Model
@@ -130,7 +140,15 @@ transposeDown model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    NoOp -> 
+    Tick newTime ->
+      ( { model | time = newTime }
+      , Cmd.none
+      )
+    {-
+    GetTime timeNow ->
+      (Just timeNow, Cmd.none)
+    -}
+    NoOp ->
       Tuple.pair model Cmd.none
 
     NoteOn key ->
@@ -152,6 +170,9 @@ update msg model =
       ( transposeDown model
       , Cmd.none
       )
+
+
+
 
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
@@ -179,14 +200,14 @@ adsr val a aval d dval s sval r rval=
 
 gainer : Bool-> List Prop.Property
 gainer triggered =
-    if triggered then 
+    if triggered then
         --[Prop.linearRampToValueAtTime (Prop.gain 0.2) 1]++
         --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
         --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2.5]++
         --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
         [(Prop.gain 0.1)]
 
-    else 
+    else
         [Prop.gain 0]
         --[Prop.exponentialRampToValueAtTime (Prop.gain 0.1) 3]++
         --[Prop.exponentialRampToValueAtTime (Prop.gain 0.0001) 6]
@@ -202,8 +223,8 @@ audio model =
 --Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
 --helper function for making black keys look pretty
 getBlackOffset: Int -> Color -> Attribute msg
-getBlackOffset num clr = 
-    case clr of 
+getBlackOffset num clr =
+    case clr of
         B -> style "" ""--"left" (String.fromInt ((48*(num+1))-12) ++ "px")
         W -> if (num==28) then style "border-right-width" "1px"
              else style "" ""
@@ -213,16 +234,16 @@ getBlackOffset num clr =
 -- active or note. Basically just changes the background and font colour.
 noteCSS : Int-> Bool -> Color-> String
 noteCSS i active clr =
-  case clr of 
+  case clr of
     W -> if active then
         "WhiteKeyActive"
         else
         "WhiteKey"
-    B -> if active then 
+    B -> if active then
         "BlackKeyActive "
         else
         "BlackKey "
-  
+
 
 -- This takes a Note (as defined above) and converts that to some  Notice
 -- how we use the data for both the `voice` function and this `noteView` function.
@@ -236,9 +257,9 @@ audioView : List Note -> List (Html Msg)
 audioView =
   List.map (\note ->
     voice note |> WebAudio.encode |> Json.Encode.encode 2 |> (\json ->
-      pre [ class "text-xs", class <| if note.triggered then "text-gray-800" else "text-gray-500" ] 
-        [ code [ class "my-2" ] 
-          [ text json ] 
+      pre [ class "text-xs", class <| if note.triggered then "text-gray-800" else "text-gray-500" ]
+        [ code [ class "my-2" ]
+          [ text json ]
         ]
     )
   )
@@ -246,11 +267,17 @@ audioView =
 --
 view : Model -> Html Msg
 view model =
+  let
+    hour   = String.fromInt (Time.toHour   utc model.time)
+    minute = String.fromInt (Time.toMinute utc model.time)
+    second = String.fromInt (Time.toSecond utc model.time)
+  in
   main_ [ class "m-10 body" ]
     [ h1 [ class "text-3xl my-10" ]
         [ text "ElmSynth" ]
     , p [ class "p-2 my-6" ]
         [ text """Click to activate Web Audio context""" ]
+    , h1 [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
     , div [ class "p-2 my-6" ]
         [ button [ onClick TransposeUp, class "bg-indigo-500 text-white font-bold py-2 px-4 mr-4 rounded" ]
             [ text "Transpose up" ]
@@ -260,7 +287,7 @@ view model =
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
     , div [ class "p-2 my-10" ]
-        [ text """Below is the json send via ports to javascript. Active notes 
+        [ text """Below is the json send via ports to javascript. Active notes
           are highlighted.""" ]
     , div [ class "bg-gray-200 p-2 my-10 rounded h-64 overflow-scroll"]
         <| audioView model.notes
@@ -297,4 +324,5 @@ subscriptions model =
   Sub.batch
     [ Browser.Events.onKeyDown <| noteOnDecoder model.notes
     , Browser.Events.onKeyUp <| noteOffDecoder model.notes
+    , Time.every 1000 Tick
     ]
