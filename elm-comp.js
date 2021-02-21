@@ -4932,40 +4932,10 @@ var $pd_andy$elm_web_audio$WebAudio$Property$gain = A2(
 	$elm$core$Basics$composeR,
 	$pd_andy$elm_web_audio$WebAudio$Property$float,
 	$pd_andy$elm_web_audio$WebAudio$Property$audioParam('gain'));
-var $pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate = F2(
-	function (a, b) {
-		return {$: 'ScheduledUpdate', a: a, b: b};
-	});
-var $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime = {$: 'SetValueAtTime'};
-var $pd_andy$elm_web_audio$WebAudio$Property$setValueAtTime = F2(
-	function (property, time) {
-		switch (property.$) {
-			case 'NodeProperty':
-				return property;
-			case 'AudioParam':
-				var label = property.a;
-				var value = property.b;
-				return A2(
-					$pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate,
-					label,
-					{method: $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime, target: value, time: time});
-			default:
-				var label = property.a;
-				var method = property.b.method;
-				var target = property.b.target;
-				return A2(
-					$pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate,
-					label,
-					{method: $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime, target: target, time: time});
-		}
-	});
 var $author$project$Main$gainer = function (triggered) {
 	return triggered ? _List_fromArray(
 		[
-			A2(
-			$pd_andy$elm_web_audio$WebAudio$Property$setValueAtTime,
-			$pd_andy$elm_web_audio$WebAudio$Property$gain(0.1),
-			3)
+			$pd_andy$elm_web_audio$WebAudio$Property$gain(0.1)
 		]) : _List_fromArray(
 		[
 			$pd_andy$elm_web_audio$WebAudio$Property$gain(0)
@@ -4976,13 +4946,25 @@ var $author$project$Main$mtof = function (midi) {
 	return 440 * A2($elm$core$Basics$pow, 2, (midi - 69) / 12);
 };
 var $pd_andy$elm_web_audio$WebAudio$oscillator = $pd_andy$elm_web_audio$WebAudio$Node('OscillatorNode');
+var $pd_andy$elm_web_audio$WebAudio$Property$NodeProperty = F2(
+	function (a, b) {
+		return {$: 'NodeProperty', a: a, b: b};
+	});
+var $pd_andy$elm_web_audio$WebAudio$Property$nodeProperty = $pd_andy$elm_web_audio$WebAudio$Property$NodeProperty;
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $pd_andy$elm_web_audio$WebAudio$Property$string = A2($elm$core$Basics$composeR, $elm$json$Json$Encode$string, $pd_andy$elm_web_audio$WebAudio$Property$Value);
+var $pd_andy$elm_web_audio$WebAudio$Property$type_ = A2(
+	$elm$core$Basics$composeR,
+	$pd_andy$elm_web_audio$WebAudio$Property$string,
+	$pd_andy$elm_web_audio$WebAudio$Property$nodeProperty('type'));
 var $author$project$Main$voice = function (note) {
 	return A2(
 		$pd_andy$elm_web_audio$WebAudio$oscillator,
 		_List_fromArray(
 			[
 				$pd_andy$elm_web_audio$WebAudio$Property$frequency(
-				$author$project$Main$mtof(note.midi))
+				$author$project$Main$mtof(note.midi)),
+				$pd_andy$elm_web_audio$WebAudio$Property$type_('triangle')
 			]),
 		_List_fromArray(
 			[
@@ -5239,7 +5221,6 @@ var $elm$core$Task$perform = F2(
 	});
 var $elm$browser$Browser$element = _Browser_element;
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
-var $elm$json$Json$Encode$string = _Json_wrap;
 var $pd_andy$elm_web_audio$WebAudio$Property$encodeScheduledUpdateMethod = function (method) {
 	switch (method.$) {
 		case 'SetValueAtTime':

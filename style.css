@@ -46,13 +46,13 @@ h1, a, a:visited, pre {
 
 
 .BlackKey{
-    background-color: #303030;
+    background-color: black;
     border-style: solid;
     border-width:1px;
     border-color:#CC0066;
     position:absolute;
     /*Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
-    border-right-width: 0;
+    border-right-width: 1px;
     width: 23px;
     /*white key/1.5*/
     height:147px;
@@ -67,7 +67,7 @@ h1, a, a:visited, pre {
     border-color:#CC0066;
     position:absolute;
     /*Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
-    border-right-width: 0px;
+    border-right-width: 1px;
     width: 23px;
     /*white key/1.5*/
     height:147px;

@@ -165,7 +165,7 @@ mtof midi =
 -- This takes a Note (as defined above) and converts that to a synth voice.
 voice : Note -> WebAudio.Node
 voice note =
-  WebAudio.oscillator [ Prop.frequency (mtof note.midi) ]
+  WebAudio.oscillator [ Prop.frequency (mtof note.midi), Prop.type_ "triangle"]
     [ WebAudio.gain (gainer note.triggered)
       [ WebAudio.dac ]
     ]
@@ -183,7 +183,9 @@ gainer triggered =
         --[Prop.linearRampToValueAtTime (Prop.gain 0.2) 1]++
         --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
         --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2.5]++
-        [Prop.setValueAtTime (Prop.gain 0.1) 3]
+        --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
+        [(Prop.gain 0.1)]
+
     else 
         [Prop.gain 0]
         --[Prop.exponentialRampToValueAtTime (Prop.gain 0.1) 3]++
