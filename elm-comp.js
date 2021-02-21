@@ -4528,10 +4528,6 @@ var $elm$core$List$map = F2(
 			_List_Nil,
 			xs);
 	});
-var $elm$core$Basics$apL = F2(
-	function (f, x) {
-		return f(x);
-	});
 var $pd_andy$elm_web_audio$WebAudio$Node = F3(
 	function (a, b, c) {
 		return {$: 'Node', a: a, b: b, c: c};
@@ -4792,6 +4788,10 @@ var $elm$core$Elm$JsArray$initialize = _JsArray_initialize;
 var $elm$core$Array$Leaf = function (a) {
 	return {$: 'Leaf', a: a};
 };
+var $elm$core$Basics$apL = F2(
+	function (f, x) {
+		return f(x);
+	});
 var $elm$core$Basics$apR = F2(
 	function (x, f) {
 		return f(x);
@@ -4932,6 +4932,45 @@ var $pd_andy$elm_web_audio$WebAudio$Property$gain = A2(
 	$elm$core$Basics$composeR,
 	$pd_andy$elm_web_audio$WebAudio$Property$float,
 	$pd_andy$elm_web_audio$WebAudio$Property$audioParam('gain'));
+var $pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate = F2(
+	function (a, b) {
+		return {$: 'ScheduledUpdate', a: a, b: b};
+	});
+var $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime = {$: 'SetValueAtTime'};
+var $pd_andy$elm_web_audio$WebAudio$Property$setValueAtTime = F2(
+	function (property, time) {
+		switch (property.$) {
+			case 'NodeProperty':
+				return property;
+			case 'AudioParam':
+				var label = property.a;
+				var value = property.b;
+				return A2(
+					$pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate,
+					label,
+					{method: $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime, target: value, time: time});
+			default:
+				var label = property.a;
+				var method = property.b.method;
+				var target = property.b.target;
+				return A2(
+					$pd_andy$elm_web_audio$WebAudio$Property$ScheduledUpdate,
+					label,
+					{method: $pd_andy$elm_web_audio$WebAudio$Property$SetValueAtTime, target: target, time: time});
+		}
+	});
+var $author$project$Main$gainer = function (triggered) {
+	return triggered ? _List_fromArray(
+		[
+			A2(
+			$pd_andy$elm_web_audio$WebAudio$Property$setValueAtTime,
+			$pd_andy$elm_web_audio$WebAudio$Property$gain(0.1),
+			3)
+		]) : _List_fromArray(
+		[
+			$pd_andy$elm_web_audio$WebAudio$Property$gain(0)
+		]);
+};
 var $elm$core$Basics$pow = _Basics_pow;
 var $author$project$Main$mtof = function (midi) {
 	return 440 * A2($elm$core$Basics$pow, 2, (midi - 69) / 12);
@@ -4949,11 +4988,7 @@ var $author$project$Main$voice = function (note) {
 			[
 				A2(
 				$pd_andy$elm_web_audio$WebAudio$gain,
-				_List_fromArray(
-					[
-						$pd_andy$elm_web_audio$WebAudio$Property$gain(
-						note.triggered ? 0.1 : 0)
-					]),
+				$author$project$Main$gainer(note.triggered),
 				_List_fromArray(
 					[$pd_andy$elm_web_audio$WebAudio$dac]))
 			]));
@@ -5409,35 +5444,35 @@ var $author$project$Main$W = {$: 'W'};
 var $author$project$Main$initialModel = {
 	notes: _List_fromArray(
 		[
-			{clr: $author$project$Main$W, key: 'z', midi: 48, triggered: false},
-			{clr: $author$project$Main$B, key: 's', midi: 49, triggered: false},
-			{clr: $author$project$Main$W, key: 'x', midi: 50, triggered: false},
-			{clr: $author$project$Main$B, key: 'd', midi: 51, triggered: false},
-			{clr: $author$project$Main$W, key: 'c', midi: 52, triggered: false},
-			{clr: $author$project$Main$W, key: 'v', midi: 53, triggered: false},
-			{clr: $author$project$Main$B, key: 'g', midi: 54, triggered: false},
-			{clr: $author$project$Main$W, key: 'b', midi: 55, triggered: false},
-			{clr: $author$project$Main$B, key: 'h', midi: 56, triggered: false},
-			{clr: $author$project$Main$W, key: 'n', midi: 57, triggered: false},
-			{clr: $author$project$Main$B, key: 'j', midi: 58, triggered: false},
-			{clr: $author$project$Main$W, key: 'm', midi: 59, triggered: false},
-			{clr: $author$project$Main$W, key: 'q', midi: 60, triggered: false},
-			{clr: $author$project$Main$B, key: '2', midi: 61, triggered: false},
-			{clr: $author$project$Main$W, key: 'w', midi: 62, triggered: false},
-			{clr: $author$project$Main$B, key: '3', midi: 63, triggered: false},
-			{clr: $author$project$Main$W, key: 'e', midi: 64, triggered: false},
-			{clr: $author$project$Main$W, key: 'r', midi: 65, triggered: false},
-			{clr: $author$project$Main$B, key: '5', midi: 66, triggered: false},
-			{clr: $author$project$Main$W, key: 't', midi: 67, triggered: false},
-			{clr: $author$project$Main$B, key: '6', midi: 68, triggered: false},
-			{clr: $author$project$Main$W, key: 'y', midi: 69, triggered: false},
-			{clr: $author$project$Main$B, key: '7', midi: 70, triggered: false},
-			{clr: $author$project$Main$W, key: 'u', midi: 71, triggered: false},
-			{clr: $author$project$Main$W, key: 'i', midi: 72, triggered: false},
-			{clr: $author$project$Main$B, key: '9', midi: 73, triggered: false},
-			{clr: $author$project$Main$W, key: 'o', midi: 74, triggered: false},
-			{clr: $author$project$Main$B, key: '0', midi: 75, triggered: false},
-			{clr: $author$project$Main$W, key: 'p', midi: 76, triggered: false}
+			{clr: $author$project$Main$W, key: 'z', midi: 48, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: 's', midi: 49, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'x', midi: 50, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: 'd', midi: 51, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'c', midi: 52, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'v', midi: 53, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: 'g', midi: 54, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'b', midi: 55, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: 'h', midi: 56, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'n', midi: 57, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: 'j', midi: 58, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'm', midi: 59, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'q', midi: 60, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '2', midi: 61, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'w', midi: 62, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '3', midi: 63, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'e', midi: 64, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'r', midi: 65, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '5', midi: 66, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 't', midi: 67, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '6', midi: 68, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'y', midi: 69, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '7', midi: 70, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'u', midi: 71, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'i', midi: 72, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '9', midi: 73, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'o', midi: 74, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$B, key: '0', midi: 75, timeTriggered: 0, triggered: false},
+			{clr: $author$project$Main$W, key: 'p', midi: 76, timeTriggered: 0, triggered: false}
 		])
 };
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);

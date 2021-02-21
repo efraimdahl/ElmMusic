@@ -37,6 +37,7 @@ type alias Note =
   { key : String
   , midi : Float
   , triggered : Bool
+  , timeTriggered: Int
   , clr: Color
   }
 
@@ -50,35 +51,35 @@ initialModel : Model --implemented computer-key keyboard according to common DAW
 initialModel =
   { notes =
     [   
-        { key = "z", midi = 48, triggered = False, clr=W }
-    , { key = "s", midi = 49, triggered = False, clr=B }
-    , { key = "x", midi = 50, triggered = False, clr=W }
-    , { key = "d", midi = 51, triggered = False, clr=B }
-    , { key = "c", midi = 52, triggered = False, clr=W }
-    , { key = "v", midi = 53, triggered = False, clr=W }
-    , { key = "g", midi = 54, triggered = False, clr=B }
-    , { key = "b", midi = 55, triggered = False, clr=W }
-    , { key = "h", midi = 56, triggered = False, clr=B }
-    , { key = "n", midi = 57, triggered = False, clr=W }
-    , { key = "j", midi = 58, triggered = False, clr=B }
-    , { key = "m", midi = 59, triggered = False, clr=W }
-    , { key = "q", midi = 60, triggered = False, clr=W }
-    , { key = "2", midi = 61, triggered = False, clr=B }
-    , { key = "w", midi = 62, triggered = False, clr=W }
-    , { key = "3", midi = 63, triggered = False, clr=B }
-    , { key = "e", midi = 64, triggered = False, clr=W }
-    , { key = "r", midi = 65, triggered = False, clr=W }
-    , { key = "5", midi = 66, triggered = False, clr=B }
-    , { key = "t", midi = 67, triggered = False, clr=W }
-    , { key = "6", midi = 68, triggered = False, clr=B }
-    , { key = "y", midi = 69, triggered = False, clr=W }
-    , { key = "7", midi = 70, triggered = False, clr=B }
-    , { key = "u", midi = 71, triggered = False, clr=W }
-    , { key = "i", midi = 72, triggered = False, clr=W }
-    , { key = "9", midi = 73, triggered = False, clr=B }
-    , { key = "o", midi = 74, triggered = False, clr=W }
-    , { key = "0", midi = 75, triggered = False, clr=B }
-    , { key = "p", midi = 76, triggered = False, clr=W }
+        { key = "z", midi = 48, triggered = False, timeTriggered=0, clr=W }
+    , { key = "s", midi = 49, triggered = False, timeTriggered=0, clr=B }
+    , { key = "x", midi = 50, triggered = False, timeTriggered=0, clr=W }
+    , { key = "d", midi = 51, triggered = False, timeTriggered=0, clr=B }
+    , { key = "c", midi = 52, triggered = False, timeTriggered=0, clr=W }
+    , { key = "v", midi = 53, triggered = False, timeTriggered=0, clr=W }
+    , { key = "g", midi = 54, triggered = False, timeTriggered=0, clr=B }
+    , { key = "b", midi = 55, triggered = False, timeTriggered=0, clr=W }
+    , { key = "h", midi = 56, triggered = False, timeTriggered=0, clr=B }
+    , { key = "n", midi = 57, triggered = False, timeTriggered=0, clr=W }
+    , { key = "j", midi = 58, triggered = False, timeTriggered=0, clr=B }
+    , { key = "m", midi = 59, triggered = False, timeTriggered=0, clr=W }
+    , { key = "q", midi = 60, triggered = False, timeTriggered=0, clr=W }
+    , { key = "2", midi = 61, triggered = False, timeTriggered=0, clr=B }
+    , { key = "w", midi = 62, triggered = False, timeTriggered=0, clr=W }
+    , { key = "3", midi = 63, triggered = False, timeTriggered=0, clr=B }
+    , { key = "e", midi = 64, triggered = False, timeTriggered=0, clr=W }
+    , { key = "r", midi = 65, triggered = False, timeTriggered=0, clr=W }
+    , { key = "5", midi = 66, triggered = False, timeTriggered=0, clr=B }
+    , { key = "t", midi = 67, triggered = False, timeTriggered=0, clr=W }
+    , { key = "6", midi = 68, triggered = False, timeTriggered=0, clr=B }
+    , { key = "y", midi = 69, triggered = False, timeTriggered=0, clr=W }
+    , { key = "7", midi = 70, triggered = False, timeTriggered=0, clr=B }
+    , { key = "u", midi = 71, triggered = False, timeTriggered=0, clr=W }
+    , { key = "i", midi = 72, triggered = False, timeTriggered=0, clr=W }
+    , { key = "9", midi = 73, triggered = False, timeTriggered=0, clr=B }
+    , { key = "o", midi = 74, triggered = False, timeTriggered=0, clr=W }
+    , { key = "0", midi = 75, triggered = False, timeTriggered=0, clr=B }
+    , { key = "p", midi = 76, triggered = False, timeTriggered=0, clr=W }
     ]
   }
 
@@ -103,7 +104,7 @@ type Msg
 noteOn : String -> Model -> Model
 noteOn key model = 
   { model 
-  | notes = List.map (\note -> if note.key == key then { note | triggered = True } else note) model.notes 
+  | notes = List.map (\note -> if note.key == key then { note | triggered = True  } else note) model.notes 
   }
 
 --
@@ -164,11 +165,29 @@ mtof midi =
 -- This takes a Note (as defined above) and converts that to a synth voice.
 voice : Note -> WebAudio.Node
 voice note =
-  WebAudio.oscillator [ Prop.frequency <| mtof note.midi ]
-    [ WebAudio.gain [ Prop.gain <| if note.triggered then 0.1 else 0 ]
+  WebAudio.oscillator [ Prop.frequency (mtof note.midi) ]
+    [ WebAudio.gain (gainer note.triggered)
       [ WebAudio.dac ]
     ]
 
+--ADSR envolope:
+{-
+adsr : Property -> Float -> Float -> Float -> Float-> Float -> Float-> Float -> Property
+adsr val a aval d dval s sval r rval=
+    linearRampToValueAtTime (val 440) 1
+-}
+
+gainer : Bool-> List Prop.Property
+gainer triggered =
+    if triggered then 
+        --[Prop.linearRampToValueAtTime (Prop.gain 0.2) 1]++
+        --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
+        --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2.5]++
+        [Prop.setValueAtTime (Prop.gain 0.1) 3]
+    else 
+        [Prop.gain 0]
+        --[Prop.exponentialRampToValueAtTime (Prop.gain 0.1) 3]++
+        --[Prop.exponentialRampToValueAtTime (Prop.gain 0.0001) 6]
 -- On the js side, the virtual audio graph is expecting an array of virtual
 -- nodes. This plays nicely with our list of Notes, we can simply map the
 -- Notes to synth voices and encode the new list.
