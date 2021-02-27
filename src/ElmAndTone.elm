@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module ElmAndTone exposing (..)
 
 import Browser
 import Browser.Events
@@ -7,30 +7,29 @@ import Html exposing (Html, Attribute, a, div, pre, p, code, h1, text, main_, bu
 import Html.Attributes exposing (class, href,style)
 import Html.Events exposing (onClick)
 --
-import Json.Decode
-import Json.Encode
---
-import WebAudio
-import WebAudio.Property as Prop
-import WebAudio.Program
+import Json.Decode as Decode
+import Json.Encode as Encode
 --
 import Time exposing (..)
 import Task exposing (..)
 
--- Send the JSON encoded audio graph to javascript
-port triggerNote : Note -> Cmd msg
+
+type alias Flags =
+  ()
 
 -- MAIN -----------------------------------------------------------------------
-main : Program () Model Msg
+main : Program Flags Model Msg
 main =
-  WebAudio.Program.element
+    Browser.element
     { init = init
     , update = update
-    , audio = audio
     , view = view
     , subscriptions = subscriptions
-    , audioPort = updateAudio
     }
+
+
+-- Send the JSON encoded audio graph to javascript
+port updateAudio : String -> Cmd msg
 
 -- MODEL ----------------------------------------------------------------------
 --
@@ -50,7 +49,6 @@ type alias Model =
   { time : Time.Posix
   , notes : List Note
   }
-
 
 initialModel : Model --implemented computer-key keyboard according to common DAW practices
 initialModel =
@@ -118,8 +116,6 @@ noteOn key model =
       let 
         m = Debug.log "model" (toSecond utc model.time)
       in
-      if (note.triggered) then {note | detriggered = True}
-      else
       { note | triggered = True
       , timeTriggered = (Debug.log "time" (toSecond utc model.time))} --number of seconds
       else note) model.notes
@@ -148,6 +144,18 @@ transposeDown model =
   | notes = List.map (\note -> { note | midi = note.midi - 1 }) model.notes
   }
 
+findKey: String -> Model -> Float
+findKey s m =
+  let 
+    test : Note -> Bool 
+    test n = (n.key==s)
+    mainVal : List Note
+    mainVal =  List.filter test m.notes
+  in
+  case mainVal of 
+    [] -> 0
+    hd::tail -> mtof (hd.midi)
+
 --
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -165,13 +173,23 @@ update msg model =
       Tuple.pair model Cmd.none
 
     NoteOn key ->
+      let 
+        val = findKey key model
+        message : String
+        message = "press-"++Debug.toString(val)
+      in
       ( noteOn key model
-      , Cmd.none
+      , makeAndSendAudio message--(Debug.log "message-string " message)
       )
 
     NoteOff key ->
+      let 
+        val = findKey key model
+        message : String
+        message = "release-"++Debug.toString(val)
+      in
       ( noteOff key model
-      , Cmd.none
+      , makeAndSendAudio message--(Debug.log "message-string " message)
       )
 
     TransposeUp ->
@@ -195,32 +213,6 @@ update msg model =
 mtof : Float -> Float
 mtof midi =
   440 * 2 ^ ((midi - 69) / 12)
-
--- This takes a Note (as defined above) and converts that to a synth voice.
-
-
---ADSR envolope:
-{-
-adsr : Property -> Float -> Float -> Float -> Float-> Float -> Float-> Float -> Property
-adsr val a aval d dval s sval r rval=
-    linearRampToValueAtTime (val 440) 1
--}
-
-gainer : Note-> List Prop.Property
-gainer nt =
-    if nt.triggered then
-          [Prop.gain 0.1]
-        --[Prop.linearRampToValueAtTime (Prop.gain 0.2) (toFloat(nt.timeTriggered)+0.1)]++
-        --[Prop.linearRampToValueAtTime (Prop.gain 0.001) (toFloat(nt.timeTriggered)+0.2)]
-        --[Prop.linearRampToValueAtTime (Prop.gain 0.1) 2]++
-        --[(Prop.gain 0.1)]
-    else
-        if nt.triggered then [Prop.linearRampToValueAtTime (Prop.gain 0.001) (toFloat(nt.timeTriggered)+0.2)]
-        else [Prop.gain 0]
-        --[Prop.exponentialRampToValueAtTime (Prop.gain 0.001) 2]
-        --[Prop.exponentialRampToValueAtTime (Prop.gain 0.0001) 6]
-
-
 
 --Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
 --helper function for making black keys look pretty
@@ -255,17 +247,6 @@ noteView i note =
   div [ class <| noteCSS i note.triggered note.clr, class "Key", (getBlackOffset i note.clr)]
     [ text note.key ]
 
-audioView : List Note -> List (Html Msg)
-audioView =
-  List.map (\note ->
-    voice note |> WebAudio.encode |> Json.Encode.encode 2 |> (\json ->
-      pre [ class "text-xs", class <| if note.triggered then "text-gray-800" else "text-gray-500" ]
-        [ code [ class "my-2" ]
-          [ text json ]
-        ]
-    )
-  )
-
 --
 view : Model -> Html Msg
 view model =
@@ -289,57 +270,25 @@ view model =
         ]
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
-    , div [ class "p-2 my-10" ]
-        [ text """Below is the json send via ports to javascript. Active notes
-          are highlighted.""" ]
-    , div [ class "bg-gray-200 p-2 my-10 rounded h-64 overflow-scroll"]
-        <| audioView model.notes
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
 --
-noteOnDecoder : List Note -> Json.Decode.Decoder Msg
-noteOnDecoder notes =
-  Json.Decode.field "key" Json.Decode.string
-    |> Json.Decode.andThen (\key ->
-      case List.any (\note -> note.key == key) notes of
-        True ->
-          Json.Decode.succeed (NoteOn key)
-        False ->
-          Json.Decode.fail ""
-    )
-
---
-noteOffDecoder : List Note -> Json.Decode.Decoder Msg
-noteOffDecoder notes =
-  Json.Decode.field "key" Json.Decode.string
-    |> Json.Decode.andThen (\key ->
-      case List.any (\note -> note.key == key) notes of
-        True ->
-          Json.Decode.succeed (NoteOff key)
-        False ->
-          Json.Decode.fail ""
-    )
+makeAndSendAudio: String -> Cmd msg
+makeAndSendAudio lst = updateAudio (Encode.encode 0 (Encode.string lst))
 
 
-makeVis: List Int -> VegaLite.Spec
-makeVis numbers = 
-    let
-        data=dataFromColumns[] <<dataColumn "Num"(nums(List.map toFloat numbers))
-        enc = encoding 
-            <<position X[pName "Num", pNominal]
-            <<position Y[pName "Num",pQuant, pAggregate opCount]
-    in 
-        toVegaLite[data[],enc[],bar[]]
-
-makeAndSendVis: List Int -> Cmd msg
-makeAndSendVis = sendVis << makeVis
+keyDecoder : Decode.Decoder String
+keyDecoder =
+  Decode.field "key" Decode.string
 
 --
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
-    [ Browser.Events.onKeyDown <| noteOnDecoder model.notes
-    , Browser.Events.onKeyUp <| noteOffDecoder model.notes
+    [ Browser.Events.onKeyDown
+    (Decode.map (\key -> NoteOn key) keyDecoder)
+    , Browser.Events.onKeyUp
+    (Decode.map (\key -> NoteOff key) keyDecoder)
     , Time.every 1000 Tick
     ]

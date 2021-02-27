@@ -1,21 +1,23 @@
 /* global AudioContext */
 //Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
-import VirtualAudioGraph from './src/virtual-audio.js'
 
-const context = new AudioContext()
-const audio = new VirtualAudioGraph(context)
+//import * as Tone from './tone'
+import PolySynthPlayer from './src/ElmAndTone.js'
 
-// Chrome autplay policy demans some user interaction
-// takes place before the AudioContext can be resumed.
-window.addEventListener('click', () => {
-  if (context.state === 'suspended') context.resume()
-})
+const audio = new PolySynthPlayer()
 
-const App = Elm.Main.init({
+const synth = new Tone.PolySynth(Tone.Synth, {
+  oscillator: {
+    partials: [0, 2, 3, 4],
+  }
+}).toDestination();
+synth.triggerAttackRelease(["C4", "E4", "A4"], 1);
+
+const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')
-  ,flags: context
 })
 
-App.ports.updateAudio.subscribe(graph => {
-  audio.update(graph)
+let props={activeVoices : []}
+App.ports.updateAudio.subscribe(function(graph){
+  audio.update(graph,synth,props)
 })
