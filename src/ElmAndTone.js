@@ -34,6 +34,7 @@ export default class PolySynthPlayer {
         }
         else {
           synth.triggerAttack(pre,Tone.now(),0.2)
+          props.activeVoices.push(pre)
         }
         break;
       case 'release':
