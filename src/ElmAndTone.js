@@ -23,6 +23,7 @@ export default class PolySynthPlayer {
     graph = graph.replace(/[&\/\\#,+()$~%'":*?<>{}]/g, '');
     let cmdLst = graph.split('-');
     console.log(cmdLst[0],cmdLst[1])
+    "volume-0.5"
     let pre= 0
     switch(cmdLst[0]){
       case 'press':
@@ -39,8 +40,10 @@ export default class PolySynthPlayer {
         break;
       case 'release':
         pre = cmdLst[1].split('.')[0]
+        props.activeVoices.splice(props.activeVoices.indexOf(pre),1)
         synth.triggerRelease(pre,Tone.now())
         break;
+      
     }
   }
 }
