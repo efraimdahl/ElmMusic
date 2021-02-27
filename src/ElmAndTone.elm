@@ -12,7 +12,8 @@ import Json.Encode as Encode
 --
 import Time exposing (..)
 import Task exposing (..)
-
+--
+import SingleSlider exposing (..)
 
 type alias Flags =
   ()
@@ -47,12 +48,29 @@ type alias Note =
 --
 type alias Model =
   { time : Time.Posix
+  , volumeSlider : SingleSlider.SingleSlider Msg
   , notes : List Note
   }
 
 initialModel : Model --implemented computer-key keyboard according to common DAW practices
 initialModel =
+  let
+    minFormatter = \value -> ""
+    valueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
+    maxFormatter = \value -> ""
+  in
   { time = (Time.millisToPosix 0)
+  , volumeSlider =
+      SingleSlider.init
+        { min = 0
+        , max = 100
+        , value = 50
+        , step = 1
+        , onChange = VolumeSliderChange
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter valueFormatter
+        |> SingleSlider.withMaxFormatter maxFormatter
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
     , { key = "s", midi = 49, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
@@ -106,14 +124,16 @@ type Msg
   | TransposeDown
   --
   | Tick Time.Posix
+  --
+  | VolumeSliderChange Float
 
 --
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
   | notes = List.map (\note ->
-    if note.key == key then 
-      let 
+    if note.key == key then
+      let
         m = Debug.log "model" (toSecond utc model.time)
       in
       { note | triggered = True
@@ -146,13 +166,13 @@ transposeDown model =
 
 findKey: String -> Model -> Float
 findKey s m =
-  let 
-    test : Note -> Bool 
+  let
+    test : Note -> Bool
     test n = (n.key==s)
     mainVal : List Note
     mainVal =  List.filter test m.notes
   in
-  case mainVal of 
+  case mainVal of
     [] -> 0
     hd::tail -> mtof (hd.midi)
 
@@ -161,19 +181,28 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     Tick newTime ->
-        let 
+        let
           m:Model
-          m ={time=newTime,notes=model.notes}
+          m ={time=newTime, volumeSlider = model.volumeSlider, notes=model.notes}
         in
         ( m
         , Cmd.none
         )
 
+    VolumeSliderChange str ->
+      let
+          newSlider = SingleSlider.update str model.volumeSlider
+          message : String
+          message = "volume-"++Debug.toString(str)
+      in
+      ( { model | volumeSlider = newSlider }
+      , makeAndSendAudio message )
+
     NoOp ->
       Tuple.pair model Cmd.none
 
     NoteOn key ->
-      let 
+      let
         val = findKey key model
         message : String
         message = "press-"++Debug.toString(val)
@@ -183,7 +212,7 @@ update msg model =
       )
 
     NoteOff key ->
-      let 
+      let
         val = findKey key model
         message : String
         message = "release-"++Debug.toString(val)
@@ -270,6 +299,7 @@ view model =
         ]
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
+    , div [] [ SingleSlider.view model.volumeSlider ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------

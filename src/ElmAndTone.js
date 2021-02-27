@@ -10,10 +10,10 @@ export default class PolySynthPlayer {
   // Constructor ===============================================================
   //
   constructor () {
-    
-    
+
+
   }
-    
+
 
   // Public Methods ============================================================
   //
@@ -42,7 +42,16 @@ export default class PolySynthPlayer {
         props.activeVoices.splice(props.activeVoices.indexOf(pre),1)
         synth.triggerRelease(pre,Tone.now())
         break;
-      
+      case 'volume':
+        pre = cmdLst[1].split('.')[0]
+        if (pre == 0) {
+          synth.volume.value = -100
+        }
+        else {
+          synth.volume.value = Math.log10(pre) * 9 - 18
+        }
+        break;
+
     }
   }
 }
