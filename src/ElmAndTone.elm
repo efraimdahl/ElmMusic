@@ -49,6 +49,7 @@ type alias Note =
 type alias Model =
   { time : Time.Posix
   , volumeSlider : SingleSlider.SingleSlider Msg
+  , attackSlider : SingleSlider.SingleSlider Msg
   , notes : List Note
   }
 
@@ -57,6 +58,7 @@ initialModel =
   let
     minFormatter = \value -> ""
     valueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
+    valueFormatterAt = \value not_used_value -> "Attack: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
   in
   { time = (Time.millisToPosix 0)
@@ -67,6 +69,17 @@ initialModel =
         , value = 50
         , step = 1
         , onChange = VolumeSliderChange
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter valueFormatter
+        |> SingleSlider.withMaxFormatter maxFormatter
+     , attackSlider =
+      SingleSlider.init
+        { min = 0.0005
+        , max = 3
+        , value = 0.0005
+        , step = 0.01
+        , onChange = AttackSliderChange
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatter
@@ -126,6 +139,7 @@ type Msg
   | Tick Time.Posix
   --
   | VolumeSliderChange Float
+  | AttackSliderChange Float
 
 --
 noteOn : String -> Model -> Model
@@ -183,7 +197,7 @@ update msg model =
     Tick newTime ->
         let
           m:Model
-          m ={time=newTime, volumeSlider = model.volumeSlider, notes=model.notes}
+          m ={time=newTime, volumeSlider = model.volumeSlider, attackSlider = model.attackSlider, notes=model.notes}
         in
         ( m
         , Cmd.none
@@ -196,6 +210,15 @@ update msg model =
           message = "volume-"++Debug.toString(str)
       in
       ( { model | volumeSlider = newSlider }
+      , makeAndSendAudio message )
+
+    AttackSliderChange str ->
+      let
+          newSlider = SingleSlider.update str model.attackSlider
+          message : String
+          message = "attack-"++Debug.toString(str)
+      in
+      ( { model | attackSlider = newSlider }
       , makeAndSendAudio message )
 
     NoOp ->
@@ -300,6 +323,7 @@ view model =
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
     , div [] [ SingleSlider.view model.volumeSlider ]
+    , div [] [ SingleSlider.view model.attackSlider ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------

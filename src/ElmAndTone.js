@@ -51,7 +51,11 @@ export default class PolySynthPlayer {
           synth.volume.value = Math.log10(pre) * 9 - 18
         }
         break;
-
+      case 'attack':
+        pre = parseFloat(cmdLst[1])
+        props.envelope.attack=pre
+        console.log(props.envelope)
+        synth.set({"envelope":props.envelope})
     }
   }
 }

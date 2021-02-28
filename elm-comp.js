@@ -4401,6 +4401,43 @@ function _Time_getZoneName()
 		callback(_Scheduler_succeed(name));
 	});
 }
+
+
+
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -5190,47 +5227,145 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$ElmAndTone$AttackSliderChange = function (a) {
+	return {$: 'AttackSliderChange', a: a};
+};
 var $author$project$ElmAndTone$B = {$: 'B'};
+var $author$project$ElmAndTone$VolumeSliderChange = function (a) {
+	return {$: 'VolumeSliderChange', a: a};
+};
 var $author$project$ElmAndTone$W = {$: 'W'};
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $carwow$elm_slider$SingleSlider$SingleSlider = function (a) {
+	return {$: 'SingleSlider', a: a};
+};
+var $carwow$elm_slider$RangeSlider$defaultLabelFormatter = function (value) {
+	return $elm$core$String$fromFloat(value);
+};
+var $carwow$elm_slider$RangeSlider$defaultValueFormatter = F2(
+	function (value, max) {
+		return _Utils_eq(value, max) ? '' : $elm$core$String$fromFloat(value);
+	});
+var $carwow$elm_slider$SingleSlider$init = function (attrs) {
+	return $carwow$elm_slider$SingleSlider$SingleSlider(
+		{
+			commonAttributes: {max: attrs.max, maxFormatter: $carwow$elm_slider$RangeSlider$defaultLabelFormatter, min: attrs.min, minFormatter: $carwow$elm_slider$RangeSlider$defaultLabelFormatter, step: attrs.step},
+			valueAttributes: {change: attrs.onChange, formatter: $carwow$elm_slider$RangeSlider$defaultValueFormatter, value: attrs.value}
+		});
+};
 var $elm$time$Time$Posix = function (a) {
 	return {$: 'Posix', a: a};
 };
 var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
-var $author$project$ElmAndTone$initialModel = {
-	notes: _List_fromArray(
-		[
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'z', midi: 48, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: 's', midi: 49, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'x', midi: 50, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'd', midi: 51, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'c', midi: 52, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'v', midi: 53, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'g', midi: 54, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'b', midi: 55, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'h', midi: 56, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'n', midi: 57, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'j', midi: 58, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'm', midi: 59, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'q', midi: 60, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '2', midi: 61, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'w', midi: 62, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '3', midi: 63, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'e', midi: 64, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'r', midi: 65, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '5', midi: 66, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 't', midi: 67, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '6', midi: 68, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'y', midi: 69, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '7', midi: 70, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'u', midi: 71, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'i', midi: 72, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '9', midi: 73, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'o', midi: 74, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$B, detriggered: false, key: '0', midi: 75, timeTriggered: 0, triggered: false},
-			{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'p', midi: 76, timeTriggered: 0, triggered: false}
-		]),
-	time: $elm$time$Time$millisToPosix(0)
-};
+var $carwow$elm_slider$SingleSlider$withMaxFormatter = F2(
+	function (formatter, _v0) {
+		var slider = _v0.a;
+		var commonAttributes = slider.commonAttributes;
+		return $carwow$elm_slider$SingleSlider$SingleSlider(
+			{
+				commonAttributes: _Utils_update(
+					commonAttributes,
+					{maxFormatter: formatter}),
+				valueAttributes: slider.valueAttributes
+			});
+	});
+var $carwow$elm_slider$SingleSlider$withMinFormatter = F2(
+	function (formatter, _v0) {
+		var slider = _v0.a;
+		var commonAttributes = slider.commonAttributes;
+		return $carwow$elm_slider$SingleSlider$SingleSlider(
+			{
+				commonAttributes: _Utils_update(
+					commonAttributes,
+					{minFormatter: formatter}),
+				valueAttributes: slider.valueAttributes
+			});
+	});
+var $carwow$elm_slider$SingleSlider$withValueFormatter = F2(
+	function (formatter, _v0) {
+		var slider = _v0.a;
+		var valueAttributes = slider.valueAttributes;
+		return $carwow$elm_slider$SingleSlider$SingleSlider(
+			{
+				commonAttributes: slider.commonAttributes,
+				valueAttributes: _Utils_update(
+					valueAttributes,
+					{formatter: formatter})
+			});
+	});
+var $author$project$ElmAndTone$initialModel = function () {
+	var valueFormatterAt = F2(
+		function (value, not_used_value) {
+			return 'Attack: ' + $elm$core$String$fromFloat(value);
+		});
+	var valueFormatter = F2(
+		function (value, not_used_value) {
+			return 'Volume: ' + $elm$core$String$fromFloat(value);
+		});
+	var minFormatter = function (value) {
+		return '';
+	};
+	var maxFormatter = function (value) {
+		return '';
+	};
+	return {
+		attackSlider: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatter,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{max: 3, min: 0.0005, onChange: $author$project$ElmAndTone$AttackSliderChange, step: 0.01, value: 0.0005})))),
+		notes: _List_fromArray(
+			[
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'z', midi: 48, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 's', midi: 49, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'x', midi: 50, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'd', midi: 51, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'c', midi: 52, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'v', midi: 53, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'g', midi: 54, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'b', midi: 55, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'h', midi: 56, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'n', midi: 57, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'j', midi: 58, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'm', midi: 59, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'q', midi: 60, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '2', midi: 61, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'w', midi: 62, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '3', midi: 63, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'e', midi: 64, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'r', midi: 65, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '5', midi: 66, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 't', midi: 67, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '6', midi: 68, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'y', midi: 69, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '7', midi: 70, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'u', midi: 71, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'i', midi: 72, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '9', midi: 73, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'o', midi: 74, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '0', midi: 75, timeTriggered: 0, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'p', midi: 76, timeTriggered: 0, triggered: false}
+			]),
+		time: $elm$time$Time$millisToPosix(0),
+		volumeSlider: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatter,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{max: 100, min: 0, onChange: $author$project$ElmAndTone$VolumeSliderChange, step: 1, value: 50}))))
+	};
+}();
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$ElmAndTone$init = function (_v0) {
@@ -6020,13 +6155,43 @@ var $author$project$ElmAndTone$transposeUp = function (model) {
 				model.notes)
 		});
 };
+var $carwow$elm_slider$SingleSlider$update = F2(
+	function (value, _v0) {
+		var slider = _v0.a;
+		var valueAttributes = slider.valueAttributes;
+		return $carwow$elm_slider$SingleSlider$SingleSlider(
+			{
+				commonAttributes: slider.commonAttributes,
+				valueAttributes: _Utils_update(
+					valueAttributes,
+					{value: value})
+			});
+	});
 var $author$project$ElmAndTone$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'Tick':
 				var newTime = msg.a;
-				var m = {notes: model.notes, time: newTime};
+				var m = {attackSlider: model.attackSlider, notes: model.notes, time: newTime, volumeSlider: model.volumeSlider};
 				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
+			case 'VolumeSliderChange':
+				var str = msg.a;
+				var newSlider = A2($carwow$elm_slider$SingleSlider$update, str, model.volumeSlider);
+				var message = 'volume-' + $elm$core$Debug$toString(str);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{volumeSlider: newSlider}),
+					$author$project$ElmAndTone$makeAndSendAudio(message));
+			case 'AttackSliderChange':
+				var str = msg.a;
+				var newSlider = A2($carwow$elm_slider$SingleSlider$update, str, model.attackSlider);
+				var message = 'attack-' + $elm$core$Debug$toString(str);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{attackSlider: newSlider}),
+					$author$project$ElmAndTone$makeAndSendAudio(message));
 			case 'NoOp':
 				return A2($elm$core$Tuple$pair, model, $elm$core$Platform$Cmd$none);
 			case 'NoteOn':
@@ -6174,6 +6339,643 @@ var $elm$time$Time$toMinute = F2(
 			60,
 			A2($elm$time$Time$toAdjustedMinutes, zone, time));
 	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$core$String$toFloat = _String_toFloat;
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $carwow$elm_slider$SingleSlider$inputDecoder = A2(
+	$elm$json$Json$Decode$map,
+	function (value) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0,
+			$elm$core$String$toFloat(value));
+	},
+	$elm$html$Html$Events$targetValue);
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $debois$elm_dom$DOM$offsetHeight = A2($elm$json$Json$Decode$field, 'offsetHeight', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$offsetWidth = A2($elm$json$Json$Decode$field, 'offsetWidth', $elm$json$Json$Decode$float);
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$map4 = _Json_map4;
+var $debois$elm_dom$DOM$offsetLeft = A2($elm$json$Json$Decode$field, 'offsetLeft', $elm$json$Json$Decode$float);
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
+var $debois$elm_dom$DOM$offsetParent = F2(
+	function (x, decoder) {
+		return $elm$json$Json$Decode$oneOf(
+			_List_fromArray(
+				[
+					A2(
+					$elm$json$Json$Decode$field,
+					'offsetParent',
+					$elm$json$Json$Decode$null(x)),
+					A2($elm$json$Json$Decode$field, 'offsetParent', decoder)
+				]));
+	});
+var $debois$elm_dom$DOM$offsetTop = A2($elm$json$Json$Decode$field, 'offsetTop', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$scrollLeft = A2($elm$json$Json$Decode$field, 'scrollLeft', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$scrollTop = A2($elm$json$Json$Decode$field, 'scrollTop', $elm$json$Json$Decode$float);
+var $debois$elm_dom$DOM$position = F2(
+	function (x, y) {
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (_v0) {
+				var x_ = _v0.a;
+				var y_ = _v0.b;
+				return A2(
+					$debois$elm_dom$DOM$offsetParent,
+					_Utils_Tuple2(x_, y_),
+					A2($debois$elm_dom$DOM$position, x_, y_));
+			},
+			A5(
+				$elm$json$Json$Decode$map4,
+				F4(
+					function (scrollLeftP, scrollTopP, offsetLeftP, offsetTopP) {
+						return _Utils_Tuple2((x + offsetLeftP) - scrollLeftP, (y + offsetTopP) - scrollTopP);
+					}),
+				$debois$elm_dom$DOM$scrollLeft,
+				$debois$elm_dom$DOM$scrollTop,
+				$debois$elm_dom$DOM$offsetLeft,
+				$debois$elm_dom$DOM$offsetTop));
+	});
+var $debois$elm_dom$DOM$boundingClientRect = A4(
+	$elm$json$Json$Decode$map3,
+	F3(
+		function (_v0, width, height) {
+			var x = _v0.a;
+			var y = _v0.b;
+			return {height: height, left: x, top: y, width: width};
+		}),
+	A2($debois$elm_dom$DOM$position, 0, 0),
+	$debois$elm_dom$DOM$offsetWidth,
+	$debois$elm_dom$DOM$offsetHeight);
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$Basics$round = _Basics_round;
+var $myrho$elm_round$Round$funNum = F3(
+	function (fun, s, fl) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			0 / 0,
+			$elm$core$String$toFloat(
+				A2(fun, s, fl)));
+	});
+var $elm$core$Basics$ge = _Utils_ge;
+var $elm$core$Basics$not = _Basics_not;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$String$foldr = _String_foldr;
+var $elm$core$String$toList = function (string) {
+	return A3($elm$core$String$foldr, $elm$core$List$cons, _List_Nil, string);
+};
+var $myrho$elm_round$Round$addSign = F2(
+	function (signed, str) {
+		var isNotZero = A2(
+			$elm$core$List$any,
+			function (c) {
+				return (!_Utils_eq(
+					c,
+					_Utils_chr('0'))) && (!_Utils_eq(
+					c,
+					_Utils_chr('.')));
+			},
+			$elm$core$String$toList(str));
+		return _Utils_ap(
+			(signed && isNotZero) ? '-' : '',
+			str);
+	});
+var $elm$core$String$cons = _String_cons;
+var $elm$core$Char$fromCode = _Char_fromCode;
+var $myrho$elm_round$Round$increaseNum = function (_v0) {
+	var head = _v0.a;
+	var tail = _v0.b;
+	if (_Utils_eq(
+		head,
+		_Utils_chr('9'))) {
+		var _v1 = $elm$core$String$uncons(tail);
+		if (_v1.$ === 'Nothing') {
+			return '01';
+		} else {
+			var headtail = _v1.a;
+			return A2(
+				$elm$core$String$cons,
+				_Utils_chr('0'),
+				$myrho$elm_round$Round$increaseNum(headtail));
+		}
+	} else {
+		var c = $elm$core$Char$toCode(head);
+		return ((c >= 48) && (c < 57)) ? A2(
+			$elm$core$String$cons,
+			$elm$core$Char$fromCode(c + 1),
+			tail) : '0';
+	}
+};
+var $elm$core$Basics$isInfinite = _Basics_isInfinite;
+var $elm$core$Basics$isNaN = _Basics_isNaN;
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $elm$core$String$repeatHelp = F3(
+	function (n, chunk, result) {
+		return (n <= 0) ? result : A3(
+			$elm$core$String$repeatHelp,
+			n >> 1,
+			_Utils_ap(chunk, chunk),
+			(!(n & 1)) ? result : _Utils_ap(result, chunk));
+	});
+var $elm$core$String$repeat = F2(
+	function (n, chunk) {
+		return A3($elm$core$String$repeatHelp, n, chunk, '');
+	});
+var $elm$core$String$padRight = F3(
+	function (n, _char, string) {
+		return _Utils_ap(
+			string,
+			A2(
+				$elm$core$String$repeat,
+				n - $elm$core$String$length(string),
+				$elm$core$String$fromChar(_char)));
+	});
+var $elm$core$String$reverse = _String_reverse;
+var $myrho$elm_round$Round$splitComma = function (str) {
+	var _v0 = A2($elm$core$String$split, '.', str);
+	if (_v0.b) {
+		if (_v0.b.b) {
+			var before = _v0.a;
+			var _v1 = _v0.b;
+			var after = _v1.a;
+			return _Utils_Tuple2(before, after);
+		} else {
+			var before = _v0.a;
+			return _Utils_Tuple2(before, '0');
+		}
+	} else {
+		return _Utils_Tuple2('0', '0');
+	}
+};
+var $elm$core$Tuple$mapFirst = F2(
+	function (func, _v0) {
+		var x = _v0.a;
+		var y = _v0.b;
+		return _Utils_Tuple2(
+			func(x),
+			y);
+	});
+var $myrho$elm_round$Round$toDecimal = function (fl) {
+	var _v0 = A2(
+		$elm$core$String$split,
+		'e',
+		$elm$core$String$fromFloat(
+			$elm$core$Basics$abs(fl)));
+	if (_v0.b) {
+		if (_v0.b.b) {
+			var num = _v0.a;
+			var _v1 = _v0.b;
+			var exp = _v1.a;
+			var e = A2(
+				$elm$core$Maybe$withDefault,
+				0,
+				$elm$core$String$toInt(
+					A2($elm$core$String$startsWith, '+', exp) ? A2($elm$core$String$dropLeft, 1, exp) : exp));
+			var _v2 = $myrho$elm_round$Round$splitComma(num);
+			var before = _v2.a;
+			var after = _v2.b;
+			var total = _Utils_ap(before, after);
+			var zeroed = (e < 0) ? A2(
+				$elm$core$Maybe$withDefault,
+				'0',
+				A2(
+					$elm$core$Maybe$map,
+					function (_v3) {
+						var a = _v3.a;
+						var b = _v3.b;
+						return a + ('.' + b);
+					},
+					A2(
+						$elm$core$Maybe$map,
+						$elm$core$Tuple$mapFirst($elm$core$String$fromChar),
+						$elm$core$String$uncons(
+							_Utils_ap(
+								A2(
+									$elm$core$String$repeat,
+									$elm$core$Basics$abs(e),
+									'0'),
+								total))))) : A3(
+				$elm$core$String$padRight,
+				e + 1,
+				_Utils_chr('0'),
+				total);
+			return _Utils_ap(
+				(fl < 0) ? '-' : '',
+				zeroed);
+		} else {
+			var num = _v0.a;
+			return _Utils_ap(
+				(fl < 0) ? '-' : '',
+				num);
+		}
+	} else {
+		return '';
+	}
+};
+var $myrho$elm_round$Round$roundFun = F3(
+	function (functor, s, fl) {
+		if ($elm$core$Basics$isInfinite(fl) || $elm$core$Basics$isNaN(fl)) {
+			return $elm$core$String$fromFloat(fl);
+		} else {
+			var signed = fl < 0;
+			var _v0 = $myrho$elm_round$Round$splitComma(
+				$myrho$elm_round$Round$toDecimal(
+					$elm$core$Basics$abs(fl)));
+			var before = _v0.a;
+			var after = _v0.b;
+			var r = $elm$core$String$length(before) + s;
+			var normalized = _Utils_ap(
+				A2($elm$core$String$repeat, (-r) + 1, '0'),
+				A3(
+					$elm$core$String$padRight,
+					r,
+					_Utils_chr('0'),
+					_Utils_ap(before, after)));
+			var totalLen = $elm$core$String$length(normalized);
+			var roundDigitIndex = A2($elm$core$Basics$max, 1, r);
+			var increase = A2(
+				functor,
+				signed,
+				A3($elm$core$String$slice, roundDigitIndex, totalLen, normalized));
+			var remains = A3($elm$core$String$slice, 0, roundDigitIndex, normalized);
+			var num = increase ? $elm$core$String$reverse(
+				A2(
+					$elm$core$Maybe$withDefault,
+					'1',
+					A2(
+						$elm$core$Maybe$map,
+						$myrho$elm_round$Round$increaseNum,
+						$elm$core$String$uncons(
+							$elm$core$String$reverse(remains))))) : remains;
+			var numLen = $elm$core$String$length(num);
+			var numZeroed = (num === '0') ? num : ((s <= 0) ? _Utils_ap(
+				num,
+				A2(
+					$elm$core$String$repeat,
+					$elm$core$Basics$abs(s),
+					'0')) : ((_Utils_cmp(
+				s,
+				$elm$core$String$length(after)) < 0) ? (A3($elm$core$String$slice, 0, numLen - s, num) + ('.' + A3($elm$core$String$slice, numLen - s, numLen, num))) : _Utils_ap(
+				before + '.',
+				A3(
+					$elm$core$String$padRight,
+					s,
+					_Utils_chr('0'),
+					after))));
+			return A2($myrho$elm_round$Round$addSign, signed, numZeroed);
+		}
+	});
+var $myrho$elm_round$Round$round = $myrho$elm_round$Round$roundFun(
+	F2(
+		function (signed, str) {
+			var _v0 = $elm$core$String$uncons(str);
+			if (_v0.$ === 'Nothing') {
+				return false;
+			} else {
+				if ('5' === _v0.a.a.valueOf()) {
+					if (_v0.a.b === '') {
+						var _v1 = _v0.a;
+						return !signed;
+					} else {
+						var _v2 = _v0.a;
+						return true;
+					}
+				} else {
+					var _v3 = _v0.a;
+					var _int = _v3.a;
+					return function (i) {
+						return ((i > 53) && signed) || ((i >= 53) && (!signed));
+					}(
+						$elm$core$Char$toCode(_int));
+				}
+			}
+		}));
+var $myrho$elm_round$Round$roundNum = $myrho$elm_round$Round$funNum($myrho$elm_round$Round$round);
+var $carwow$elm_slider$RangeSlider$snapValue = F2(
+	function (value, step) {
+		var stepDecimals = $elm$core$List$head(
+			A2(
+				$elm$core$List$drop,
+				1,
+				A2(
+					$elm$core$String$split,
+					'.',
+					$elm$core$String$fromFloat(step))));
+		var precision = function () {
+			if (stepDecimals.$ === 'Just') {
+				var s = stepDecimals.a;
+				return $elm$core$String$length(s);
+			} else {
+				return 0;
+			}
+		}();
+		return A2(
+			$myrho$elm_round$Round$roundNum,
+			precision,
+			$elm$core$Basics$round(value / step) * step);
+	});
+var $carwow$elm_slider$SingleSlider$onOutsideRangeClick = function (_v0) {
+	var slider = _v0.a;
+	var commonAttributes = slider.commonAttributes;
+	var valueDecoder = A3(
+		$elm$json$Json$Decode$map2,
+		F2(
+			function (rectangle, mouseX) {
+				var clickedValue = (((commonAttributes.max - commonAttributes.min) / rectangle.width) * mouseX) + commonAttributes.min;
+				return A2($carwow$elm_slider$RangeSlider$snapValue, clickedValue, commonAttributes.step);
+			}),
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['target']),
+			$debois$elm_dom$DOM$boundingClientRect),
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetX']),
+			$elm$json$Json$Decode$float));
+	return A2($elm$json$Json$Decode$map, slider.valueAttributes.change, valueDecoder);
+};
+var $elm$core$Basics$clamp = F3(
+	function (low, high, number) {
+		return (_Utils_cmp(number, low) < 0) ? low : ((_Utils_cmp(number, high) > 0) ? high : number);
+	});
+var $carwow$elm_slider$RangeSlider$onClick = function (decoder) {
+	return A2($elm$html$Html$Events$on, 'click', decoder);
+};
+var $carwow$elm_slider$SingleSlider$onInsideRangeClick = function (_v0) {
+	var commonAttributes = _v0.a.commonAttributes;
+	var valueAttributes = _v0.a.valueAttributes;
+	var valueDecoder = A3(
+		$elm$json$Json$Decode$map2,
+		F2(
+			function (rectangle, mouseX) {
+				var adjustedValue = A3($elm$core$Basics$clamp, commonAttributes.min, commonAttributes.max, valueAttributes.value);
+				var newValue = $elm$core$Basics$round((adjustedValue / rectangle.width) * mouseX);
+				var adjustedNewValue = A3($elm$core$Basics$clamp, commonAttributes.min, commonAttributes.max, newValue);
+				return A2($carwow$elm_slider$RangeSlider$snapValue, adjustedNewValue, commonAttributes.step);
+			}),
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['target']),
+			$debois$elm_dom$DOM$boundingClientRect),
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetX']),
+			$elm$json$Json$Decode$float));
+	return A2($elm$json$Json$Decode$map, valueAttributes.change, valueDecoder);
+};
+var $carwow$elm_slider$SingleSlider$progressView = function (_v0) {
+	var slider = _v0.a;
+	var commonAttributes = slider.commonAttributes;
+	var valueAttributes = slider.valueAttributes;
+	var value = A3($elm$core$Basics$clamp, commonAttributes.min, commonAttributes.max, valueAttributes.value);
+	var progressRatio = 100 / (commonAttributes.max - commonAttributes.min);
+	var progress = (commonAttributes.max - value) * progressRatio;
+	var progressAttributes = _List_fromArray(
+		[
+			$elm$html$Html$Attributes$class('input-range__progress'),
+			A2($elm$html$Html$Attributes$style, 'left', '0.0%'),
+			A2(
+			$elm$html$Html$Attributes$style,
+			'right',
+			$elm$core$String$fromFloat(progress) + '%'),
+			$carwow$elm_slider$RangeSlider$onClick(
+			$carwow$elm_slider$SingleSlider$onInsideRangeClick(
+				$carwow$elm_slider$SingleSlider$SingleSlider(slider)))
+		]);
+	return A2($elm$html$Html$div, progressAttributes, _List_Nil);
+};
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$html$Html$Attributes$classList = function (classes) {
+	return $elm$html$Html$Attributes$class(
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2(
+				$elm$core$List$map,
+				$elm$core$Tuple$first,
+				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
+};
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
+var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
+var $carwow$elm_slider$RangeSlider$onChange = F2(
+	function (msg, input) {
+		return A2(
+			$elm$html$Html$Events$on,
+			'change',
+			A2($elm$json$Json$Decode$map, msg, input));
+	});
+var $carwow$elm_slider$RangeSlider$onInput = F2(
+	function (msg, input) {
+		return A2(
+			$elm$html$Html$Events$on,
+			'input',
+			A2($elm$json$Json$Decode$map, msg, input));
+	});
+var $elm$html$Html$Attributes$step = function (n) {
+	return A2($elm$html$Html$Attributes$stringProperty, 'step', n);
+};
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $carwow$elm_slider$RangeSlider$sliderInputView = F4(
+	function (commonAttributes, valueAttributes, input, extraClasses) {
+		return A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$type_('range'),
+					$elm$html$Html$Attributes$min(
+					$elm$core$String$fromFloat(commonAttributes.min)),
+					$elm$html$Html$Attributes$max(
+					$elm$core$String$fromFloat(commonAttributes.max)),
+					$elm$html$Html$Attributes$step(
+					$elm$core$String$fromFloat(commonAttributes.step)),
+					$elm$html$Html$Attributes$value(
+					$elm$core$String$fromFloat(valueAttributes.value)),
+					$elm$html$Html$Attributes$class('input-range'),
+					$elm$html$Html$Attributes$classList(
+					A2(
+						$elm$core$List$map,
+						function (c) {
+							return _Utils_Tuple2(c, true);
+						},
+						extraClasses)),
+					A2($carwow$elm_slider$RangeSlider$onChange, valueAttributes.change, input),
+					A2($carwow$elm_slider$RangeSlider$onInput, valueAttributes.change, input)
+				]),
+			_List_Nil);
+	});
+var $carwow$elm_slider$RangeSlider$sliderTrackView = function (decoder) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('input-range__track'),
+				$carwow$elm_slider$RangeSlider$onClick(decoder)
+			]),
+		_List_Nil);
+};
+var $carwow$elm_slider$SingleSlider$view = function (_v0) {
+	var slider = _v0.a;
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('input-range-container')
+					]),
+				_List_fromArray(
+					[
+						A4($carwow$elm_slider$RangeSlider$sliderInputView, slider.commonAttributes, slider.valueAttributes, $carwow$elm_slider$SingleSlider$inputDecoder, _List_Nil),
+						$carwow$elm_slider$RangeSlider$sliderTrackView(
+						$carwow$elm_slider$SingleSlider$onOutsideRangeClick(
+							$carwow$elm_slider$SingleSlider$SingleSlider(slider))),
+						$carwow$elm_slider$SingleSlider$progressView(
+						$carwow$elm_slider$SingleSlider$SingleSlider(slider))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('input-range-labels-container')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('input-range-label')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								slider.commonAttributes.minFormatter(slider.commonAttributes.min))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('input-range-label input-range-label--current-value')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								A2(slider.valueAttributes.formatter, slider.valueAttributes.value, slider.commonAttributes.max))
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('input-range-label')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(
+								slider.commonAttributes.maxFormatter(slider.commonAttributes.max))
+							]))
+					]))
+			]));
+};
 var $author$project$ElmAndTone$view = function (model) {
 	var second = $elm$core$String$fromInt(
 		A2($elm$time$Time$toSecond, $elm$time$Time$utc, model.time));
@@ -6253,7 +7055,21 @@ var $author$project$ElmAndTone$view = function (model) {
 					[
 						$elm$html$Html$Attributes$class('keaboard')
 					]),
-				A2($elm$core$List$indexedMap, $author$project$ElmAndTone$noteView, model.notes))
+				A2($elm$core$List$indexedMap, $author$project$ElmAndTone$noteView, model.notes)),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(model.volumeSlider)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(model.attackSlider)
+					]))
 			]));
 };
 var $author$project$ElmAndTone$main = $elm$browser$Browser$element(

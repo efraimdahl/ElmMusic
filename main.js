@@ -13,11 +13,21 @@ const synth = new Tone.PolySynth(Tone.Synth, {
 }).toDestination();
 synth.triggerAttackRelease(["C4", "E4", "A4"], 1);
 
+let env = {
+	"attack" : 0.0005,
+	"decay" : 0.2,
+	"sustain" : 1,
+	"release" : 0.8,
+};
+
+
+synth.set({"envelope":env})
+
 const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')
 })
 
-let props={activeVoices : []}
+let props={activeVoices : [],envelope : env}
 App.ports.updateAudio.subscribe(function(graph){
   audio.update(graph,synth,props)
 })
