@@ -50,6 +50,9 @@ type alias Model =
   { time : Time.Posix
   , volumeSlider : SingleSlider.SingleSlider Msg
   , attackSlider : SingleSlider.SingleSlider Msg
+  , decaySlider : SingleSlider.SingleSlider Msg
+  , sustainSlider : SingleSlider.SingleSlider Msg
+  , releaseSlider : SingleSlider.SingleSlider Msg
   , notes : List Note
   }
 
@@ -59,6 +62,9 @@ initialModel =
     minFormatter = \value -> ""
     valueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
     valueFormatterAt = \value not_used_value -> "Attack: " ++ (String.fromFloat value)
+    valueFormatterDe = \value not_used_value -> "Decay: " ++ (String.fromFloat value)
+    valueFormatterSu = \value not_used_value -> "Sustain: " ++ (String.fromFloat value)
+    valueFormatterRe = \value not_used_value -> "Release: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
   in
   { time = (Time.millisToPosix 0)
@@ -68,7 +74,7 @@ initialModel =
         , max = 100
         , value = 50
         , step = 1
-        , onChange = VolumeSliderChange
+        , onChange = SliderChange "volume-"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatter
@@ -79,10 +85,43 @@ initialModel =
         , max = 3
         , value = 0.0005
         , step = 0.01
-        , onChange = AttackSliderChange
+        , onChange = SliderChange "attack-"
         }
         |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatter
+        |> SingleSlider.withValueFormatter valueFormatterAt
+        |> SingleSlider.withMaxFormatter maxFormatter
+      , decaySlider =
+      SingleSlider.init
+        { min = 0.0005
+        , max = 3
+        , value = 0.0005
+        , step = 0.01
+        , onChange = SliderChange "decay-"
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter valueFormatterDe
+        |> SingleSlider.withMaxFormatter maxFormatter
+      , sustainSlider =
+      SingleSlider.init
+        { min = 0.0005
+        , max = 0.999
+        , value = 0.0005
+        , step = 0.01
+        , onChange = SliderChange "sustain-"
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter valueFormatterSu
+        |> SingleSlider.withMaxFormatter maxFormatter
+      , releaseSlider =
+      SingleSlider.init
+        { min = 0.0005
+        , max = 3
+        , value = 0.0005
+        , step = 0.01
+        , onChange = SliderChange "releaseEnv-"
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter valueFormatterRe
         |> SingleSlider.withMaxFormatter maxFormatter
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
@@ -138,8 +177,8 @@ type Msg
   --
   | Tick Time.Posix
   --
-  | VolumeSliderChange Float
-  | AttackSliderChange Float
+  | SliderChange String Float
+  
 
 --
 noteOn : String -> Model -> Model
@@ -197,29 +236,29 @@ update msg model =
     Tick newTime ->
         let
           m:Model
-          m ={time=newTime, volumeSlider = model.volumeSlider, attackSlider = model.attackSlider, notes=model.notes}
+          m ={model | time=newTime}
         in
         ( m
         , Cmd.none
         )
+    SliderChange typ val ->
+      let 
+          newModel : Model
+          newModel = 
+            case typ of 
+              "volume-" -> {model | volumeSlider = (SingleSlider.update val model.volumeSlider)}
+              "attack-" -> {model | attackSlider = (SingleSlider.update val model.attackSlider)}
+              "decay-" -> {model | decaySlider = (SingleSlider.update val model.decaySlider)}
+              "sustain-" -> {model | sustainSlider = (SingleSlider.update val model.sustainSlider)}
+              "releaseEnv-" -> {model | releaseSlider = (SingleSlider.update val model.releaseSlider)}
+              _ -> Debug.todo("undefined Slider Changed")
 
-    VolumeSliderChange str ->
-      let
-          newSlider = SingleSlider.update str model.volumeSlider
           message : String
-          message = "volume-"++Debug.toString(str)
+          message = typ++Debug.toString(val)
       in
-      ( { model | volumeSlider = newSlider }
+      ( newModel
       , makeAndSendAudio message )
 
-    AttackSliderChange str ->
-      let
-          newSlider = SingleSlider.update str model.attackSlider
-          message : String
-          message = "attack-"++Debug.toString(str)
-      in
-      ( { model | attackSlider = newSlider }
-      , makeAndSendAudio message )
 
     NoOp ->
       Tuple.pair model Cmd.none
@@ -324,6 +363,9 @@ view model =
         <| List.indexedMap noteView model.notes
     , div [] [ SingleSlider.view model.volumeSlider ]
     , div [] [ SingleSlider.view model.attackSlider ]
+    , div [] [ SingleSlider.view model.decaySlider ]
+    , div [] [ SingleSlider.view model.sustainSlider ]
+    , div [] [ SingleSlider.view model.releaseSlider ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------

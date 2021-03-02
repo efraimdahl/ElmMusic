@@ -56,6 +56,25 @@ export default class PolySynthPlayer {
         props.envelope.attack=pre
         console.log(props.envelope)
         synth.set({"envelope":props.envelope})
+        break;
+      case 'decay':
+        pre = parseFloat(cmdLst[1])
+        props.envelope.decay=pre
+        console.log(props.envelope)
+        synth.set({"envelope":props.envelope})
+        break;
+      case 'sustain':
+        pre = parseFloat(cmdLst[1])
+        props.envelope.sustain=pre
+        console.log(props.envelope)
+        synth.set({"envelope":props.envelope})
+        break;
+      case 'releaseEnv':
+        pre = parseFloat(cmdLst[1])
+        props.envelope.release=pre
+        console.log(props.envelope)
+        synth.set({"envelope":props.envelope})
+        break;
+        }
+      }
     }
-  }
-}
