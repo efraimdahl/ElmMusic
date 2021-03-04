@@ -17,13 +17,13 @@ export default class PolySynthPlayer {
 
   // Public Methods ============================================================
   //
-  update (graph,synth,props) {
+  update (graph,synth,props,osc) {
     console.log(graph)
     console.log(props)
     graph = graph.replace(/[&\/\\#,+()$~%'":*?<>{}]/g, '');
     let cmdLst = graph.split('-');
     console.log(cmdLst[0],cmdLst[1])
-    let pre= 0
+    let pre = 0
     switch(cmdLst[0]){
       case 'press':
         //synth.triggerAttackRelease("420", "8n");
@@ -75,6 +75,18 @@ export default class PolySynthPlayer {
         console.log(props.envelope)
         synth.set({"envelope":props.envelope})
         break;
-        }
+      case 'sine':
+        osc.type = "sine"
+        break;
+      case 'square':
+        osc.type = "square"
+        break;
+      case 'triangle':
+        osc.type = "triangle"
+        break;
+      case 'sawtooth':
+        osc.type = "sawtooth"
+        break;
       }
     }
+  }
