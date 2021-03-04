@@ -5234,6 +5234,10 @@ var $author$project$ElmAndTone$SliderChange = F2(
 	});
 var $author$project$ElmAndTone$W = {$: 'W'};
 var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Envelope$SliderChange = F2(
+	function (a, b) {
+		return {$: 'SliderChange', a: a, b: b};
+	});
 var $carwow$elm_slider$SingleSlider$SingleSlider = function (a) {
 	return {$: 'SingleSlider', a: a};
 };
@@ -5251,10 +5255,6 @@ var $carwow$elm_slider$SingleSlider$init = function (attrs) {
 			valueAttributes: {change: attrs.onChange, formatter: $carwow$elm_slider$RangeSlider$defaultValueFormatter, value: attrs.value}
 		});
 };
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $carwow$elm_slider$SingleSlider$withMaxFormatter = F2(
 	function (formatter, _v0) {
 		var slider = _v0.a;
@@ -5291,6 +5291,105 @@ var $carwow$elm_slider$SingleSlider$withValueFormatter = F2(
 					{formatter: formatter})
 			});
 	});
+var $author$project$Envelope$init = function (str) {
+	var valueFormatterSu = F2(
+		function (value, not_used_value) {
+			return 'Sustain: ' + $elm$core$String$fromFloat(value);
+		});
+	var valueFormatterRe = F2(
+		function (value, not_used_value) {
+			return 'Release: ' + $elm$core$String$fromFloat(value);
+		});
+	var valueFormatterDe = F2(
+		function (value, not_used_value) {
+			return 'Decay: ' + $elm$core$String$fromFloat(value);
+		});
+	var valueFormatterAt = F2(
+		function (value, not_used_value) {
+			return 'Attack: ' + $elm$core$String$fromFloat(value);
+		});
+	var minFormatter = function (value) {
+		return '';
+	};
+	var maxFormatter = function (value) {
+		return '';
+	};
+	return {
+		attack: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatterAt,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{
+							max: 3,
+							min: 0.0005,
+							onChange: $author$project$Envelope$SliderChange('attack-'),
+							step: 0.01,
+							value: 0.0005
+						})))),
+		decay: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatterDe,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{
+							max: 3,
+							min: 0.0005,
+							onChange: $author$project$Envelope$SliderChange('decay-'),
+							step: 0.01,
+							value: 0.0005
+						})))),
+		effecting: str,
+		release: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatterRe,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{
+							max: 3,
+							min: 0.0005,
+							onChange: $author$project$Envelope$SliderChange('releaseEnv-'),
+							step: 0.01,
+							value: 0.0005
+						})))),
+		sustain: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				valueFormatterSu,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{
+							max: 0.999,
+							min: 0.0005,
+							onChange: $author$project$Envelope$SliderChange('sustain-'),
+							step: 0.01,
+							value: 0.0005
+						}))))
+	};
+};
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $author$project$ElmAndTone$initialModel = function () {
 	var valueFormatterSu = F2(
 		function (value, not_used_value) {
@@ -5319,6 +5418,7 @@ var $author$project$ElmAndTone$initialModel = function () {
 		return '';
 	};
 	return {
+		addEnv: $author$project$Envelope$init('gain'),
 		attackSlider: A2(
 			$carwow$elm_slider$SingleSlider$withMaxFormatter,
 			maxFormatter,
@@ -6241,6 +6341,48 @@ var $carwow$elm_slider$SingleSlider$update = F2(
 					{value: value})
 			});
 	});
+var $author$project$Envelope$update = F2(
+	function (msg, env) {
+		var typ = msg.a;
+		var val = msg.b;
+		var newModel = function () {
+			switch (typ) {
+				case 'attack-':
+					return _Utils_update(
+						env,
+						{
+							attack: A2($carwow$elm_slider$SingleSlider$update, val, env.attack)
+						});
+				case 'decay-':
+					return _Utils_update(
+						env,
+						{
+							decay: A2($carwow$elm_slider$SingleSlider$update, val, env.decay)
+						});
+				case 'sustain-':
+					return _Utils_update(
+						env,
+						{
+							sustain: A2($carwow$elm_slider$SingleSlider$update, val, env.sustain)
+						});
+				case 'releaseEnv-':
+					return _Utils_update(
+						env,
+						{
+							release: A2($carwow$elm_slider$SingleSlider$update, val, env.release)
+						});
+				default:
+					return _Debug_todo(
+						'Envelope',
+						{
+							start: {line: 94, column: 26},
+							end: {line: 94, column: 36}
+						})('undefined Slider Changed');
+			}
+		}();
+		var message = env.effecting + ('-' + (typ + $elm$core$Debug$toString(val)));
+		return _Utils_Tuple2(newModel, message);
+	});
 var $author$project$ElmAndTone$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6289,8 +6431,8 @@ var $author$project$ElmAndTone$update = F2(
 							return _Debug_todo(
 								'ElmAndTone',
 								{
-									start: {line: 254, column: 20},
-									end: {line: 254, column: 30}
+									start: {line: 259, column: 20},
+									end: {line: 259, column: 30}
 								})('undefined Slider Changed');
 					}
 				}();
@@ -6320,12 +6462,25 @@ var $author$project$ElmAndTone$update = F2(
 				return _Utils_Tuple2(
 					$author$project$ElmAndTone$transposeUp(model),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'TransposeDown':
 				return _Utils_Tuple2(
 					$author$project$ElmAndTone$transposeDown(model),
 					$elm$core$Platform$Cmd$none);
+			default:
+				var envelopeMsg = msg.a;
+				var _v2 = A2($author$project$Envelope$update, envelopeMsg, model.addEnv);
+				var newEnv = _v2.a;
+				var str = _v2.b;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{addEnv: newEnv}),
+					$author$project$ElmAndTone$makeAndSendAudio(str));
 		}
 	});
+var $author$project$ElmAndTone$EnvMessage = function (a) {
+	return {$: 'EnvMessage', a: a};
+};
 var $author$project$ElmAndTone$TransposeDown = {$: 'TransposeDown'};
 var $author$project$ElmAndTone$TransposeUp = {$: 'TransposeUp'};
 var $elm$html$Html$button = _VirtualDom_node('button');
@@ -6340,6 +6495,8 @@ var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h1 = _VirtualDom_node('h1');
 var $elm$html$Html$main_ = _VirtualDom_node('main');
+var $elm$virtual_dom$VirtualDom$map = _VirtualDom_map;
+var $elm$html$Html$map = $elm$virtual_dom$VirtualDom$map;
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
 var $author$project$ElmAndTone$getBlackOffset = F2(
@@ -7084,6 +7241,42 @@ var $carwow$elm_slider$SingleSlider$view = function (_v0) {
 					]))
 			]));
 };
+var $author$project$Envelope$view = function (env) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(env.attack)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(env.decay)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(env.sustain)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(env.release)
+					]))
+			]));
+};
 var $author$project$ElmAndTone$view = function (model) {
 	var second = $elm$core$String$fromInt(
 		A2($elm$time$Time$toSecond, $elm$time$Time$utc, model.time));
@@ -7198,6 +7391,16 @@ var $author$project$ElmAndTone$view = function (model) {
 				_List_fromArray(
 					[
 						$carwow$elm_slider$SingleSlider$view(model.releaseSlider)
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$map,
+						$author$project$ElmAndTone$EnvMessage,
+						$author$project$Envelope$view(model.addEnv))
 					]))
 			]));
 };

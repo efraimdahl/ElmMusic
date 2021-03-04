@@ -18,7 +18,7 @@ import Time exposing (..)
 import Task exposing (..)
 
 -- Send the JSON encoded audio graph to javascript
-port triggerNote : Note -> Cmd msg
+port updateAudio : Json.Encode.Value -> Cmd msg
 
 -- MAIN -----------------------------------------------------------------------
 main : Program () Model Msg
@@ -197,7 +197,12 @@ mtof midi =
   440 * 2 ^ ((midi - 69) / 12)
 
 -- This takes a Note (as defined above) and converts that to a synth voice.
-
+voice : Note -> WebAudio.Node
+voice note =
+  WebAudio.oscillator [ Prop.frequency (mtof note.midi), Prop.type_ "triangle"]
+    [ WebAudio.gain (gainer note)
+      [ WebAudio.dac ]
+    ]
 
 --ADSR envolope:
 {-
@@ -219,8 +224,14 @@ gainer nt =
         else [Prop.gain 0]
         --[Prop.exponentialRampToValueAtTime (Prop.gain 0.001) 2]
         --[Prop.exponentialRampToValueAtTime (Prop.gain 0.0001) 6]
-
-
+-- On the js side, the virtual audio graph is expecting an array of virtual
+-- nodes. This plays nicely with our list of Notes, we can simply map the
+-- Notes to synth voices and encode the new list.
+-- Returns a Cmd Msg as we call the port from within this function (rather
+-- than returning the encoded JSON).
+audio : Model -> WebAudio.Graph
+audio model =
+  List.map voice model.notes
 
 --Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
 --helper function for making black keys look pretty
@@ -321,19 +332,6 @@ noteOffDecoder notes =
           Json.Decode.fail ""
     )
 
-
-makeVis: List Int -> VegaLite.Spec
-makeVis numbers = 
-    let
-        data=dataFromColumns[] <<dataColumn "Num"(nums(List.map toFloat numbers))
-        enc = encoding 
-            <<position X[pName "Num", pNominal]
-            <<position Y[pName "Num",pQuant, pAggregate opCount]
-    in 
-        toVegaLite[data[],enc[],bar[]]
-
-makeAndSendVis: List Int -> Cmd msg
-makeAndSendVis = sendVis << makeVis
 
 --
 subscriptions : Model -> Sub Msg

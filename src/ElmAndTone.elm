@@ -15,6 +15,8 @@ import Task exposing (..)
 --
 import SingleSlider exposing (..)
 
+import Envelope
+
 type alias Flags =
   ()
 
@@ -53,6 +55,7 @@ type alias Model =
   , decaySlider : SingleSlider.SingleSlider Msg
   , sustainSlider : SingleSlider.SingleSlider Msg
   , releaseSlider : SingleSlider.SingleSlider Msg
+  , addEnv : Envelope.Envelope
   , notes : List Note
   }
 
@@ -154,6 +157,7 @@ initialModel =
     , { key = "0", midi = 75, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
     , { key = "p", midi = 76, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
     ]
+    , addEnv = Envelope.init "gain"
   }
 
 
@@ -178,6 +182,7 @@ type Msg
   | Tick Time.Posix
   --
   | SliderChange String Float
+  | EnvMessage Envelope.Message
   
 
 --
@@ -292,7 +297,11 @@ update msg model =
       ( transposeDown model
       , Cmd.none
       )
-
+    EnvMessage envelopeMsg-> 
+      let 
+        (newEnv,str) = Envelope.update envelopeMsg model.addEnv
+      in
+      ({model | addEnv = newEnv}, makeAndSendAudio str)
 
 
 
@@ -366,6 +375,7 @@ view model =
     , div [] [ SingleSlider.view model.decaySlider ]
     , div [] [ SingleSlider.view model.sustainSlider ]
     , div [] [ SingleSlider.view model.releaseSlider ]
+    , div [] [Envelope.view model.addEnv |> Html.map EnvMessage]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
