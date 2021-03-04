@@ -79,18 +79,21 @@ export default class PolySynthPlayer {
             break;
         }
         break;
-      case 'sine':
-        synth.set({oscillator:{type:'sine'}})
-        break;
-      case 'square':
-        synth.set({oscillator:{type:'square'}})
-        break;
-      case 'triangle':
-        synth.set({oscillator:{type:'triangle'}})
-        break;
-      case 'sawtooth':
-        synth.set({oscillator:{type:'sawtooth'}})
-        break;
+      case 'oscillator':
+        switch(cmdLst[1]) {
+          case 'sine':
+            synth.set({oscillator:{type:'sine'}})
+            break;
+          case 'square':
+            synth.set({oscillator:{type:'square'}})
+            break;
+          case 'triangle':
+            synth.set({oscillator:{type:'triangle'}})
+            break;
+          case 'sawtooth':
+            synth.set({oscillator:{type:'sawtooth'}})
+            break;
+        }
       }
     }
   }

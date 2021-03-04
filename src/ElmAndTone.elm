@@ -137,7 +137,7 @@ type Msg
   --
   | SliderChange String Float
   | EnvMessage Envelope.Message
-  
+
   --
   | DropdownChange Dropdown.State
   | OscillatorSine
@@ -230,7 +230,7 @@ update msg model =
     OscillatorSine ->
       let
         message : String
-        message = "sine-0"
+        message = "oscillator-sine"
       in
       ( model
       , makeAndSendAudio message
@@ -239,7 +239,7 @@ update msg model =
     OscillatorSquare ->
       let
         message : String
-        message = "square-0"
+        message = "oscillator-square"
       in
       ( model
       , makeAndSendAudio message
@@ -248,7 +248,7 @@ update msg model =
     OscillatorTriangle ->
       let
         message : String
-        message = "triangle-0"
+        message = "oscillator-triangle"
       in
       ( model
       , makeAndSendAudio message
@@ -257,7 +257,7 @@ update msg model =
     OscillatorSawtooth ->
       let
         message : String
-        message = "sawtooth-0"
+        message = "oscillator-sawtooth"
       in
       ( model
       , makeAndSendAudio message
@@ -295,8 +295,8 @@ update msg model =
       ( transposeDown model
       , Cmd.none
       )
-    EnvMessage envelopeMsg-> 
-      let 
+    EnvMessage envelopeMsg->
+      let
         (newEnv,str) = Envelope.update envelopeMsg model.addEnv
       in
       ({model | addEnv = newEnv}, makeAndSendAudio str)
