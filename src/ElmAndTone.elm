@@ -14,6 +14,9 @@ import Time exposing (..)
 import Task exposing (..)
 --
 import SingleSlider exposing (..)
+--
+import Bootstrap.Button as Button
+import Bootstrap.Dropdown as Dropdown
 
 import Envelope
 
@@ -56,6 +59,7 @@ type alias Model =
   , sustainSlider : SingleSlider.SingleSlider Msg
   , releaseSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
+  , oscillatorDropdown : Dropdown.State
   , notes : List Note
   }
 
@@ -82,7 +86,7 @@ initialModel =
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatter
         |> SingleSlider.withMaxFormatter maxFormatter
-     , attackSlider =
+  , attackSlider =
       SingleSlider.init
         { min = 0.0005
         , max = 3
@@ -93,7 +97,7 @@ initialModel =
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterAt
         |> SingleSlider.withMaxFormatter maxFormatter
-      , decaySlider =
+  , decaySlider =
       SingleSlider.init
         { min = 0.0005
         , max = 3
@@ -104,7 +108,7 @@ initialModel =
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterDe
         |> SingleSlider.withMaxFormatter maxFormatter
-      , sustainSlider =
+  , sustainSlider =
       SingleSlider.init
         { min = 0.0005
         , max = 0.999
@@ -115,7 +119,7 @@ initialModel =
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterSu
         |> SingleSlider.withMaxFormatter maxFormatter
-      , releaseSlider =
+  , releaseSlider =
       SingleSlider.init
         { min = 0.0005
         , max = 3
@@ -126,6 +130,8 @@ initialModel =
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterRe
         |> SingleSlider.withMaxFormatter maxFormatter
+  , oscillatorDropdown =
+      Dropdown.initialState
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
     , { key = "s", midi = 49, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
@@ -184,6 +190,13 @@ type Msg
   | SliderChange String Float
   | EnvMessage Envelope.Message
   
+  --
+  | DropdownChange Dropdown.State
+  | OscillatorSine
+  | OscillatorSquare
+  | OscillatorTriangle
+  | OscillatorSawtooth
+
 
 --
 noteOn : String -> Model -> Model
@@ -247,10 +260,10 @@ update msg model =
         , Cmd.none
         )
     SliderChange typ val ->
-      let 
+      let
           newModel : Model
-          newModel = 
-            case typ of 
+          newModel =
+            case typ of
               "volume-" -> {model | volumeSlider = (SingleSlider.update val model.volumeSlider)}
               "attack-" -> {model | attackSlider = (SingleSlider.update val model.attackSlider)}
               "decay-" -> {model | decaySlider = (SingleSlider.update val model.decaySlider)}
@@ -262,8 +275,49 @@ update msg model =
           message = typ++Debug.toString(val)
       in
       ( newModel
-      , makeAndSendAudio message )
+      , makeAndSendAudio message
+      )
 
+    DropdownChange state ->
+      ( { model | oscillatorDropdown = state }
+        , Cmd.none
+      )
+
+    OscillatorSine ->
+      let
+        message : String
+        message = "sine-0"
+      in
+      ( model
+      , makeAndSendAudio message
+      )
+
+    OscillatorSquare ->
+      let
+        message : String
+        message = "square-0"
+      in
+      ( model
+      , makeAndSendAudio message
+      )
+
+    OscillatorTriangle ->
+      let
+        message : String
+        message = "triangle-0"
+      in
+      ( model
+      , makeAndSendAudio message
+      )
+
+    OscillatorSawtooth ->
+      let
+        message : String
+        message = "sawtooth-0"
+      in
+      ( model
+      , makeAndSendAudio message
+      )
 
     NoOp ->
       Tuple.pair model Cmd.none
@@ -376,6 +430,18 @@ view model =
     , div [] [ SingleSlider.view model.sustainSlider ]
     , div [] [ SingleSlider.view model.releaseSlider ]
     , div [] [Envelope.view model.addEnv |> Html.map EnvMessage]
+    , div [] [ Dropdown.dropdown model.oscillatorDropdown
+      { options = [ Dropdown.alignMenuRight ]
+      , toggleMsg = DropdownChange
+      , toggleButton = Dropdown.toggle [ Button.primary ][ text "Change Oscillator Type" ]
+      , items =
+        [ Dropdown.buttonItem [ onClick OscillatorSine ] [ text "Sine" ]
+        , Dropdown.buttonItem [ onClick OscillatorSquare ] [ text "Square" ]
+        , Dropdown.buttonItem [ onClick OscillatorTriangle ] [ text "Triange" ]
+        , Dropdown.buttonItem [ onClick OscillatorSawtooth ] [ text "Sawtooth" ]
+        ]
+      }
+    ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
@@ -396,5 +462,6 @@ subscriptions model =
     (Decode.map (\key -> NoteOn key) keyDecoder)
     , Browser.Events.onKeyUp
     (Decode.map (\key -> NoteOff key) keyDecoder)
+    , Dropdown.subscriptions model.oscillatorDropdown DropdownChange
     , Time.every 1000 Tick
     ]
