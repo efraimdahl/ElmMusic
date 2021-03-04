@@ -10,9 +10,6 @@ import Html.Events exposing (onClick)
 import Json.Decode as Decode
 import Json.Encode as Encode
 --
-import Time exposing (..)
-import Task exposing (..)
---
 import SingleSlider exposing (..)
 --
 import Bootstrap.Button as Button
@@ -46,14 +43,13 @@ type alias Note =
   , midi : Float
   , triggered : Bool
   , detriggered: Bool
-  , timeTriggered : Int
   , clr : Color
   }
 
 --
 type alias Model =
-  { time : Time.Posix
-  , volumeSlider : SingleSlider.SingleSlider Msg
+  { volumeSlider : SingleSlider.SingleSlider Msg
+  , partialSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
   , oscillatorDropdown : Dropdown.State
   , notes : List Note
@@ -63,11 +59,11 @@ initialModel : Model --implemented computer-key keyboard according to common DAW
 initialModel =
   let
     minFormatter = \value -> ""
-    valueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
+    volumeValueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
+    partialValueFormatter = \value not_used_value -> "Partial: " ++ (String.fromFloat value)
   in
-  { time = (Time.millisToPosix 0)
-  , volumeSlider =
+  { volumeSlider =
       SingleSlider.init
         { min = 0
         , max = 100
@@ -76,40 +72,51 @@ initialModel =
         , onChange = SliderChange "volume-"
         }
         |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatter
+        |> SingleSlider.withValueFormatter volumeValueFormatter
+        |> SingleSlider.withMaxFormatter maxFormatter
+  , partialSlider =
+      SingleSlider.init
+        { min = 0
+        , max = 50
+        , value = 0
+        , step = 1
+        , onChange = SliderChange "partial-"
+        }
+        |> SingleSlider.withMinFormatter minFormatter
+        |> SingleSlider.withValueFormatter partialValueFormatter
         |> SingleSlider.withMaxFormatter maxFormatter
   , oscillatorDropdown =
       Dropdown.initialState
   , notes =
-    [ { key = "z", midi = 48, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "s", midi = 49, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "x", midi = 50, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "d", midi = 51, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "c", midi = 52, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "v", midi = 53, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "g", midi = 54, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "b", midi = 55, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "h", midi = 56, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "n", midi = 57, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "j", midi = 58, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "m", midi = 59, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "q", midi = 60, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "2", midi = 61, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "w", midi = 62, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "3", midi = 63, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "e", midi = 64, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "r", midi = 65, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "5", midi = 66, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "t", midi = 67, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "6", midi = 68, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "y", midi = 69, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "7", midi = 70, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "u", midi = 71, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "i", midi = 72, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "9", midi = 73, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "o", midi = 74, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
-    , { key = "0", midi = 75, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
-    , { key = "p", midi = 76, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
+    [ { key = "z", midi = 48, triggered = False, detriggered = False, clr = W }
+    , { key = "s", midi = 49, triggered = False, detriggered = False, clr = B }
+    , { key = "x", midi = 50, triggered = False, detriggered = False, clr = W }
+    , { key = "d", midi = 51, triggered = False, detriggered = False, clr = B }
+    , { key = "c", midi = 52, triggered = False, detriggered = False, clr = W }
+    , { key = "v", midi = 53, triggered = False, detriggered = False, clr = W }
+    , { key = "g", midi = 54, triggered = False, detriggered = False, clr = B }
+    , { key = "b", midi = 55, triggered = False, detriggered = False, clr = W }
+    , { key = "h", midi = 56, triggered = False, detriggered = False, clr = B }
+    , { key = "n", midi = 57, triggered = False, detriggered = False, clr = W }
+    , { key = "j", midi = 58, triggered = False, detriggered = False, clr = B }
+    , { key = "m", midi = 59, triggered = False, detriggered = False, clr = W }
+    , { key = "q", midi = 60, triggered = False, detriggered = False, clr = W }
+    , { key = "2", midi = 61, triggered = False, detriggered = False, clr = B }
+    , { key = "w", midi = 62, triggered = False, detriggered = False, clr = W }
+    , { key = "3", midi = 63, triggered = False, detriggered = False, clr = B }
+    , { key = "e", midi = 64, triggered = False, detriggered = False, clr = W }
+    , { key = "r", midi = 65, triggered = False, detriggered = False, clr = W }
+    , { key = "5", midi = 66, triggered = False, detriggered = False, clr = B }
+    , { key = "t", midi = 67, triggered = False, detriggered = False, clr = W }
+    , { key = "6", midi = 68, triggered = False, detriggered = False, clr = B }
+    , { key = "y", midi = 69, triggered = False, detriggered = False, clr = W }
+    , { key = "7", midi = 70, triggered = False, detriggered = False, clr = B }
+    , { key = "u", midi = 71, triggered = False, detriggered = False, clr = W }
+    , { key = "i", midi = 72, triggered = False, detriggered = False, clr = W }
+    , { key = "9", midi = 73, triggered = False, detriggered = False, clr = B }
+    , { key = "o", midi = 74, triggered = False, detriggered = False, clr = W }
+    , { key = "0", midi = 75, triggered = False, detriggered = False, clr = B }
+    , { key = "p", midi = 76, triggered = False, detriggered = False, clr = W }
     ]
     , addEnv = Envelope.init "gainenv"
   }
@@ -133,11 +140,8 @@ type Msg
   | TransposeUp
   | TransposeDown
   --
-  | Tick Time.Posix
-  --
   | SliderChange String Float
   | EnvMessage Envelope.Message
-
   --
   | DropdownChange Dropdown.State
   | OscillatorSine
@@ -150,25 +154,26 @@ type Msg
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
-  | notes = List.map (\note ->
-    if note.key == key then
-      let
-        m = Debug.log "model" (toSecond utc model.time)
-      in
-      { note | triggered = True
-      , timeTriggered = (Debug.log "time" (toSecond utc model.time))} --number of seconds
-      else note) model.notes
+  | notes = List.map
+    (\note ->
+      if note.key == key then
+        { note | triggered = True }
+      else note
+    )
+  model.notes
   }
 
 --
 noteOff : String -> Model -> Model
 noteOff key model =
   { model
-  | notes = List.map (\note ->
-    if note.key == key then
-      { note | triggered = False
-      , timeTriggered = 0 }
-      else note) model.notes
+  | notes = List.map
+    (\note ->
+      if note.key == key then
+        { note | triggered = False }
+      else note
+    )
+  model.notes
   }
 
 transposeUp : Model -> Model
@@ -199,28 +204,61 @@ findKey s m =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Tick newTime ->
-        let
-          m:Model
-          m ={model | time=newTime}
-        in
-        ( m
-        , Cmd.none
-        )
+
     SliderChange typ val ->
       let
-          newModel : Model
-          newModel =
-            case typ of
-              "volume-" -> {model | volumeSlider = (SingleSlider.update val model.volumeSlider)}
-              _ -> Debug.todo("undefined Slider Changed")
+        newModel : Model
+        newModel =
+          case typ of
+            "volume-" -> { model | volumeSlider = (SingleSlider.update val model.volumeSlider) }
+            "partial-" -> { model | partialSlider = (SingleSlider.update val model.partialSlider) }
+            _ -> Debug.todo("undefined Slider Changed")
 
-          message : String
-          message = typ++Debug.toString(val)
+        message : String
+        message = typ++Debug.toString(val)
       in
       ( newModel
       , makeAndSendAudio message
       )
+
+    NoOp ->
+      Tuple.pair model Cmd.none
+
+    NoteOn key ->
+      let
+        val = findKey key model
+        message : String
+        message = "press-"++Debug.toString(val)
+      in
+      ( noteOn key model
+      , makeAndSendAudio message--(Debug.log "message-string " message)
+      )
+
+    NoteOff key ->
+      let
+        val = findKey key model
+        message : String
+        message = "release-"++Debug.toString(val)
+      in
+      ( noteOff key model
+      , makeAndSendAudio message--(Debug.log "message-string " message)
+      )
+
+    TransposeUp ->
+      ( transposeUp model
+      , Cmd.none
+      )
+
+    TransposeDown ->
+      ( transposeDown model
+      , Cmd.none
+      )
+
+    EnvMessage envelopeMsg->
+      let
+        (newEnv,str) = Envelope.update envelopeMsg model.addEnv
+      in
+      ({model | addEnv = newEnv}, makeAndSendAudio str)
 
     DropdownChange state ->
       ( { model | oscillatorDropdown = state }
@@ -262,46 +300,6 @@ update msg model =
       ( model
       , makeAndSendAudio message
       )
-
-    NoOp ->
-      Tuple.pair model Cmd.none
-
-    NoteOn key ->
-      let
-        val = findKey key model
-        message : String
-        message = "press-"++Debug.toString(val)
-      in
-      ( noteOn key model
-      , makeAndSendAudio message--(Debug.log "message-string " message)
-      )
-
-    NoteOff key ->
-      let
-        val = findKey key model
-        message : String
-        message = "release-"++Debug.toString(val)
-      in
-      ( noteOff key model
-      , makeAndSendAudio message--(Debug.log "message-string " message)
-      )
-
-    TransposeUp ->
-      ( transposeUp model
-      , Cmd.none
-      )
-
-    TransposeDown ->
-      ( transposeDown model
-      , Cmd.none
-      )
-    EnvMessage envelopeMsg->
-      let
-        (newEnv,str) = Envelope.update envelopeMsg model.addEnv
-      in
-      ({model | addEnv = newEnv}, makeAndSendAudio str)
-
-
 
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
@@ -345,21 +343,14 @@ noteView i note =
   div [ class <| noteCSS i note.triggered note.clr, class "Key", (getBlackOffset i note.clr)]
     [ text note.key ]
 
---
+
 view : Model -> Html Msg
 view model =
-  let
-    hour   = String.fromInt (Time.toHour   utc model.time)
-    minute = String.fromInt (Time.toMinute utc model.time)
-    second = String.fromInt (Time.toSecond utc model.time)
-  in
   main_ [ class "m-10 body" ]
     [ h1 [ class "text-3xl my-10" ]
         [ text "ElmSynth" ]
     , p [ class "p-2 my-6" ]
         [ text """Click to activate Web Audio context""" ]
-    --This displays the clock, just for debugging
-    , h1 [] [ text (hour ++ ":" ++ minute ++ ":" ++ second) ]
     , div [ class "p-2 my-6" ]
         [ button [ onClick TransposeUp, class "bg-indigo-500 text-white font-bold py-2 px-4 mr-4 rounded" ]
             [ text "Transpose up" ]
@@ -369,7 +360,7 @@ view model =
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
     , div [] [ SingleSlider.view model.volumeSlider ]
-    , div [] [Envelope.view model.addEnv |> Html.map EnvMessage]
+    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]
       , toggleMsg = DropdownChange
@@ -380,12 +371,12 @@ view model =
         , Dropdown.buttonItem [ onClick OscillatorTriangle ] [ text "Triange" ]
         , Dropdown.buttonItem [ onClick OscillatorSawtooth ] [ text "Sawtooth" ]
         ]
-      }
-    ]
+      }]
+    , div [] [ SingleSlider.view model.partialSlider ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
---
+
 makeAndSendAudio: String -> Cmd msg
 makeAndSendAudio lst = updateAudio (Encode.encode 0 (Encode.string lst))
 
@@ -394,14 +385,11 @@ keyDecoder : Decode.Decoder String
 keyDecoder =
   Decode.field "key" Decode.string
 
---
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
-    [ Browser.Events.onKeyDown
-    (Decode.map (\key -> NoteOn key) keyDecoder)
-    , Browser.Events.onKeyUp
-    (Decode.map (\key -> NoteOff key) keyDecoder)
+    [ Browser.Events.onKeyDown (Decode.map (\key -> NoteOn key) keyDecoder)
+    , Browser.Events.onKeyUp (Decode.map (\key -> NoteOff key) keyDecoder)
     , Dropdown.subscriptions model.oscillatorDropdown DropdownChange
-    , Time.every 1000 Tick
     ]

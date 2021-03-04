@@ -6,14 +6,9 @@ import PolySynthPlayer from './src/ElmAndTone.js'
 
 const audio = new PolySynthPlayer()
 
-
-//osc.partials = [0, 2, 3, 4]
-
-//const synth = new Tone.PolySynth(Tone.Synth).toDestination();
-
 const synth = new Tone.PolySynth(Tone.Synth, {
   oscillator: {
-    type : "sawtooth",
+    type : "triangle",
     partials: [0, 2, 3, 4],
   }
 }).toDestination();
