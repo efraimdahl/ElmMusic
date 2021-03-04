@@ -6,21 +6,18 @@ import PolySynthPlayer from './src/ElmAndTone.js'
 
 const audio = new PolySynthPlayer()
 
-// Trying to create a new oscillator to change the osc.type
-const osc = new Tone.Oscillator().toDestination().start();
-osc.type = "sawtooth"
+
 //osc.partials = [0, 2, 3, 4]
 
-const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+//const synth = new Tone.PolySynth(Tone.Synth).toDestination();
 
-/*
 const synth = new Tone.PolySynth(Tone.Synth, {
   oscillator: {
-    type : "triangle",
+    type : "sawtooth",
     partials: [0, 2, 3, 4],
   }
 }).toDestination();
-*/
+
 synth.triggerAttackRelease(["C4", "E4", "A4"], 1);
 
 let env = {
@@ -33,11 +30,12 @@ let env = {
 
 synth.set({"envelope":env})
 
+
 const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')
 })
 
 let props={activeVoices : [],envelope : env}
 App.ports.updateAudio.subscribe(function(graph){
-  audio.update(graph,synth,props,osc)
+  audio.update(graph,synth,props)
 })

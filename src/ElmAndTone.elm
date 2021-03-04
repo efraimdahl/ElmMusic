@@ -54,10 +54,6 @@ type alias Note =
 type alias Model =
   { time : Time.Posix
   , volumeSlider : SingleSlider.SingleSlider Msg
-  , attackSlider : SingleSlider.SingleSlider Msg
-  , decaySlider : SingleSlider.SingleSlider Msg
-  , sustainSlider : SingleSlider.SingleSlider Msg
-  , releaseSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
   , oscillatorDropdown : Dropdown.State
   , notes : List Note
@@ -68,10 +64,6 @@ initialModel =
   let
     minFormatter = \value -> ""
     valueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
-    valueFormatterAt = \value not_used_value -> "Attack: " ++ (String.fromFloat value)
-    valueFormatterDe = \value not_used_value -> "Decay: " ++ (String.fromFloat value)
-    valueFormatterSu = \value not_used_value -> "Sustain: " ++ (String.fromFloat value)
-    valueFormatterRe = \value not_used_value -> "Release: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
   in
   { time = (Time.millisToPosix 0)
@@ -85,50 +77,6 @@ initialModel =
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatter
-        |> SingleSlider.withMaxFormatter maxFormatter
-  , attackSlider =
-      SingleSlider.init
-        { min = 0.0005
-        , max = 3
-        , value = 0.0005
-        , step = 0.01
-        , onChange = SliderChange "attack-"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatterAt
-        |> SingleSlider.withMaxFormatter maxFormatter
-  , decaySlider =
-      SingleSlider.init
-        { min = 0.0005
-        , max = 3
-        , value = 0.0005
-        , step = 0.01
-        , onChange = SliderChange "decay-"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatterDe
-        |> SingleSlider.withMaxFormatter maxFormatter
-  , sustainSlider =
-      SingleSlider.init
-        { min = 0.0005
-        , max = 0.999
-        , value = 0.0005
-        , step = 0.01
-        , onChange = SliderChange "sustain-"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatterSu
-        |> SingleSlider.withMaxFormatter maxFormatter
-  , releaseSlider =
-      SingleSlider.init
-        { min = 0.0005
-        , max = 3
-        , value = 0.0005
-        , step = 0.01
-        , onChange = SliderChange "releaseEnv-"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter valueFormatterRe
         |> SingleSlider.withMaxFormatter maxFormatter
   , oscillatorDropdown =
       Dropdown.initialState
@@ -163,7 +111,7 @@ initialModel =
     , { key = "0", midi = 75, triggered = False, detriggered = False, timeTriggered = 0, clr = B }
     , { key = "p", midi = 76, triggered = False, detriggered = False, timeTriggered = 0, clr = W }
     ]
-    , addEnv = Envelope.init "gain"
+    , addEnv = Envelope.init "gainenv"
   }
 
 
@@ -265,10 +213,6 @@ update msg model =
           newModel =
             case typ of
               "volume-" -> {model | volumeSlider = (SingleSlider.update val model.volumeSlider)}
-              "attack-" -> {model | attackSlider = (SingleSlider.update val model.attackSlider)}
-              "decay-" -> {model | decaySlider = (SingleSlider.update val model.decaySlider)}
-              "sustain-" -> {model | sustainSlider = (SingleSlider.update val model.sustainSlider)}
-              "releaseEnv-" -> {model | releaseSlider = (SingleSlider.update val model.releaseSlider)}
               _ -> Debug.todo("undefined Slider Changed")
 
           message : String
@@ -425,10 +369,6 @@ view model =
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
     , div [] [ SingleSlider.view model.volumeSlider ]
-    , div [] [ SingleSlider.view model.attackSlider ]
-    , div [] [ SingleSlider.view model.decaySlider ]
-    , div [] [ SingleSlider.view model.sustainSlider ]
-    , div [] [ SingleSlider.view model.releaseSlider ]
     , div [] [Envelope.view model.addEnv |> Html.map EnvMessage]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]

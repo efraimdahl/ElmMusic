@@ -51,41 +51,45 @@ export default class PolySynthPlayer {
           synth.volume.value = Math.log10(pre) * 9 - 18
         }
         break;
-      case 'attack':
-        pre = parseFloat(cmdLst[1])
-        props.envelope.attack=pre
-        console.log(props.envelope)
-        synth.set({"envelope":props.envelope})
-        break;
-      case 'decay':
-        pre = parseFloat(cmdLst[1])
-        props.envelope.decay=pre
-        console.log(props.envelope)
-        synth.set({"envelope":props.envelope})
-        break;
-      case 'sustain':
-        pre = parseFloat(cmdLst[1])
-        props.envelope.sustain=pre
-        console.log(props.envelope)
-        synth.set({"envelope":props.envelope})
-        break;
-      case 'releaseEnv':
-        pre = parseFloat(cmdLst[1])
-        props.envelope.release=pre
-        console.log(props.envelope)
-        synth.set({"envelope":props.envelope})
+      case 'gainenv':
+        switch(cmdLst[1]) {
+          case 'attack':
+            pre = parseFloat(cmdLst[2])
+            props.envelope.attack=pre
+            console.log(props.envelope)
+            synth.set({"envelope":props.envelope})
+            break;
+          case 'decay':
+            pre = parseFloat(cmdLst[2])
+            props.envelope.decay=pre
+            console.log(props.envelope)
+            synth.set({"envelope":props.envelope})
+            break;
+          case 'sustain':
+            pre = parseFloat(cmdLst[2])
+            props.envelope.sustain=pre
+            console.log(props.envelope)
+            synth.set({"envelope":props.envelope})
+            break;
+          case 'releaseEnv':
+            pre = parseFloat(cmdLst[2])
+            props.envelope.release=pre
+            console.log(props.envelope)
+            synth.set({"envelope":props.envelope})
+            break;
+        }
         break;
       case 'sine':
-        osc.type = "sine"
+        synth.set({oscillator:{type:'sine'}})
         break;
       case 'square':
-        osc.type = "square"
+        synth.set({oscillator:{type:'square'}})
         break;
       case 'triangle':
-        osc.type = "triangle"
+        synth.set({oscillator:{type:'triangle'}})
         break;
       case 'sawtooth':
-        osc.type = "sawtooth"
+        synth.set({oscillator:{type:'sawtooth'}})
         break;
       }
     }
