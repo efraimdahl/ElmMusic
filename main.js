@@ -22,9 +22,7 @@ let env = {
 	"release" : 0.8,
 };
 
-
 synth.set({"envelope":env})
-
 
 const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')

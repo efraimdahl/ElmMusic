@@ -17,8 +17,7 @@ import Bootstrap.Dropdown as Dropdown
 
 import Envelope
 
-type alias Flags =
-  ()
+type alias Flags = ()
 
 -- MAIN -----------------------------------------------------------------------
 main : Program Flags Model Msg
@@ -31,12 +30,12 @@ main =
     }
 
 
--- Send the JSON encoded audio graph to javascript
+-- Send the JSON-encoded audio graph to JavaScript
 port updateAudio : String -> Cmd msg
 
+
 -- MODEL ----------------------------------------------------------------------
---
---differenciate between black and white keys
+--Differentiate between black and white keys
 type Color  = B | W
 type alias Note =
   { key : String
@@ -46,7 +45,7 @@ type alias Note =
   , clr : Color
   }
 
---
+
 type alias Model =
   { volumeSlider : SingleSlider.SingleSlider Msg
   , partialSlider : SingleSlider.SingleSlider Msg
@@ -55,12 +54,15 @@ type alias Model =
   , notes : List Note
   }
 
-initialModel : Model --implemented computer-key keyboard according to common DAW practices
+
+--The computer-key keyboard is implemented according to common DAW practices
+--AKA, type on the keyboard as if it were a piano
+initialModel : Model
 initialModel =
   let
     minFormatter = \value -> ""
-    volumeValueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
+    volumeValueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
     partialValueFormatter = \value not_used_value -> "Partial: " ++ (String.fromFloat value)
   in
   { volumeSlider =
@@ -122,13 +124,9 @@ initialModel =
   }
 
 
-
---
 init : () -> (Model, Cmd Msg)
 init _ =
-  ( initialModel
-  , Cmd.none
-  )
+  ( initialModel, Cmd.none )
 
 -- UPDATE ---------------------------------------------------------------------
 type Msg
@@ -150,7 +148,6 @@ type Msg
   | OscillatorSawtooth
 
 
---
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
@@ -163,7 +160,7 @@ noteOn key model =
   model.notes
   }
 
---
+
 noteOff : String -> Model -> Model
 noteOff key model =
   { model
@@ -176,17 +173,20 @@ noteOff key model =
   model.notes
   }
 
+
 transposeUp : Model -> Model
 transposeUp model =
   { model
   | notes = List.map (\note -> { note | midi = note.midi + 1 }) model.notes
   }
 
+
 transposeDown : Model -> Model
 transposeDown model =
   { model
   | notes = List.map (\note -> { note | midi = note.midi - 1 }) model.notes
   }
+
 
 findKey: String -> Model -> Float
 findKey s m =
@@ -200,22 +200,22 @@ findKey s m =
     [] -> 0
     hd::tail -> mtof (hd.midi)
 
---
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-
     SliderChange typ val ->
       let
         newModel : Model
         newModel =
           case typ of
-            "volume-" -> { model | volumeSlider = (SingleSlider.update val model.volumeSlider) }
-            "partial-" -> { model | partialSlider = (SingleSlider.update val model.partialSlider) }
+            "volume-" ->
+              { model | volumeSlider = (SingleSlider.update val model.volumeSlider) }
+            "partial-" ->
+              { model | partialSlider = (SingleSlider.update val model.partialSlider) }
             _ -> Debug.todo("undefined Slider Changed")
-
         message : String
-        message = typ++Debug.toString(val)
+        message = typ ++ Debug.toString(val)
       in
       ( newModel
       , makeAndSendAudio message
@@ -228,20 +228,20 @@ update msg model =
       let
         val = findKey key model
         message : String
-        message = "press-"++Debug.toString(val)
+        message = "press-" ++ Debug.toString(val)
       in
       ( noteOn key model
-      , makeAndSendAudio message--(Debug.log "message-string " message)
+      , makeAndSendAudio message
       )
 
     NoteOff key ->
       let
         val = findKey key model
         message : String
-        message = "release-"++Debug.toString(val)
+        message = "release-" ++ Debug.toString(val)
       in
       ( noteOff key model
-      , makeAndSendAudio message--(Debug.log "message-string " message)
+      , makeAndSendAudio message
       )
 
     TransposeUp ->
@@ -258,11 +258,13 @@ update msg model =
       let
         (newEnv,str) = Envelope.update envelopeMsg model.addEnv
       in
-      ({model | addEnv = newEnv}, makeAndSendAudio str)
+      ({ model | addEnv = newEnv }
+      , makeAndSendAudio str
+      )
 
     DropdownChange state ->
-      ( { model | oscillatorDropdown = state }
-        , Cmd.none
+      ({ model | oscillatorDropdown = state }
+      , Cmd.none
       )
 
     OscillatorSine ->
@@ -301,23 +303,25 @@ update msg model =
       , makeAndSendAudio message
       )
 
+
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
 -- converts it to the corresponding frequency in Hertz. We use Float for the
--- MIDI number to allow for detuning, and we assume A4 is MIDI note number
--- 69.
+-- MIDI number to allow for detuning, and we assume A4 is MIDI note number 69.
 mtof : Float -> Float
 mtof midi =
   440 * 2 ^ ((midi - 69) / 12)
 
+
 --Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
---helper function for making black keys look pretty
+--Helper function to make black keys look pretty
 getBlackOffset: Int -> Color -> Attribute msg
 getBlackOffset num clr =
     case clr of
         B -> style "" ""--"left" (String.fromInt ((48*(num+1))-12) ++ "px")
         W -> if (num==28) then style "border-right-width" "1px"
              else style "" ""
+
 
 -- VIEW -----------------------------------------------------------------------
 -- Use this to toggle the main styling on a note based on wheter it is currently

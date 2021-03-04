@@ -7,22 +7,16 @@ var prev_osc_type = ""
 
 export default class PolySynthPlayer {
   // Static Methods ============================================================
-  //
   static prepare (graph = []) {
       return graph
     }
 
   // Constructor ===============================================================
-  //
   constructor () {
-
-
   }
 
 
   // Public Methods ============================================================
-  //
-
   update (graph,synth,props,osc) {
     console.log(graph)
     console.log(props)
