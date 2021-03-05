@@ -1,9 +1,11 @@
 //Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
 
-// The variable prev_osc_type keeps track of the previous oscillator type that
-// was selected by the user. It will default to triangle if the user does
-// not input anything.
-var prev_osc_type = ""
+/*
+The variable prev_osc_type keeps track of the previous oscillator type that
+was selected by the user. It will default to triangle if the user does
+not input anything.
+*/
+var prev_osc_type = "triangle"
 
 export default class PolySynthPlayer {
   // Static Methods ============================================================
@@ -55,15 +57,8 @@ export default class PolySynthPlayer {
       case 'partial':
         let num = cmdLst[1].split('.')[0]
         let new_type = ""
-        if (prev_osc_type === "") {
-          new_type = "triangle".concat(num)
-          console.log(new_type)
-          synth.set({oscillator:{type:new_type}})
-        }
-        else {
-          new_type = prev_osc_type.concat(num)
-          synth.set({oscillator:{type:new_type}})
-        }
+        new_type = prev_osc_type.concat(num)
+        synth.set({oscillator:{type:new_type}})
         break;
       case 'gainenv':
         switch(cmdLst[1]) {
