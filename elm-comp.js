@@ -4358,52 +4358,6 @@ function _Browser_load(url)
 
 
 
-function _Time_now(millisToPosix)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		callback(_Scheduler_succeed(millisToPosix(Date.now())));
-	});
-}
-
-var _Time_setInterval = F2(function(interval, task)
-{
-	return _Scheduler_binding(function(callback)
-	{
-		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
-		return function() { clearInterval(id); };
-	});
-});
-
-function _Time_here()
-{
-	return _Scheduler_binding(function(callback)
-	{
-		callback(_Scheduler_succeed(
-			A2($elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
-		));
-	});
-}
-
-
-function _Time_getZoneName()
-{
-	return _Scheduler_binding(function(callback)
-	{
-		try
-		{
-			var name = $elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
-		}
-		catch (e)
-		{
-			var name = $elm$time$Time$Offset(new Date().getTimezoneOffset());
-		}
-		callback(_Scheduler_succeed(name));
-	});
-}
-
-
-
 var _Bitwise_and = F2(function(a, b)
 {
 	return a & b;
@@ -5400,14 +5354,14 @@ var $rundis$elm_bootstrap$Bootstrap$Dropdown$initialState = $rundis$elm_bootstra
 		status: $rundis$elm_bootstrap$Bootstrap$Dropdown$Closed,
 		toggleSize: A4($rundis$elm_bootstrap$Bootstrap$Utilities$DomHelper$Area, 0, 0, 0, 0)
 	});
-var $elm$time$Time$Posix = function (a) {
-	return {$: 'Posix', a: a};
-};
-var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $author$project$ElmAndTone$initialModel = function () {
-	var valueFormatter = F2(
+	var volumeValueFormatter = F2(
 		function (value, not_used_value) {
 			return 'Volume: ' + $elm$core$String$fromFloat(value);
+		});
+	var partialValueFormatter = F2(
+		function (value, not_used_value) {
+			return 'Partial: ' + $elm$core$String$fromFloat(value);
 		});
 	var minFormatter = function (value) {
 		return '';
@@ -5419,44 +5373,60 @@ var $author$project$ElmAndTone$initialModel = function () {
 		addEnv: $author$project$Envelope$init('gainenv'),
 		notes: _List_fromArray(
 			[
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'z', midi: 48, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 's', midi: 49, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'x', midi: 50, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'd', midi: 51, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'c', midi: 52, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'v', midi: 53, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'g', midi: 54, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'b', midi: 55, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'h', midi: 56, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'n', midi: 57, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'j', midi: 58, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'm', midi: 59, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'q', midi: 60, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '2', midi: 61, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'w', midi: 62, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '3', midi: 63, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'e', midi: 64, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'r', midi: 65, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '5', midi: 66, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 't', midi: 67, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '6', midi: 68, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'y', midi: 69, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '7', midi: 70, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'u', midi: 71, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'i', midi: 72, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '9', midi: 73, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'o', midi: 74, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '0', midi: 75, timeTriggered: 0, triggered: false},
-				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'p', midi: 76, timeTriggered: 0, triggered: false}
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'z', midi: 48, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 's', midi: 49, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'x', midi: 50, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'd', midi: 51, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'c', midi: 52, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'v', midi: 53, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'g', midi: 54, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'b', midi: 55, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'h', midi: 56, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'n', midi: 57, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: 'j', midi: 58, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'm', midi: 59, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'q', midi: 60, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '2', midi: 61, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'w', midi: 62, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '3', midi: 63, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'e', midi: 64, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'r', midi: 65, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '5', midi: 66, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 't', midi: 67, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '6', midi: 68, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'y', midi: 69, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '7', midi: 70, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'u', midi: 71, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'i', midi: 72, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '9', midi: 73, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'o', midi: 74, triggered: false},
+				{clr: $author$project$ElmAndTone$B, detriggered: false, key: '0', midi: 75, triggered: false},
+				{clr: $author$project$ElmAndTone$W, detriggered: false, key: 'p', midi: 76, triggered: false}
 			]),
 		oscillatorDropdown: $rundis$elm_bootstrap$Bootstrap$Dropdown$initialState,
-		time: $elm$time$Time$millisToPosix(0),
+		partialSlider: A2(
+			$carwow$elm_slider$SingleSlider$withMaxFormatter,
+			maxFormatter,
+			A2(
+				$carwow$elm_slider$SingleSlider$withValueFormatter,
+				partialValueFormatter,
+				A2(
+					$carwow$elm_slider$SingleSlider$withMinFormatter,
+					minFormatter,
+					$carwow$elm_slider$SingleSlider$init(
+						{
+							max: 50,
+							min: 0,
+							onChange: $author$project$ElmAndTone$SliderChange('partial-'),
+							step: 1,
+							value: 0
+						})))),
 		volumeSlider: A2(
 			$carwow$elm_slider$SingleSlider$withMaxFormatter,
 			maxFormatter,
 			A2(
 				$carwow$elm_slider$SingleSlider$withValueFormatter,
-				valueFormatter,
+				volumeValueFormatter,
 				A2(
 					$carwow$elm_slider$SingleSlider$withMinFormatter,
 					minFormatter,
@@ -5484,54 +5454,39 @@ var $author$project$ElmAndTone$NoteOff = function (a) {
 var $author$project$ElmAndTone$NoteOn = function (a) {
 	return {$: 'NoteOn', a: a};
 };
-var $author$project$ElmAndTone$Tick = function (a) {
-	return {$: 'Tick', a: a};
-};
 var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$time$Time$Every = F2(
-	function (a, b) {
-		return {$: 'Every', a: a, b: b};
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$ElmAndTone$keyDecoder = A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string);
+var $elm$browser$Browser$Events$Document = {$: 'Document'};
+var $elm$browser$Browser$Events$MySub = F3(
+	function (a, b, c) {
+		return {$: 'MySub', a: a, b: b, c: c};
 	});
-var $elm$time$Time$State = F2(
-	function (taggers, processes) {
-		return {processes: processes, taggers: taggers};
+var $elm$browser$Browser$Events$State = F2(
+	function (subs, pids) {
+		return {pids: pids, subs: subs};
 	});
 var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
 var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
-var $elm$time$Time$init = $elm$core$Task$succeed(
-	A2($elm$time$Time$State, $elm$core$Dict$empty, $elm$core$Dict$empty));
-var $elm$core$Basics$compare = _Utils_compare;
-var $elm$core$Dict$get = F2(
-	function (targetKey, dict) {
-		get:
-		while (true) {
-			if (dict.$ === 'RBEmpty_elm_builtin') {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var key = dict.b;
-				var value = dict.c;
-				var left = dict.d;
-				var right = dict.e;
-				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
-				switch (_v1.$) {
-					case 'LT':
-						var $temp$targetKey = targetKey,
-							$temp$dict = left;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-					case 'EQ':
-						return $elm$core$Maybe$Just(value);
-					default:
-						var $temp$targetKey = targetKey,
-							$temp$dict = right;
-						targetKey = $temp$targetKey;
-						dict = $temp$dict;
-						continue get;
-				}
-			}
-		}
-	});
+var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
+	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
+var $elm$browser$Browser$Events$nodeToKey = function (node) {
+	if (node.$ === 'Document') {
+		return 'd_';
+	} else {
+		return 'w_';
+	}
+};
+var $elm$browser$Browser$Events$addKey = function (sub) {
+	var node = sub.a;
+	var name = sub.b;
+	return _Utils_Tuple2(
+		_Utils_ap(
+			$elm$browser$Browser$Events$nodeToKey(node),
+			name),
+		sub);
+};
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
 	function (a, b, c, d, e) {
@@ -5592,6 +5547,7 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
+var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5640,27 +5596,18 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
-var $elm$time$Time$addMySub = F2(
-	function (_v0, state) {
-		var interval = _v0.a;
-		var tagger = _v0.b;
-		var _v1 = A2($elm$core$Dict$get, interval, state);
-		if (_v1.$ === 'Nothing') {
-			return A3(
-				$elm$core$Dict$insert,
-				interval,
-				_List_fromArray(
-					[tagger]),
-				state);
-		} else {
-			var taggers = _v1.a;
-			return A3(
-				$elm$core$Dict$insert,
-				interval,
-				A2($elm$core$List$cons, tagger, taggers),
-				state);
-		}
-	});
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
+};
 var $elm$core$Process$kill = _Scheduler_kill;
 var $elm$core$Dict$foldl = F3(
 	function (func, acc, dict) {
@@ -5748,203 +5695,11 @@ var $elm$core$Dict$merge = F6(
 			intermediateResult,
 			leftovers);
 	});
-var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
-var $elm$time$Time$Name = function (a) {
-	return {$: 'Name', a: a};
-};
-var $elm$time$Time$Offset = function (a) {
-	return {$: 'Offset', a: a};
-};
-var $elm$time$Time$Zone = F2(
-	function (a, b) {
-		return {$: 'Zone', a: a, b: b};
-	});
-var $elm$time$Time$customZone = $elm$time$Time$Zone;
-var $elm$time$Time$setInterval = _Time_setInterval;
-var $elm$core$Process$spawn = _Scheduler_spawn;
-var $elm$time$Time$spawnHelp = F3(
-	function (router, intervals, processes) {
-		if (!intervals.b) {
-			return $elm$core$Task$succeed(processes);
-		} else {
-			var interval = intervals.a;
-			var rest = intervals.b;
-			var spawnTimer = $elm$core$Process$spawn(
-				A2(
-					$elm$time$Time$setInterval,
-					interval,
-					A2($elm$core$Platform$sendToSelf, router, interval)));
-			var spawnRest = function (id) {
-				return A3(
-					$elm$time$Time$spawnHelp,
-					router,
-					rest,
-					A3($elm$core$Dict$insert, interval, id, processes));
-			};
-			return A2($elm$core$Task$andThen, spawnRest, spawnTimer);
-		}
-	});
-var $elm$time$Time$onEffects = F3(
-	function (router, subs, _v0) {
-		var processes = _v0.processes;
-		var rightStep = F3(
-			function (_v6, id, _v7) {
-				var spawns = _v7.a;
-				var existing = _v7.b;
-				var kills = _v7.c;
-				return _Utils_Tuple3(
-					spawns,
-					existing,
-					A2(
-						$elm$core$Task$andThen,
-						function (_v5) {
-							return kills;
-						},
-						$elm$core$Process$kill(id)));
-			});
-		var newTaggers = A3($elm$core$List$foldl, $elm$time$Time$addMySub, $elm$core$Dict$empty, subs);
-		var leftStep = F3(
-			function (interval, taggers, _v4) {
-				var spawns = _v4.a;
-				var existing = _v4.b;
-				var kills = _v4.c;
-				return _Utils_Tuple3(
-					A2($elm$core$List$cons, interval, spawns),
-					existing,
-					kills);
-			});
-		var bothStep = F4(
-			function (interval, taggers, id, _v3) {
-				var spawns = _v3.a;
-				var existing = _v3.b;
-				var kills = _v3.c;
-				return _Utils_Tuple3(
-					spawns,
-					A3($elm$core$Dict$insert, interval, id, existing),
-					kills);
-			});
-		var _v1 = A6(
-			$elm$core$Dict$merge,
-			leftStep,
-			bothStep,
-			rightStep,
-			newTaggers,
-			processes,
-			_Utils_Tuple3(
-				_List_Nil,
-				$elm$core$Dict$empty,
-				$elm$core$Task$succeed(_Utils_Tuple0)));
-		var spawnList = _v1.a;
-		var existingDict = _v1.b;
-		var killTask = _v1.c;
-		return A2(
-			$elm$core$Task$andThen,
-			function (newProcesses) {
-				return $elm$core$Task$succeed(
-					A2($elm$time$Time$State, newTaggers, newProcesses));
-			},
-			A2(
-				$elm$core$Task$andThen,
-				function (_v2) {
-					return A3($elm$time$Time$spawnHelp, router, spawnList, existingDict);
-				},
-				killTask));
-	});
-var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
-var $elm$time$Time$onSelfMsg = F3(
-	function (router, interval, state) {
-		var _v0 = A2($elm$core$Dict$get, interval, state.taggers);
-		if (_v0.$ === 'Nothing') {
-			return $elm$core$Task$succeed(state);
-		} else {
-			var taggers = _v0.a;
-			var tellTaggers = function (time) {
-				return $elm$core$Task$sequence(
-					A2(
-						$elm$core$List$map,
-						function (tagger) {
-							return A2(
-								$elm$core$Platform$sendToApp,
-								router,
-								tagger(time));
-						},
-						taggers));
-			};
-			return A2(
-				$elm$core$Task$andThen,
-				function (_v1) {
-					return $elm$core$Task$succeed(state);
-				},
-				A2($elm$core$Task$andThen, tellTaggers, $elm$time$Time$now));
-		}
-	});
-var $elm$core$Basics$composeL = F3(
-	function (g, f, x) {
-		return g(
-			f(x));
-	});
-var $elm$time$Time$subMap = F2(
-	function (f, _v0) {
-		var interval = _v0.a;
-		var tagger = _v0.b;
-		return A2(
-			$elm$time$Time$Every,
-			interval,
-			A2($elm$core$Basics$composeL, f, tagger));
-	});
-_Platform_effectManagers['Time'] = _Platform_createManager($elm$time$Time$init, $elm$time$Time$onEffects, $elm$time$Time$onSelfMsg, 0, $elm$time$Time$subMap);
-var $elm$time$Time$subscription = _Platform_leaf('Time');
-var $elm$time$Time$every = F2(
-	function (interval, tagger) {
-		return $elm$time$Time$subscription(
-			A2($elm$time$Time$Every, interval, tagger));
-	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
-var $elm$json$Json$Decode$string = _Json_decodeString;
-var $author$project$ElmAndTone$keyDecoder = A2($elm$json$Json$Decode$field, 'key', $elm$json$Json$Decode$string);
-var $elm$browser$Browser$Events$Document = {$: 'Document'};
-var $elm$browser$Browser$Events$MySub = F3(
-	function (a, b, c) {
-		return {$: 'MySub', a: a, b: b, c: c};
-	});
-var $elm$browser$Browser$Events$State = F2(
-	function (subs, pids) {
-		return {pids: pids, subs: subs};
-	});
-var $elm$browser$Browser$Events$init = $elm$core$Task$succeed(
-	A2($elm$browser$Browser$Events$State, _List_Nil, $elm$core$Dict$empty));
-var $elm$browser$Browser$Events$nodeToKey = function (node) {
-	if (node.$ === 'Document') {
-		return 'd_';
-	} else {
-		return 'w_';
-	}
-};
-var $elm$browser$Browser$Events$addKey = function (sub) {
-	var node = sub.a;
-	var name = sub.b;
-	return _Utils_Tuple2(
-		_Utils_ap(
-			$elm$browser$Browser$Events$nodeToKey(node),
-			name),
-		sub);
-};
-var $elm$core$Dict$fromList = function (assocs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, dict) {
-				var key = _v0.a;
-				var value = _v0.b;
-				return A3($elm$core$Dict$insert, key, value, dict);
-			}),
-		$elm$core$Dict$empty,
-		assocs);
-};
 var $elm$browser$Browser$Events$Event = F2(
 	function (key, event) {
 		return {event: event, key: key};
 	});
+var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
 var $elm$browser$Browser$Events$spawn = F3(
 	function (router, key, _v0) {
 		var node = _v0.a;
@@ -6118,6 +5873,7 @@ var $elm$browser$Browser$AnimationManager$init = $elm$core$Task$succeed(
 	A3($elm$browser$Browser$AnimationManager$State, _List_Nil, $elm$core$Maybe$Nothing, 0));
 var $elm$browser$Browser$AnimationManager$now = _Browser_now(_Utils_Tuple0);
 var $elm$browser$Browser$AnimationManager$rAF = _Browser_rAF(_Utils_Tuple0);
+var $elm$core$Process$spawn = _Scheduler_spawn;
 var $elm$browser$Browser$AnimationManager$onEffects = F3(
 	function (router, subs, _v0) {
 		var request = _v0.request;
@@ -6165,6 +5921,10 @@ var $elm$browser$Browser$AnimationManager$onEffects = F3(
 			}
 		}
 	});
+var $elm$time$Time$Posix = function (a) {
+	return {$: 'Posix', a: a};
+};
+var $elm$time$Time$millisToPosix = $elm$time$Time$Posix;
 var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
 	function (router, newTime, _v0) {
 		var subs = _v0.subs;
@@ -6210,6 +5970,11 @@ var $elm$browser$Browser$AnimationManager$onSelfMsg = F3(
 var $elm$browser$Browser$AnimationManager$Delta = function (a) {
 	return {$: 'Delta', a: a};
 };
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
 var $elm$browser$Browser$AnimationManager$subMap = F2(
 	function (func, sub) {
 		if (sub.$ === 'Time') {
@@ -6275,8 +6040,7 @@ var $author$project$ElmAndTone$subscriptions = function (model) {
 						return $author$project$ElmAndTone$NoteOff(key);
 					},
 					$author$project$ElmAndTone$keyDecoder)),
-				A2($rundis$elm_bootstrap$Bootstrap$Dropdown$subscriptions, model.oscillatorDropdown, $author$project$ElmAndTone$DropdownChange),
-				A2($elm$time$Time$every, 1000, $author$project$ElmAndTone$Tick)
+				A2($rundis$elm_bootstrap$Bootstrap$Dropdown$subscriptions, model.oscillatorDropdown, $author$project$ElmAndTone$DropdownChange)
 			]));
 };
 var $elm$core$List$filter = F2(
@@ -6327,32 +6091,11 @@ var $author$project$ElmAndTone$noteOff = F2(
 					function (note) {
 						return _Utils_eq(note.key, key) ? _Utils_update(
 							note,
-							{timeTriggered: 0, triggered: false}) : note;
+							{triggered: false}) : note;
 					},
 					model.notes)
 			});
 	});
-var $elm$core$Debug$log = _Debug_log;
-var $elm$time$Time$flooredDiv = F2(
-	function (numerator, denominator) {
-		return $elm$core$Basics$floor(numerator / denominator);
-	});
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $elm$time$Time$posixToMillis = function (_v0) {
-	var millis = _v0.a;
-	return millis;
-};
-var $elm$time$Time$toSecond = F2(
-	function (_v0, time) {
-		return A2(
-			$elm$core$Basics$modBy,
-			60,
-			A2(
-				$elm$time$Time$flooredDiv,
-				$elm$time$Time$posixToMillis(time),
-				1000));
-	});
-var $elm$time$Time$utc = A2($elm$time$Time$Zone, 0, _List_Nil);
 var $author$project$ElmAndTone$noteOn = F2(
 	function (key, model) {
 		return _Utils_update(
@@ -6361,23 +6104,9 @@ var $author$project$ElmAndTone$noteOn = F2(
 				notes: A2(
 					$elm$core$List$map,
 					function (note) {
-						if (_Utils_eq(note.key, key)) {
-							var m = A2(
-								$elm$core$Debug$log,
-								'model',
-								A2($elm$time$Time$toSecond, $elm$time$Time$utc, model.time));
-							return _Utils_update(
-								note,
-								{
-									timeTriggered: A2(
-										$elm$core$Debug$log,
-										'time',
-										A2($elm$time$Time$toSecond, $elm$time$Time$utc, model.time)),
-									triggered: true
-								});
-						} else {
-							return note;
-						}
+						return _Utils_eq(note.key, key) ? _Utils_update(
+							note,
+							{triggered: true}) : note;
 					},
 					model.notes)
 			});
@@ -6473,29 +6202,30 @@ var $author$project$Envelope$update = F2(
 var $author$project$ElmAndTone$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
-			case 'Tick':
-				var newTime = msg.a;
-				var m = _Utils_update(
-					model,
-					{time: newTime});
-				return _Utils_Tuple2(m, $elm$core$Platform$Cmd$none);
 			case 'SliderChange':
 				var typ = msg.a;
 				var val = msg.b;
 				var newModel = function () {
-					if (typ === 'volume-') {
-						return _Utils_update(
-							model,
-							{
-								volumeSlider: A2($carwow$elm_slider$SingleSlider$update, val, model.volumeSlider)
-							});
-					} else {
-						return _Debug_todo(
-							'ElmAndTone',
-							{
-								start: {line: 216, column: 20},
-								end: {line: 216, column: 30}
-							})('undefined Slider Changed');
+					switch (typ) {
+						case 'volume-':
+							return _Utils_update(
+								model,
+								{
+									volumeSlider: A2($carwow$elm_slider$SingleSlider$update, val, model.volumeSlider)
+								});
+						case 'partial-':
+							return _Utils_update(
+								model,
+								{
+									partialSlider: A2($carwow$elm_slider$SingleSlider$update, val, model.partialSlider)
+								});
+						default:
+							return _Debug_todo(
+								'ElmAndTone',
+								{
+									start: {line: 216, column: 18},
+									end: {line: 216, column: 28}
+								})('undefined Slider Changed');
 					}
 				}();
 				var message = _Utils_ap(
@@ -6503,33 +6233,6 @@ var $author$project$ElmAndTone$update = F2(
 					$elm$core$Debug$toString(val));
 				return _Utils_Tuple2(
 					newModel,
-					$author$project$ElmAndTone$makeAndSendAudio(message));
-			case 'DropdownChange':
-				var state = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{oscillatorDropdown: state}),
-					$elm$core$Platform$Cmd$none);
-			case 'OscillatorSine':
-				var message = 'sine-0';
-				return _Utils_Tuple2(
-					model,
-					$author$project$ElmAndTone$makeAndSendAudio(message));
-			case 'OscillatorSquare':
-				var message = 'square-0';
-				return _Utils_Tuple2(
-					model,
-					$author$project$ElmAndTone$makeAndSendAudio(message));
-			case 'OscillatorTriangle':
-				var message = 'triangle-0';
-				return _Utils_Tuple2(
-					model,
-					$author$project$ElmAndTone$makeAndSendAudio(message));
-			case 'OscillatorSawtooth':
-				var message = 'sawtooth-0';
-				return _Utils_Tuple2(
-					model,
 					$author$project$ElmAndTone$makeAndSendAudio(message));
 			case 'NoOp':
 				return A2($elm$core$Tuple$pair, model, $elm$core$Platform$Cmd$none);
@@ -6555,7 +6258,7 @@ var $author$project$ElmAndTone$update = F2(
 				return _Utils_Tuple2(
 					$author$project$ElmAndTone$transposeDown(model),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'EnvMessage':
 				var envelopeMsg = msg.a;
 				var _v2 = A2($author$project$Envelope$update, envelopeMsg, model.addEnv);
 				var newEnv = _v2.a;
@@ -6565,6 +6268,33 @@ var $author$project$ElmAndTone$update = F2(
 						model,
 						{addEnv: newEnv}),
 					$author$project$ElmAndTone$makeAndSendAudio(str));
+			case 'DropdownChange':
+				var state = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{oscillatorDropdown: state}),
+					$elm$core$Platform$Cmd$none);
+			case 'OscillatorSine':
+				var message = 'oscillator-sine';
+				return _Utils_Tuple2(
+					model,
+					$author$project$ElmAndTone$makeAndSendAudio(message));
+			case 'OscillatorSquare':
+				var message = 'oscillator-square';
+				return _Utils_Tuple2(
+					model,
+					$author$project$ElmAndTone$makeAndSendAudio(message));
+			case 'OscillatorTriangle':
+				var message = 'oscillator-triangle';
+				return _Utils_Tuple2(
+					model,
+					$author$project$ElmAndTone$makeAndSendAudio(message));
+			default:
+				var message = 'oscillator-sawtooth';
+				return _Utils_Tuple2(
+					model,
+					$author$project$ElmAndTone$makeAndSendAudio(message));
 		}
 	});
 var $author$project$ElmAndTone$EnvMessage = function (a) {
@@ -6916,59 +6646,6 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$primary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
-var $elm$time$Time$toAdjustedMinutesHelp = F3(
-	function (defaultOffset, posixMinutes, eras) {
-		toAdjustedMinutesHelp:
-		while (true) {
-			if (!eras.b) {
-				return posixMinutes + defaultOffset;
-			} else {
-				var era = eras.a;
-				var olderEras = eras.b;
-				if (_Utils_cmp(era.start, posixMinutes) < 0) {
-					return posixMinutes + era.offset;
-				} else {
-					var $temp$defaultOffset = defaultOffset,
-						$temp$posixMinutes = posixMinutes,
-						$temp$eras = olderEras;
-					defaultOffset = $temp$defaultOffset;
-					posixMinutes = $temp$posixMinutes;
-					eras = $temp$eras;
-					continue toAdjustedMinutesHelp;
-				}
-			}
-		}
-	});
-var $elm$time$Time$toAdjustedMinutes = F2(
-	function (_v0, time) {
-		var defaultOffset = _v0.a;
-		var eras = _v0.b;
-		return A3(
-			$elm$time$Time$toAdjustedMinutesHelp,
-			defaultOffset,
-			A2(
-				$elm$time$Time$flooredDiv,
-				$elm$time$Time$posixToMillis(time),
-				60000),
-			eras);
-	});
-var $elm$time$Time$toHour = F2(
-	function (zone, time) {
-		return A2(
-			$elm$core$Basics$modBy,
-			24,
-			A2(
-				$elm$time$Time$flooredDiv,
-				A2($elm$time$Time$toAdjustedMinutes, zone, time),
-				60));
-	});
-var $elm$time$Time$toMinute = F2(
-	function (zone, time) {
-		return A2(
-			$elm$core$Basics$modBy,
-			60,
-			A2($elm$time$Time$toAdjustedMinutes, zone, time));
-	});
 var $rundis$elm_bootstrap$Bootstrap$Dropdown$DropdownToggle = function (a) {
 	return {$: 'DropdownToggle', a: a};
 };
@@ -7923,12 +7600,6 @@ var $author$project$Envelope$view = function (env) {
 			]));
 };
 var $author$project$ElmAndTone$view = function (model) {
-	var second = $elm$core$String$fromInt(
-		A2($elm$time$Time$toSecond, $elm$time$Time$utc, model.time));
-	var minute = $elm$core$String$fromInt(
-		A2($elm$time$Time$toMinute, $elm$time$Time$utc, model.time));
-	var hour = $elm$core$String$fromInt(
-		A2($elm$time$Time$toHour, $elm$time$Time$utc, model.time));
 	return A2(
 		$elm$html$Html$main_,
 		_List_fromArray(
@@ -7956,13 +7627,6 @@ var $author$project$ElmAndTone$view = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Click to activate Web Audio context')
-					])),
-				A2(
-				$elm$html$Html$h1,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(hour + (':' + (minute + (':' + second))))
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -8083,6 +7747,13 @@ var $author$project$ElmAndTone$view = function (model) {
 									])),
 							toggleMsg: $author$project$ElmAndTone$DropdownChange
 						})
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$carwow$elm_slider$SingleSlider$view(model.partialSlider)
 					]))
 			]));
 };
