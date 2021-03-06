@@ -1,16 +1,33 @@
 # ElmMusic
 A Synthesizer implemented in Elm using Tone.js.
 
-To play, clone the file and install the dependencies by running
+The following steps are performed in the command line.
+First, clone the directory and install npm:
 
-npm install in the directory
+`npm install`.
 
-elm make src/ElmAndTone.elm --output elm-comp.js
+If this doesn't work, you may need to run
 
-Then run a server in the same directory as index.html
+`npm init -y`.
 
-I like to use http-server
-Install using npm -> npm install http-server
-Then run by typing: http-server in a commandline, then visit the site.
+Then make using the command:
 
+`elm make src/ElmAndTone.elm --output elm-comp.js`
 
+Then run a server in the same directory as index.html. I like to use http-server. To install using npm, run:
+
+`npm install http-server`
+
+Start the server: 
+
+`http-server` 
+
+and visit the site provided.
+
+You may also need to install the following:
+
+`npm install tone`
+
+`elm install carwow/elm-slider`
+
+`elm install rundis/elm-bootstrap`
