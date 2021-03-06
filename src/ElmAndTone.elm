@@ -51,6 +51,7 @@ type alias Model =
   , partialSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
   , oscillatorDropdown : Dropdown.State
+  , oscillatorType : String
   , notes : List Note
   }
 
@@ -89,6 +90,8 @@ initialModel =
         |> SingleSlider.withMaxFormatter maxFormatter
   , oscillatorDropdown =
       Dropdown.initialState
+  , oscillatorType =
+      "Triangle"
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, clr = W }
     , { key = "s", midi = 49, triggered = False, detriggered = False, clr = B }
@@ -272,7 +275,7 @@ update msg model =
         message : String
         message = "oscillator-sine"
       in
-      ( model
+      ({ model | oscillatorType = "Sine" }
       , makeAndSendAudio message
       )
 
@@ -281,7 +284,7 @@ update msg model =
         message : String
         message = "oscillator-square"
       in
-      ( model
+      ({ model | oscillatorType = "Square" }
       , makeAndSendAudio message
       )
 
@@ -290,7 +293,7 @@ update msg model =
         message : String
         message = "oscillator-triangle"
       in
-      ( model
+      ({ model | oscillatorType = "Triangle" }
       , makeAndSendAudio message
       )
 
@@ -299,7 +302,7 @@ update msg model =
         message : String
         message = "oscillator-sawtooth"
       in
-      ( model
+      ({ model | oscillatorType = "Sawtooth" }
       , makeAndSendAudio message
       )
 
@@ -318,9 +321,9 @@ mtof midi =
 getBlackOffset: Int -> Color -> Attribute msg
 getBlackOffset num clr =
     case clr of
-        B -> style "" ""--"left" (String.fromInt ((48*(num+1))-12) ++ "px")
+        B -> style "" ""--"left" (String.fromInt (((num-1))) ++ "px")
         W -> if (num==28) then style "border-right-width" "1px"
-             else style "" ""
+             else style "" "" --"left" (String.fromInt (num) ++ "px")
 
 
 -- VIEW -----------------------------------------------------------------------
@@ -353,10 +356,10 @@ view model =
   main_ [ class "m-10 body" ]
     [ h1 [ class "text-3xl my-10" ]
         [ text "ElmSynth" ]
-    , p [ class "p-2 my-6" ]
-        [ text "Type on the keyboard to play notes" ]
     , div [] [ SingleSlider.view model.volumeSlider ]
     , pre [] [ text "" ]
+    , p [ class "p-0 my-6" ]
+        [ text ("Oscillator selected: " ++ (model.oscillatorType)) ]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]
       , toggleMsg = DropdownChange
@@ -370,6 +373,8 @@ view model =
       }]
     , div [] [ SingleSlider.view model.partialSlider ]
     , pre [] [ text "" ]
+    , p [ class "p-0 my-6" ]
+        [ text "Type on the keyboard to play notes!" ]
     , div [ class "keaboard" ]
         <| List.indexedMap noteView model.notes
     , div [ class "p-2 my-6" ]
@@ -378,7 +383,12 @@ view model =
         , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
             [ text "Transpose down" ]
         ]
+    , pre [] [ text "" ]
+    , p [ class "p-0 my-6" ]
+        [ text "Envelope" ]
     , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+    , pre [] [ text "" ]
+    , pre [] [ text "" ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
