@@ -14,11 +14,11 @@ Install using npm:
 
 `npm install http-server`
 
-Then run by typing: 
+Start the server: 
 
 `http-server` 
 
-in the command line, then visit the site provided.
+and visit the site provided.
 
 You may also need to install the following:
 
