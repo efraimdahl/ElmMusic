@@ -354,17 +354,9 @@ view model =
     [ h1 [ class "text-3xl my-10" ]
         [ text "ElmSynth" ]
     , p [ class "p-2 my-6" ]
-        [ text """Use keyboard to play notes""" ]
-    , div [ class "p-2 my-6" ]
-        [ button [ onClick TransposeUp, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
-            [ text "Transpose up" ]
-        , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
-            [ text "Transpose down" ]
-        ]
-    , div [ class "keaboard" ]
-        <| List.indexedMap noteView model.notes
+        [ text "Type on the keyboard to play notes" ]
     , div [] [ SingleSlider.view model.volumeSlider ]
-    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+    , pre [] [ text "" ]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]
       , toggleMsg = DropdownChange
@@ -377,6 +369,16 @@ view model =
         ]
       }]
     , div [] [ SingleSlider.view model.partialSlider ]
+    , pre [] [ text "" ]
+    , div [ class "keaboard" ]
+        <| List.indexedMap noteView model.notes
+    , div [ class "p-2 my-6" ]
+        [ button [ onClick TransposeUp, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+            [ text "Transpose up" ]
+        , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+            [ text "Transpose down" ]
+        ]
+    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
     ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
