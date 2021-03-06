@@ -3,7 +3,7 @@ port module ElmAndTone exposing (..)
 import Browser
 import Browser.Events
 --
-import Html exposing (Html, Attribute, a, div, pre, p, code, h1, text, main_, button)
+import Html exposing (Html, Attribute, a, div, pre, p, code, h1, h4, text, main_, button)
 import Html.Attributes exposing (class, href,style)
 import Html.Events exposing (onClick)
 --
@@ -14,6 +14,8 @@ import SingleSlider exposing (..)
 --
 import Bootstrap.Button as Button
 import Bootstrap.Dropdown as Dropdown
+import Bootstrap.Tab as Tab
+import Bootstrap.Utilities.Spacing as Spacing
 
 import Envelope
 
@@ -52,6 +54,7 @@ type alias Model =
   , addEnv : Envelope.Envelope
   , oscillatorDropdown : Dropdown.State
   , oscillatorType : String
+  , envelopeTab : Tab.State
   , notes : List Note
   }
 
@@ -92,6 +95,8 @@ initialModel =
       Dropdown.initialState
   , oscillatorType =
       "Triangle"
+  , envelopeTab =
+      Tab.initialState
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, clr = W }
     , { key = "s", midi = 49, triggered = False, detriggered = False, clr = B }
@@ -149,6 +154,8 @@ type Msg
   | OscillatorSquare
   | OscillatorTriangle
   | OscillatorSawtooth
+  --
+  | TabChange Tab.State
 
 
 noteOn : String -> Model -> Model
@@ -306,6 +313,11 @@ update msg model =
       , makeAndSendAudio message
       )
 
+    TabChange state ->
+      ({ model | envelopeTab = state }
+      , Cmd.none
+      )
+
 
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
@@ -384,12 +396,30 @@ view model =
             [ text "Transpose down" ]
         ]
     , pre [] [ text "" ]
-    , p [ class "p-0 my-6" ]
-        [ text "Envelope" ]
-    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
-    , pre [] [ text "" ]
-    , pre [] [ text "" ]
-    ]
+    , Tab.config TabChange
+        |> Tab.items
+          [ Tab.item
+              { id = "tabItem1"
+              , link = Tab.link [] [ text "Preset Envelopes" ]
+              , pane =
+                  Tab.pane [ Spacing.mt3 ]
+                    [ p [] [ text "Choose an instrument" ]
+                    ]
+              }
+          , Tab.item
+              { id = "tabItem2"
+              , link = Tab.link [] [ text "Create Envelope" ]
+              , pane =
+                  Tab.pane [ Spacing.mt3 ]
+                    [ p [] [ text "Toggle the sliders to create your own envelope" ]
+                    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+                    ]
+              }
+          ]
+        |> Tab.view model.envelopeTab
+      , pre [] [ text "" ]
+      , pre [] [ text "" ]
+      ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
 

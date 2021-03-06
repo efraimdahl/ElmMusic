@@ -2,27 +2,27 @@ module Envelope exposing(..)
 
 import Browser
 import Browser.Events
-import Html exposing (Html, div)
+import Html exposing (Html, div, text)
 import Html.Attributes exposing (class)
 import Html.Events
 
 import SingleSlider exposing (..)
+import Bootstrap.Table as Table
 
-type alias Envelope = 
-    { 
-      attack : SingleSlider.SingleSlider Message
-      ,decay : SingleSlider.SingleSlider Message
-      ,sustain : SingleSlider.SingleSlider Message
-      ,release : SingleSlider.SingleSlider Message
-      ,effecting : String
-    }
+type alias Envelope =
+  { attack : SingleSlider.SingleSlider Message
+  , decay : SingleSlider.SingleSlider Message
+  , sustain : SingleSlider.SingleSlider Message
+  , release : SingleSlider.SingleSlider Message
+  , effecting : String
+  }
 
 type Message
   = SliderChange String Float
-  
+
 
 init : String -> Envelope
-init str = 
+init str =
   let
     minFormatter = \value -> ""
     valueFormatterAt = \value not_used_value -> "Attack: " ++ (String.fromFloat value)
@@ -31,7 +31,7 @@ init str =
     valueFormatterRe = \value not_used_value -> "Release: " ++ (String.fromFloat value)
     maxFormatter = \value -> ""
   in
-  {attack =
+  { attack =
       SingleSlider.init
         { min = 0.0005
         , max = 3
@@ -81,29 +81,40 @@ init str =
 
 update : Message -> Envelope -> (Envelope,String)
 update msg env =
-    case msg of
-        SliderChange typ val ->
-            let 
-                newModel : Envelope
-                newModel = 
-                    case typ of 
-                    "attack-" -> {env | attack = (SingleSlider.update val env.attack)}
-                    "decay-" -> {env | decay = (SingleSlider.update val env.decay)}
-                    "sustain-" -> {env | sustain = (SingleSlider.update val env.sustain)}
-                    "releaseEnv-" -> {env | release = (SingleSlider.update val env.release)}
-                    _ -> Debug.todo("undefined Slider Changed")
+  case msg of
+    SliderChange typ val ->
+      let
+        newModel : Envelope
+        newModel =
+          case typ of
+          "attack-" -> {env | attack = (SingleSlider.update val env.attack)}
+          "decay-" -> {env | decay = (SingleSlider.update val env.decay)}
+          "sustain-" -> {env | sustain = (SingleSlider.update val env.sustain)}
+          "releaseEnv-" -> {env | release = (SingleSlider.update val env.release)}
+          _ -> Debug.todo("undefined Slider Changed")
 
-                message : String
-                message = env.effecting++"-"++typ++Debug.toString(val)
-            in
-            ( newModel
-            , message )
+        message : String
+        message = env.effecting++"-"++typ++Debug.toString(val)
+      in
+      ( newModel
+      , message )
 
 
 view : Envelope -> Html Message
-view env = 
-    div [] [
-    div [] [ SingleSlider.view env.attack ]
-    , div [] [ SingleSlider.view env.decay ]
-    , div [] [ SingleSlider.view env.sustain ]
-    , div [] [ SingleSlider.view env.release ]]
+view env =
+  Table.simpleTable
+    ( Table.simpleThead
+      [ Table.th [] [ text "Attack/Decay" ]
+      , Table.th [] [ text "Sustain/Release" ]
+      ]
+    , Table.tbody []
+      [ Table.tr []
+        [ Table.td [] [ SingleSlider.view env.attack ]
+        , Table.td [] [ SingleSlider.view env.sustain ]
+        ]
+      , Table.tr []
+        [ Table.td [] [ SingleSlider.view env.decay ]
+        , Table.td [] [ SingleSlider.view env.release ]
+        ]
+      ]
+    )
