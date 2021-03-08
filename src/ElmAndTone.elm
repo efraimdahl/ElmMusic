@@ -17,7 +17,10 @@ import Bootstrap.Dropdown as Dropdown
 import Bootstrap.Tab as Tab
 import Bootstrap.Utilities.Spacing as Spacing
 
+import Dict
+
 import Envelope
+import Effect
 
 type alias Flags = ()
 
@@ -52,7 +55,9 @@ type alias Model =
   { volumeSlider : SingleSlider.SingleSlider Msg
   , partialSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
+  , effects : Dict.Dict String Effect.Effect
   , oscillatorDropdown : Dropdown.State
+  , effectsDropdown : Dropdown.State
   , oscillatorType : String
   , envelopeTab : Tab.State
   , notes : List Note
@@ -93,6 +98,8 @@ initialModel =
         |> SingleSlider.withMaxFormatter maxFormatter
   , oscillatorDropdown =
       Dropdown.initialState
+  , effectsDropdown =
+      Dropdown.initialState
   , oscillatorType =
       "Triangle"
   , envelopeTab =
@@ -129,8 +136,8 @@ initialModel =
     , { key = "p", midi = 76, triggered = False, detriggered = False, clr = W }
     ]
     , addEnv = Envelope.init "gainenv"
+    , effects=Dict.empty
   }
-
 
 init : () -> (Model, Cmd Msg)
 init _ =
@@ -148,13 +155,13 @@ type Msg
   --
   | SliderChange String Float
   | EnvMessage Envelope.Message
+  | EffectMessage Effect.Message
   --
-  | DropdownChange Dropdown.State
-  | OscillatorSine
-  | OscillatorSquare
-  | OscillatorTriangle
-  | OscillatorSawtooth
-  --
+  | OSCDropdownChange Dropdown.State
+  | FXDropdownChange Dropdown.State
+  | OscillatorChange String
+  | AddFX String
+    --
   | TabChange Tab.State
 
 
@@ -210,6 +217,15 @@ findKey s m =
     [] -> 0
     hd::tail -> mtof (hd.midi)
 
+addEffect: String -> (Effect.Effect,String)
+addEffect str = 
+  case str of 
+  "Distortion" -> (Effect.init "Distortion" 1 ["Distortion"] [(0,1)] [(0,0.01)],"Distortion")
+  "FeedbackDelay" -> (Effect.init "FeedbackDelay" 2 ["Delay","Feedback"] [(0,10),(0,1)] [(0,0.01),(0,0.01)],"FeedbackDelay")
+  "FrequencyShifter" ->(Effect.init "FrequencyShifter" 1 ["FrequencyShifter"] [(0,1000)] [(0,2)],"FrequencyShifter")
+  "BitCrusher" ->(Effect.init "BitCrusher" 1 ["BitCrusher"] [(1,16)] [(1,1)],"BitCrusher")
+  "Chebyshev" ->(Effect.init "Chebyshev" 1 ["Chebyshev"] [(2,100)] [(2,1)],"Chebyshev")
+  _ -> Debug.todo("Effect needs to be included")
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -271,48 +287,44 @@ update msg model =
       ({ model | addEnv = newEnv }
       , makeAndSendAudio str
       )
-
-    DropdownChange state ->
+    
+    EffectMessage fXMsg->
+      let 
+        name : String
+        name = (Debug.log "Effect Name" (Effect.getChangedName fXMsg))
+        comp : Maybe Effect.Effect
+        comp = Dict.get name model.effects
+      in
+      case comp of 
+        Nothing -> (model, Cmd.none)
+        Just effect ->
+          let 
+            (fx,message) = Effect.update fXMsg effect
+          in
+          ({model|effects = Dict.insert name fx model.effects}
+          ,makeAndSendAudio ("changeFX-"++message))
+    OSCDropdownChange state ->
       ({ model | oscillatorDropdown = state }
       , Cmd.none
       )
-
-    OscillatorSine ->
-      let
-        message : String
-        message = "oscillator-sine"
-      in
-      ({ model | oscillatorType = "Sine" }
-      , makeAndSendAudio message
+    FXDropdownChange state ->
+      ({ model | effectsDropdown = state }
+      , Cmd.none
       )
-
-    OscillatorSquare ->
+    AddFX effectName ->
       let
-        message : String
-        message = "oscillator-square"
+        (newFX,name)  = addEffect effectName
       in
-      ({ model | oscillatorType = "Square" }
-      , makeAndSendAudio message
-      )
-
-    OscillatorTriangle ->
-      let
-        message : String
-        message = "oscillator-triangle"
+      ({ model | effects = (Dict.insert name newFX model.effects)}
+      , makeAndSendAudio ("addFX-"++effectName))
+    OscillatorChange st ->
+      let 
+        message : String 
+        message = "oscillator-"++st
       in
-      ({ model | oscillatorType = "Triangle" }
-      , makeAndSendAudio message
-      )
-
-    OscillatorSawtooth ->
-      let
-        message : String
-        message = "oscillator-sawtooth"
-      in
-      ({ model | oscillatorType = "Sawtooth" }
-      , makeAndSendAudio message
-      )
-
+      ({model | oscillatorType = st},
+      makeAndSendAudio message)
+    
     TabChange state ->
       ({ model | envelopeTab = state }
       , Cmd.none
@@ -362,6 +374,9 @@ noteView i note =
   div [ class <| noteCSS i note.triggered note.clr, class "Key", (getBlackOffset i note.clr)]
     [ text note.key ]
 
+viewEffect: String ->Effect.Effect -> Html Msg
+viewEffect str fx = div [] [Effect.view fx |> Html.map EffectMessage]
+
 
 view : Model -> Html Msg
 view model =
@@ -374,13 +389,13 @@ view model =
         [ text ("Oscillator selected: " ++ (model.oscillatorType)) ]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]
-      , toggleMsg = DropdownChange
+      , toggleMsg = OSCDropdownChange
       , toggleButton = Dropdown.toggle [ Button.primary ][ text "Change Oscillator Type" ]
       , items =
-        [ Dropdown.buttonItem [ onClick OscillatorSine ] [ text "Sine" ]
-        , Dropdown.buttonItem [ onClick OscillatorSquare ] [ text "Square" ]
-        , Dropdown.buttonItem [ onClick OscillatorTriangle ] [ text "Triange" ]
-        , Dropdown.buttonItem [ onClick OscillatorSawtooth ] [ text "Sawtooth" ]
+        [ Dropdown.buttonItem [ onClick (OscillatorChange "sine") ] [ text "Sine" ]
+        , Dropdown.buttonItem [ onClick (OscillatorChange "square") ] [ text "Square" ]
+        , Dropdown.buttonItem [ onClick (OscillatorChange "triangle") ] [ text "Triange" ]
+        , Dropdown.buttonItem [ onClick (OscillatorChange "sawtooth") ] [ text "Sawtooth" ]
         ]
       }]
     , div [] [ SingleSlider.view model.partialSlider ]
@@ -413,6 +428,20 @@ view model =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Toggle the sliders to create your own envelope" ]
                     , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+                    , p [] [text "Add/Remove Effects here"]
+                    , div [] (Dict.values (Dict.map viewEffect model.effects))
+                    , div [] [ Dropdown.dropdown model.effectsDropdown
+                        { options = [ Dropdown.alignMenuRight ]
+                        , toggleMsg = FXDropdownChange
+                        , toggleButton = Dropdown.toggle [ Button.primary ][ text "Add Effect" ]
+                        , items =
+                          [ Dropdown.buttonItem [ onClick (AddFX "Distortion") ] [ text "Distortion" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "BitCrusher") ] [ text "BitCrusher" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "Chebyshev") ] [ text "Chebyshev" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "FrequencyShifter") ] [ text "FrequencyShifter" ]
+                          --, Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
+                          ]
+                        }]
                     ]
               }
           ]
@@ -437,5 +466,6 @@ subscriptions model =
   Sub.batch
     [ Browser.Events.onKeyDown (Decode.map (\key -> NoteOn key) keyDecoder)
     , Browser.Events.onKeyUp (Decode.map (\key -> NoteOff key) keyDecoder)
-    , Dropdown.subscriptions model.oscillatorDropdown DropdownChange
+    , Dropdown.subscriptions model.oscillatorDropdown OSCDropdownChange
+    , Dropdown.subscriptions model.effectsDropdown FXDropdownChange
     ]

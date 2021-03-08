@@ -1,5 +1,6 @@
 //Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
 
+
 /*
 The variable prev_osc_type keeps track of the previous oscillator type that
 was selected by the user. It will default to triangle if the user does
@@ -18,6 +19,73 @@ export default class PolySynthPlayer {
   }
 
 
+  addFX(synth,props,type){
+    switch(type){
+      case "Distortion":
+        props.Distortion = new Tone.Distortion(0).toDestination()
+        synth.connect(props.Distortion)
+        break;
+      case "Chebyshev":
+        props.Chebyshev = new Tone.Chebyshev(1).toDestination()
+        synth.connect(props.Chebyshev)
+        break;
+      case "BitCrusher":
+        props.BitCrusher = new Tone.BitCrusher(1).toDestination()
+        synth.connect(props.BitCrusher)
+        break;
+      case "FeedbackDelay":
+        props.FeedbackDelay = new Tone.FeedbackDelay(0,0).toDestination()
+        synth.connect(props.FeedbackDelay)
+        break;
+      case "FrequencyShifter":
+        props.FrequencyShifter = new Tone.FrequencyShifter(0).toDestination()
+        synth.connect(props.FrequencyShifter)
+        break;
+    }
+  }
+  changeFX(props,name,param,value){
+    switch(name){
+      case "Distortion":
+        switch (param){
+          case "Distortion":
+            console.log("changing distortion to: " + String(value))
+            props.Distortion.distortion = value
+            break;
+        }
+        break;
+      case "FeedbackDelay":
+        switch (param){
+          case "Delay":
+            console.log("changing distortion to: " + String(value))
+            props.FeedbackDelay.delayTime = value
+            break;
+          case "Feedback":
+            props.FeedbackDelay.feedback = value
+            break;
+        }
+        break;
+      case "FrequencyShifter":
+        switch (param){
+          case "FrequencyShifter":
+            props.FrequencyShifter.frequency = value
+            break;
+        }
+        break;
+      case "BitCrusher":
+        switch (param){
+          case "BitCrusher":
+            props.BitCrusher.bits = value
+        }
+        break;
+      case "Chebyshev":
+        switch (param){
+          case "Chebyshev":
+            console.log("changing Chebyshev to: " + String(value))
+            props.Chebyshev.order = value
+        }
+        break;
+  }
+}
   // Public Methods ============================================================
   update (graph,synth,props,osc) {
     console.log(graph)
@@ -89,25 +157,16 @@ export default class PolySynthPlayer {
         }
         break;
       case 'oscillator':
-        switch(cmdLst[1]) {
-          case 'sine':
-            synth.set({oscillator:{type:'sine'}})
-            prev_osc_type = "sine"
-            break;
-          case 'square':
-            synth.set({oscillator:{type:'square'}})
-            prev_osc_type = "square"
-            break;
-          case 'triangle':
-            synth.set({oscillator:{type:'triangle'}})
-            prev_osc_type = "triangle"
-            break;
-          case 'sawtooth':
-            synth.set({oscillator:{type:'sawtooth'}})
-            prev_osc_type = "sawtooth"
-            break;
-        }
+        synth.set({oscillator:{type:cmdLst[1]}})
+        prev_osc_type = cmdLst[1]
         break;
-      }
+      case 'addFX':
+        this.addFX(synth,props,cmdLst[1])
+        break;
+      case 'changeFX':
+        this.changeFX(props,cmdLst[1],cmdLst[2],cmdLst[3])
+        break;
+    }
     }
   }
+

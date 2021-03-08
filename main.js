@@ -29,6 +29,8 @@ const App = Elm.ElmAndTone.init({
 })
 
 let props={activeVoices : [],envelope : env}
+props.Distortion = new Tone.Distortion(0).toDestination()
+synth.connect(props.Distortion)
 App.ports.updateAudio.subscribe(function(graph){
   audio.update(graph,synth,props)
 })
