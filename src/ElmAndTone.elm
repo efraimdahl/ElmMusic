@@ -17,6 +17,8 @@ import Bootstrap.Dropdown as Dropdown
 import Bootstrap.Tab as Tab
 import Bootstrap.Utilities.Spacing as Spacing
 
+import String.Extra
+
 import Dict
 
 import Envelope
@@ -218,10 +220,10 @@ findKey s m =
   case mainVal of
     [] -> 0
     hd::tail -> mtof (hd.midi)
---Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size, 
+--Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size,
 addEffect: String -> (Effect.Effect,String)
-addEffect str = 
-  case str of 
+addEffect str =
+  case str of
   "Distortion" -> (Effect.init "Distortion" 1 ["Distortion"] [(0,1)] [(0,0.01)],"Distortion")
   "FeedbackDelay" -> (Effect.init "FeedbackDelay" 2 ["Delay","Feedback"] [(0,1),(0,1)] [(0,0.01),(0,0.01)],"FeedbackDelay")
   "FrequencyShifter" ->(Effect.init "FrequencyShifter" 1 ["FrequencyShifter"] [(0,1000)] [(0,2)],"FrequencyShifter")
@@ -291,18 +293,18 @@ update msg model =
       ({ model | addEnv = newEnv }
       , makeAndSendAudio str
       )
-    
+
     EffectMessage fXMsg->
-      let 
+      let
         name : String
         name = (Debug.log "Effect Name" (Effect.getChangedName fXMsg))
         comp : Maybe Effect.Effect
         comp = Dict.get name model.effects
       in
-      case comp of 
+      case comp of
         Nothing -> (model, Cmd.none)
         Just effect ->
-          let 
+          let
             (fx,message) = Effect.update fXMsg effect
           in
           ({model|effects = Dict.insert name fx model.effects}
@@ -322,13 +324,13 @@ update msg model =
       ({ model | effects = (Dict.insert name newFX model.effects), effectNum = (model.effectNum+1)}
       , makeAndSendAudio ("addFX-"++effectName))
     OscillatorChange st ->
-      let 
-        message : String 
+      let
+        message : String
         message = "oscillator-"++st
       in
       ({model | oscillatorType = st},
       makeAndSendAudio message)
-    
+
     TabChange state ->
       ({ model | envelopeTab = state }
       , Cmd.none
@@ -390,7 +392,7 @@ view model =
     , div [] [ SingleSlider.view model.volumeSlider ]
     , pre [] [ text "" ]
     , p [ class "p-0 my-6" ]
-        [ text ("Oscillator selected: " ++ (model.oscillatorType)) ]
+        [ text ("Oscillator selected: " ++ String.Extra.toSentenceCase(model.oscillatorType)) ]
     , div [] [ Dropdown.dropdown model.oscillatorDropdown
       { options = [ Dropdown.alignMenuRight ]
       , toggleMsg = OSCDropdownChange
