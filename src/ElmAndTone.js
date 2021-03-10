@@ -23,23 +23,45 @@ export default class PolySynthPlayer {
     switch(type){
       case "Distortion":
         props.Distortion = new Tone.Distortion(0).toDestination()
-        synth.connect(props.Distortion)
+        props.last.disconnect()
+        props.last.connect(props.Distortion)
+        props.last=props.Distortion
         break;
-      case "Chebyshev":
+      case "Chebyshev":        
         props.Chebyshev = new Tone.Chebyshev(1).toDestination()
-        synth.connect(props.Chebyshev)
+        props.last.disconnect()
+        props.last.connect(props.Chebyshev)
+        props.last=props.Chebyshev
         break;
       case "BitCrusher":
+        props.last.disconnect()
         props.BitCrusher = new Tone.BitCrusher(1).toDestination()
-        synth.connect(props.BitCrusher)
+        props.last.connect(props.BitCrusher)
+        props.last=props.BitCrusher
         break;
       case "FeedbackDelay":
+        props.last.disconnect()
         props.FeedbackDelay = new Tone.FeedbackDelay(0,0).toDestination()
-        synth.connect(props.FeedbackDelay)
+        props.last.connect(props.FeedbackDelay)
+        props.last=props.FeedbackDelay
         break;
       case "FrequencyShifter":
+        props.last.disconnect()
         props.FrequencyShifter = new Tone.FrequencyShifter(0).toDestination()
-        synth.connect(props.FrequencyShifter)
+        props.last.connect(props.FrequencyShifter)
+        props.last=props.FrequencyShifter
+        break;
+     case "LPFilter":
+        props.last.disconnect()
+        props.LPFilter = new Tone.Filter(100, "lowpass").toDestination();
+        props.last.connect(props.LPFilter)
+        props.last=props.LPFilter
+        break;
+     case "HPFilter":
+        props.last.disconnect()
+        props.HPFilter =new Tone.Filter(100, "highpass").toDestination();
+        props.last.connect(props.HPFilter)
+        props.last=props.HPFilter
         break;
     }
   }
@@ -56,25 +78,29 @@ export default class PolySynthPlayer {
       case "FeedbackDelay":
         switch (param){
           case "Delay":
-            console.log("changing distortion to: " + String(value))
-            props.FeedbackDelay.delayTime = value
+            props.FeedbackDelay.set({delayTime: value})
             break;
           case "Feedback":
-            props.FeedbackDelay.feedback = value
+            props.FeedbackDelay.set({feedback:value})
             break;
         }
         break;
       case "FrequencyShifter":
         switch (param){
           case "FrequencyShifter":
-            props.FrequencyShifter.frequency = value
+            props.FrequencyShifter.set({
+              frequency: value,
+            });
             break;
         }
         break;
       case "BitCrusher":
         switch (param){
           case "BitCrusher":
-            props.BitCrusher.bits = value
+            props.BitCrusher.set({
+              bits:value
+            })
+          break;
         }
         break;
       case "Chebyshev":
@@ -84,10 +110,27 @@ export default class PolySynthPlayer {
             props.Chebyshev.order = value
         }
         break;
+      case "LPFilter":
+        switch (param){
+          case "LPFrequency":
+            props.LPFilter.set({
+              frequency: value,
+            });
+        }
+        break;
+      case "HPFilter":
+        switch(param){
+          case "HPFrequency":
+            props.HPFilter.set({
+              frequency: value,
+            });
+            break;
+        }
+        break;
   }
 }
   // Public Methods ============================================================
-  update (graph,synth,props,osc) {
+  update (graph,synth,props) {
     console.log(graph)
     console.log(props)
     graph = graph.replace(/[&\/\\#,+()$~%'":*?<>{}]/g, '');
@@ -166,6 +209,8 @@ export default class PolySynthPlayer {
       case 'changeFX':
         this.changeFX(props,cmdLst[1],cmdLst[2],cmdLst[3])
         break;
+      
+      "loadPreset-#envelope-attack-10-#envelope-decay-3#oscillator-sawtooth-partials-100"
     }
     }
   }

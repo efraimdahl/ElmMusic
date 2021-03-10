@@ -11,7 +11,7 @@ const synth = new Tone.PolySynth(Tone.Synth, {
     type : "triangle",
     partials: [0, 2, 3, 4],
   }
-}).toDestination();
+})
 
 synth.triggerAttackRelease(["C4", "E4", "A4"], 1);
 
@@ -27,10 +27,9 @@ synth.set({"envelope":env})
 const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')
 })
-
-let props={activeVoices : [],envelope : env}
-props.Distortion = new Tone.Distortion(0).toDestination()
-synth.connect(props.Distortion)
+let props={activeVoices : [],envelope : env,last:Tone.Destination}
+synth.connect(props.last)
+props.last=synth
 App.ports.updateAudio.subscribe(function(graph){
   audio.update(graph,synth,props)
 })

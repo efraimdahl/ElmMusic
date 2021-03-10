@@ -37,7 +37,7 @@ buildSliders fxName lst values settings =
             , max = Tuple.second val
             , value = Tuple.first setting
             , step = Tuple.second setting
-            , onChange = SliderChange (fxName) (hd++"-")
+            , onChange = SliderChange (fxName) hd
             }
             |> SingleSlider.withMinFormatter minFormatter
             |> SingleSlider.withValueFormatter valueFormatter
@@ -62,8 +62,11 @@ changeParam name val paramNames sliders =
   case (paramNames,sliders) of 
   ([],[])->[]
   (p::pNames,slider::rest)->
+    let 
+      i = Debug.log "ELM Names " name ++ (Debug.toString val)
+    in
     if (p==name) then (SingleSlider.update val slider)::(changeParam name val pNames rest)
-    else (SingleSlider.update val slider)::(changeParam name val pNames rest)
+    else slider::(changeParam name val pNames rest)
   _ -> Debug.todo("Invalid Prameter Matchup for "++name)
 
 getChangedName: Message -> String
@@ -81,7 +84,7 @@ update msg env =
         newModel : Effect 
         newModel = {env | parameters = newList}
         message : String
-        message = name++"-"++typ++Debug.toString(val)
+        message = name++"-"++typ++"-"++Debug.toString(val)
       in
       ( newModel
       , message )
@@ -89,7 +92,8 @@ update msg env =
 sliderView : SingleSlider.SingleSlider Message -> Html Message
 sliderView slider =
   div [] [ SingleSlider.view slider]
-  
+
+
 view : Effect -> Html Message
 view env = div []
         <| List.map sliderView env.parameters

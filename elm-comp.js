@@ -5379,6 +5379,7 @@ var $author$project$ElmAndTone$initialModel = function () {
 	};
 	return {
 		addEnv: $author$project$Envelope$init('gainenv'),
+		effectNum: 0,
 		effects: $elm$core$Dict$empty,
 		effectsDropdown: $rundis$elm_bootstrap$Bootstrap$Dropdown$initialState,
 		envelopeTab: $rundis$elm_bootstrap$Bootstrap$Tab$initialState,
@@ -6111,7 +6112,7 @@ var $author$project$Effect$buildSliders = F4(
 									{
 										max: val.b,
 										min: val.a,
-										onChange: A2($author$project$Effect$SliderChange, fxName, hd + '-'),
+										onChange: A2($author$project$Effect$SliderChange, fxName, hd),
 										step: setting.b,
 										value: setting.a
 									}))));
@@ -6171,7 +6172,7 @@ var $author$project$ElmAndTone$addEffect = function (str) {
 						['Delay', 'Feedback']),
 					_List_fromArray(
 						[
-							_Utils_Tuple2(0, 10),
+							_Utils_Tuple2(0, 1),
 							_Utils_Tuple2(0, 1)
 						]),
 					_List_fromArray(
@@ -6231,12 +6232,46 @@ var $author$project$ElmAndTone$addEffect = function (str) {
 							_Utils_Tuple2(2, 1)
 						])),
 				'Chebyshev');
+		case 'HPFilter':
+			return _Utils_Tuple2(
+				A5(
+					$author$project$Effect$init,
+					'HPFilter',
+					1,
+					_List_fromArray(
+						['HPFrequency']),
+					_List_fromArray(
+						[
+							_Utils_Tuple2(1, 18000)
+						]),
+					_List_fromArray(
+						[
+							_Utils_Tuple2(18000, 2)
+						])),
+				'HPFilter');
+		case 'LPFilter':
+			return _Utils_Tuple2(
+				A5(
+					$author$project$Effect$init,
+					'LPFilter',
+					1,
+					_List_fromArray(
+						['LPFrequency']),
+					_List_fromArray(
+						[
+							_Utils_Tuple2(1, 18000)
+						]),
+					_List_fromArray(
+						[
+							_Utils_Tuple2(1, 2)
+						])),
+				'LPFilter');
 		default:
 			return _Debug_todo(
 				'ElmAndTone',
 				{
-					start: {line: 228, column: 8},
-					end: {line: 228, column: 18}
+					start: {line: 232, column: 8},
+					end: {line: 232, column: 18}
 				})('Effect needs to be included');
 	}
 };
@@ -6408,12 +6443,15 @@ var $author$project$Effect$changeParam = F4(
 					var _v2 = _v0.b;
 					var slider = _v2.a;
 					var rest = _v2.b;
+					var i = _Utils_ap(
+						A2($elm$core$Debug$log, 'ELM Names ', name),
+						$elm$core$Debug$toString(val));
 					return _Utils_eq(p, name) ? A2(
 						$elm$core$List$cons,
 						A2($carwow$elm_slider$SingleSlider$update, val, slider),
 						A4($author$project$Effect$changeParam, name, val, pNames, rest)) : A2(
 						$elm$core$List$cons,
-						A2($carwow$elm_slider$SingleSlider$update, val, slider),
+						slider,
 						A4($author$project$Effect$changeParam, name, val, pNames, rest));
 				} else {
 					break _v0$2;
@@ -6423,8 +6461,8 @@ var $author$project$Effect$changeParam = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 67, column: 8},
-				end: {line: 67, column: 18}
+				start: {line: 70, column: 8},
+				end: {line: 70, column: 18}
 			})('Invalid Prameter Matchup for ' + name);
 	});
 var $author$project$Effect$update = F2(
@@ -6436,7 +6474,7 @@ var $author$project$Effect$update = F2(
 		var newModel = _Utils_update(
 			env,
 			{parameters: newList});
-		var message = name + ('-' + (typ + $elm$core$Debug$toString(val)));
+		var message = name + ('-' + (typ + ('-' + $elm$core$Debug$toString(val))));
 		return _Utils_Tuple2(newModel, message);
 	});
 var $author$project$Envelope$update = F2(
@@ -6505,8 +6543,8 @@ var $author$project$ElmAndTone$update = F2(
 							return _Debug_todo(
 								'ElmAndTone',
 								{
-									start: {line: 242, column: 18},
-									end: {line: 242, column: 28}
+									start: {line: 246, column: 18},
+									end: {line: 246, column: 28}
 								})('undefined Slider Changed');
 					}
 				}();
@@ -6595,6 +6633,7 @@ var $author$project$ElmAndTone$update = F2(
 					_Utils_update(
 						model,
 						{
+							effectNum: model.effectNum + 1,
 							effects: A3($elm$core$Dict$insert, name, newFX, model.effects)
 						}),
 					$author$project$ElmAndTone$makeAndSendAudio('addFX-' + effectName));
@@ -9189,6 +9228,39 @@ var $author$project$ElmAndTone$view = function (model) {
 																_List_fromArray(
 																	[
 																		$elm$html$Html$text('FrequencyShifter')
+																	])),
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Dropdown$buttonItem,
+																_List_fromArray(
+																	[
+																		$elm$html$Html$Events$onClick(
+																		$author$project$ElmAndTone$AddFX('FeedbackDelay'))
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('FeedbackDelay')
+																	])),
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Dropdown$buttonItem,
+																_List_fromArray(
+																	[
+																		$elm$html$Html$Events$onClick(
+																		$author$project$ElmAndTone$AddFX('LPFilter'))
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('Low Pass Filter')
+																	])),
+																A2(
+																$rundis$elm_bootstrap$Bootstrap$Dropdown$buttonItem,
+																_List_fromArray(
+																	[
+																		$elm$html$Html$Events$onClick(
+																		$author$project$ElmAndTone$AddFX('HPFilter'))
+																	]),
+																_List_fromArray(
+																	[
+																		$elm$html$Html$text('High Pass Filter')
 																	]))
 															]),
 														options: _List_fromArray(

@@ -61,6 +61,7 @@ type alias Model =
   , oscillatorType : String
   , envelopeTab : Tab.State
   , notes : List Note
+  , effectNum : Int
   }
 
 
@@ -137,6 +138,7 @@ initialModel =
     ]
     , addEnv = Envelope.init "gainenv"
     , effects=Dict.empty
+    , effectNum = 0
   }
 
 init : () -> (Model, Cmd Msg)
@@ -216,15 +218,17 @@ findKey s m =
   case mainVal of
     [] -> 0
     hd::tail -> mtof (hd.midi)
-
+--Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size, 
 addEffect: String -> (Effect.Effect,String)
 addEffect str = 
   case str of 
   "Distortion" -> (Effect.init "Distortion" 1 ["Distortion"] [(0,1)] [(0,0.01)],"Distortion")
-  "FeedbackDelay" -> (Effect.init "FeedbackDelay" 2 ["Delay","Feedback"] [(0,10),(0,1)] [(0,0.01),(0,0.01)],"FeedbackDelay")
+  "FeedbackDelay" -> (Effect.init "FeedbackDelay" 2 ["Delay","Feedback"] [(0,1),(0,1)] [(0,0.01),(0,0.01)],"FeedbackDelay")
   "FrequencyShifter" ->(Effect.init "FrequencyShifter" 1 ["FrequencyShifter"] [(0,1000)] [(0,2)],"FrequencyShifter")
   "BitCrusher" ->(Effect.init "BitCrusher" 1 ["BitCrusher"] [(1,16)] [(1,1)],"BitCrusher")
   "Chebyshev" ->(Effect.init "Chebyshev" 1 ["Chebyshev"] [(2,100)] [(2,1)],"Chebyshev")
+  "HPFilter" ->(Effect.init "HPFilter" 1 ["HPFrequency"] [(1,18000)] [(18000,2)],"HPFilter")
+  "LPFilter" ->(Effect.init "LPFilter" 1 ["LPFrequency"] [(1,18000)] [(1,2)],"LPFilter")
   _ -> Debug.todo("Effect needs to be included")
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -315,7 +319,7 @@ update msg model =
       let
         (newFX,name)  = addEffect effectName
       in
-      ({ model | effects = (Dict.insert name newFX model.effects)}
+      ({ model | effects = (Dict.insert name newFX model.effects), effectNum = (model.effectNum+1)}
       , makeAndSendAudio ("addFX-"++effectName))
     OscillatorChange st ->
       let 
@@ -439,7 +443,9 @@ view model =
                           , Dropdown.buttonItem [ onClick (AddFX "BitCrusher") ] [ text "BitCrusher" ]
                           , Dropdown.buttonItem [ onClick (AddFX "Chebyshev") ] [ text "Chebyshev" ]
                           , Dropdown.buttonItem [ onClick (AddFX "FrequencyShifter") ] [ text "FrequencyShifter" ]
-                          --, Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "LPFilter") ] [ text "Low Pass Filter" ]
+                          , Dropdown.buttonItem [ onClick (AddFX "HPFilter") ] [ text "High Pass Filter" ]
                           ]
                         }]
                     ]
