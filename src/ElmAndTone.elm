@@ -167,6 +167,8 @@ type Msg
   | AddFX String
     --
   | TabChange Tab.State
+  --
+  | PresetChange String
 
 
 noteOn : String -> Model -> Model
@@ -305,10 +307,10 @@ update msg model =
         Nothing -> (model, Cmd.none)
         Just effect ->
           let
-            (fx,message) = Effect.update fXMsg effect
+            (fx, message) = Effect.update fXMsg effect
           in
-          ({model|effects = Dict.insert name fx model.effects}
-          ,makeAndSendAudio ("changeFX-"++message))
+          ({ model|effects = Dict.insert name fx model.effects}
+          , makeAndSendAudio ("changeFX-"++message))
     OSCDropdownChange state ->
       ({ model | oscillatorDropdown = state }
       , Cmd.none
@@ -328,13 +330,18 @@ update msg model =
         message : String
         message = "oscillator-"++st
       in
-      ({model | oscillatorType = st},
-      makeAndSendAudio message)
+      ({ model | oscillatorType = st}
+      , makeAndSendAudio message)
 
     TabChange state ->
       ({ model | envelopeTab = state }
       , Cmd.none
       )
+
+    PresetChange str ->
+      ( model
+      , makeAndSendAudio str)
+
 
 
 -- AUDIO ----------------------------------------------------------------------
@@ -421,20 +428,24 @@ view model =
         |> Tab.items
           [ Tab.item
               { id = "tabItem1"
-              , link = Tab.link [] [ text "Preset Envelopes" ]
+              , link = Tab.link [] [ text "Presets" ]
               , pane =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Choose an instrument" ]
+                    , button [ onClick (PresetChange
+                        "loadPreset-gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
+                        , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+                        [ text "Xylophone" ]
                     ]
               }
           , Tab.item
               { id = "tabItem2"
-              , link = Tab.link [] [ text "Create Envelope" ]
+              , link = Tab.link [] [ text "Advanced Settings" ]
               , pane =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Toggle the sliders to create your own envelope" ]
                     , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
-                    , p [] [text "Add/Remove Effects here"]
+                    , p [] [text "Add/Remove Effects"]
                     , div [] (Dict.values (Dict.map viewEffect model.effects))
                     , div [] [ Dropdown.dropdown model.effectsDropdown
                         { options = [ Dropdown.alignMenuRight ]

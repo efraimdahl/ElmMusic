@@ -19,7 +19,7 @@ export default class PolySynthPlayer {
   }
 
 
-  addFX(synth,props,type){
+  addFX(synth, props, type){
     switch(type){
       case "Distortion":
         props.Distortion = new Tone.Distortion(0).toDestination()
@@ -27,7 +27,7 @@ export default class PolySynthPlayer {
         props.last.connect(props.Distortion)
         props.last=props.Distortion
         break;
-      case "Chebyshev":        
+      case "Chebyshev":
         props.Chebyshev = new Tone.Chebyshev(1).toDestination()
         props.last.disconnect()
         props.last.connect(props.Chebyshev)
@@ -41,7 +41,7 @@ export default class PolySynthPlayer {
         break;
       case "FeedbackDelay":
         props.last.disconnect()
-        props.FeedbackDelay = new Tone.FeedbackDelay(0,0).toDestination()
+        props.FeedbackDelay = new Tone.FeedbackDelay(0, 0).toDestination()
         props.last.connect(props.FeedbackDelay)
         props.last=props.FeedbackDelay
         break;
@@ -65,7 +65,7 @@ export default class PolySynthPlayer {
         break;
     }
   }
-  changeFX(props,name,param,value){
+  changeFX(props, name, param, value){
     switch(name){
       case "Distortion":
         switch (param){
@@ -127,15 +127,25 @@ export default class PolySynthPlayer {
             break;
         }
         break;
+      }
   }
-}
+
+
+  load (cmds, graph, synth, props) {
+    let cmdAll = cmds.split('#');
+    for (let i = 0; i < cmdAll.length; i++) {
+      this.update (cmdAll[i], synth, props)
+    }
+  }
+
+
   // Public Methods ============================================================
-  update (graph,synth,props) {
+  update (graph, synth, props) {
     console.log(graph)
     console.log(props)
-    graph = graph.replace(/[&\/\\#,+()$~%'":*?<>{}]/g, '');
+    graph = graph.replace(/[&\/\\,()$~%'":*?<>{}]/g, '');
     let cmdLst = graph.split('-');
-    console.log(cmdLst[0],cmdLst[1])
+    console.log(cmdLst[0],cmdLst.slice(1,))
     let pre = 0
 
     switch(cmdLst[0]){
@@ -147,14 +157,14 @@ export default class PolySynthPlayer {
           break;
         }
         else {
-          synth.triggerAttack(pre,Tone.now(),0.2)
+          synth.triggerAttack(pre, Tone.now(), 0.2)
           props.activeVoices.push(pre)
         }
         break;
       case 'release':
         pre = cmdLst[1].split('.')[0]
-        props.activeVoices.splice(props.activeVoices.indexOf(pre),1)
-        synth.triggerRelease(pre,Tone.now())
+        props.activeVoices.splice(props.activeVoices.indexOf(pre), 1)
+        synth.triggerRelease(pre, Tone.now())
         break;
       case 'volume':
         pre = cmdLst[1].split('.')[0]
@@ -204,14 +214,17 @@ export default class PolySynthPlayer {
         prev_osc_type = cmdLst[1]
         break;
       case 'addFX':
-        this.addFX(synth,props,cmdLst[1])
+        this.addFX(synth, props, cmdLst[1])
         break;
       case 'changeFX':
-        this.changeFX(props,cmdLst[1],cmdLst[2],cmdLst[3])
+        this.changeFX(props, cmdLst[1], cmdLst[2], cmdLst[3])
         break;
-      
-      "loadPreset-#envelope-attack-10-#envelope-decay-3#oscillator-sawtooth-partials-100"
-    }
+      case 'loadPreset':
+        console.log("cmdLst[1]: ", cmdLst[1])
+        let remakeCmds = cmdLst[1].split('+').join('-') //slice(1,).join('#')
+        console.log("remakeCmds: ", remakeCmds)
+        this.load(remakeCmds, graph, synth, props)
+        break;
     }
   }
-
+}
