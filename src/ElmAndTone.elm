@@ -433,6 +433,11 @@ view model =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Choose an instrument" ]
                     , button [ onClick (PresetChange
+                        "loadPreset-gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
+                        , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"]
+                        [ text "Piano" ]
+
+                    , button [ onClick (PresetChange
                         "loadPreset-gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
                         , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
                         [ text "Xylophone" ]
