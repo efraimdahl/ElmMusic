@@ -21,7 +21,7 @@ type Message
   = SliderChange String Float
 
 makeEnvMessage: String->Float -> Message
-makeEnvMessage n f= 
+makeEnvMessage n f=
   SliderChange n f
 
 init : String -> Envelope
@@ -60,7 +60,7 @@ init str =
       SingleSlider.init
         { min = 0.0005
         , max = 0.999
-        , value = 0.0005
+        , value = 0.3
         , step = 0.01
         , onChange = SliderChange "sustain"
         }

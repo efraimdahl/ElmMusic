@@ -64,6 +64,7 @@ type alias Model =
   , envelopeTab : Tab.State
   , notes : List Note
   , effectNum : Int
+  , savedState : Maybe String
   }
 
 
@@ -104,7 +105,7 @@ initialModel =
   , effectsDropdown =
       Dropdown.initialState
   , oscillatorType =
-      "Triangle"
+      "triangle"
   , envelopeTab =
       Tab.initialState
   , notes =
@@ -141,6 +142,7 @@ initialModel =
     , addEnv = Envelope.init "gainenv"
     , effects=Dict.empty
     , effectNum = 0
+    , savedState = Nothing
   }
 
 init : () -> (Model, Cmd Msg)
@@ -165,10 +167,11 @@ type Msg
   | FXDropdownChange Dropdown.State
   | OscillatorChange String
   | AddFX String
-    --
+  --
   | TabChange Tab.State
   --
-  | PresetChange String
+  | PresetLoad (Maybe String)
+  | Save
 
 
 noteOn : String -> Model -> Model
@@ -222,6 +225,7 @@ findKey s m =
   case mainVal of
     [] -> 0
     hd::tail -> mtof (hd.midi)
+
 --Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size,
 addEffect: String -> (Effect.Effect,String)
 addEffect str =
@@ -234,6 +238,7 @@ addEffect str =
   "HPFilter" ->(Effect.init "HPFilter" 1 ["HPFrequency"] [(1,18000)] [(18000,2)],"HPFilter")
   "LPFilter" ->(Effect.init "LPFilter" 1 ["LPFrequency"] [(1,18000)] [(1,2)],"LPFilter")
   _ -> Debug.todo("Effect needs to be included")
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -311,20 +316,24 @@ update msg model =
           in
           ({ model|effects = Dict.insert name fx model.effects}
           , makeAndSendAudio ("changeFX-"++message))
+
     OSCDropdownChange state ->
       ({ model | oscillatorDropdown = state }
       , Cmd.none
       )
+
     FXDropdownChange state ->
       ({ model | effectsDropdown = state }
       , Cmd.none
       )
+
     AddFX effectName ->
       let
         (newFX,name)  = addEffect effectName
       in
       ({ model | effects = (Dict.insert name newFX model.effects), effectNum = (model.effectNum+1)}
       , makeAndSendAudio ("addFX-"++effectName))
+
     OscillatorChange st ->
       let
         message : String
@@ -338,14 +347,37 @@ update msg model =
       , Cmd.none
       )
 
-    PresetChange str ->
-      let 
-        nModel : Model
-        nModel = updateModel str model
-      in
-      ( nModel
-      , makeAndSendAudio str)
+    PresetLoad str ->
+      case str of
+        Nothing ->
+          ( model
+          , Cmd.none
+          )
+        Just loadString ->
+          let
+            nModel : Model
+            nModel = updateModel str model
+          in
+          ( nModel
+          , makeAndSendAudio loadString
+          )
 
+    Save ->
+      let
+        osc = Debug.log model.oscillatorType
+        currState : String
+        currState =
+          "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
+          "#oscillator+" ++ model.oscillatorType ++
+          "#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
+          "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
+          "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
+          "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
+          "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
+      in
+      ({ model | savedState = Just currState }
+      , Cmd.none
+      )
 
 
 -- AUDIO ----------------------------------------------------------------------
@@ -369,13 +401,13 @@ getBlackOffset num clr =
 
 fourWordParse: String -> String -> String -> String -> List Msg
 fourWordParse a b c d =
-  case a of   
+  case a of
    "changeFX" ->
-      let 
+      let
         floatd : Maybe Float
         floatd = String.toFloat d
-      in 
-      case floatd of 
+      in
+      case floatd of
         Nothing -> [NoOp]
         (Just z) -> [EffectMessage (Effect.makeEffectMessage b c z)]
    _ ->[NoOp]
@@ -383,25 +415,25 @@ fourWordParse a b c d =
 
 threeWordParse: String -> String ->String -> List Msg
 threeWordParse a b c=
-  case a of 
+  case a of
     "gainenv" ->
-      let 
+      let
         floatd : Maybe Float
         floatd = (String.toFloat c)
-      in 
-      case floatd of 
+      in
+      case floatd of
         Nothing -> [NoOp]
         Just z -> [EnvMessage (Envelope.makeEnvMessage b z)]
     _ -> [NoOp]
-    
 
-twoWordParse: String ->String ->List Msg
+
+twoWordParse: String -> String ->List Msg
 twoWordParse a b =
-  let 
-    floatd : Maybe Float 
+  let
+    floatd : Maybe Float
     floatd = String.toFloat b
-  in 
-  case (floatd,a) of 
+  in
+  case (floatd,a) of
     (_, "oscillator") -> [OscillatorChange b]
     (Just z,"volume") -> [SliderChange "volume" z]
     (Just z, "partial") -> [SliderChange "partial" z]
@@ -409,36 +441,39 @@ twoWordParse a b =
     _ -> [NoOp]
 
 
---loadPreset-gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0
-updateModel: String -> Model -> Model
-updateModel str model = 
-  let 
-    sList : List String
-    sList = Debug.log "String" (String.split "#"  str)
-    mapfunc: String -> List Msg 
-    mapfunc st = 
-      let 
-        s = Debug.log "StringParse" (String.split "+" st)
-      in
-      case s of
-        [a,b,c,d] -> fourWordParse a b c d
-        [a,b,c] -> threeWordParse a b c
-        [a,b] -> twoWordParse a b 
-        _ -> Debug.log "No operation" [NoOp]
-    foldfunc: Msg -> Model -> Model
-    foldfunc ms ml =
+updateModel: Maybe String -> Model -> Model
+updateModel str model =
+  case str of
+    Nothing ->
+      model
+    Just updateString ->
       let
-        (newModel,backms) = update ms ml 
+        sList : List String
+        sList = Debug.log "String" (String.split "#" updateString)
+        mapfunc: String -> List Msg
+        mapfunc st =
+          let
+            s = Debug.log "StringParse" (String.split "+" st)
+          in
+          case s of
+            [a,b,c,d] -> fourWordParse a b c d
+            [a,b,c] -> threeWordParse a b c
+            [a,b] -> twoWordParse a b
+            _ -> Debug.log "No operation" [NoOp]
+        foldfunc: Msg -> Model -> Model
+        foldfunc ms ml =
+          let
+            (newModel,backms) = update ms ml
+          in
+          newModel
+        prelis : List (List Msg)
+        prelis = (List.map mapfunc sList)
+        lis : List Msg
+        lis =  Debug.log "Semifinal List" (List.concat prelis)
+        x : Model
+        x = (List.foldl foldfunc model lis)
       in
-      newModel
-    prelis : List (List Msg)
-    prelis = (List.map mapfunc sList)
-    lis : List Msg
-    lis =  Debug.log "Semifinal List" (List.concat prelis)
-    x : Model
-    x = (List.foldl foldfunc model lis)
-  in
-  x
+      x
 
 
 
@@ -511,13 +546,13 @@ view model =
               , pane =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Choose an instrument" ]
-                    , button [ onClick (PresetChange
-                        "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
+                    , button [ onClick (PresetLoad
+                        (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0"))
                         , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"]
                         [ text "Piano" ]
 
-                    , button [ onClick (PresetChange
-                        "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
+                    , button [ onClick (PresetLoad
+                        (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0"))
                         , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
                         [ text "Xylophone" ]
                     ]
@@ -551,6 +586,11 @@ view model =
         |> Tab.view model.envelopeTab
       , pre [] [ text "" ]
       , pre [] [ text "" ]
+      , pre [] [ text "" ]
+      , button [ onClick Save, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+          [ text "Save" ]
+      , button [ onClick (PresetLoad model.savedState), class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+          [ text "Load" ]
       ]
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
