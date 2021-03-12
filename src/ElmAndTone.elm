@@ -363,21 +363,38 @@ update msg model =
           )
 
     Save ->
-      let
-        osc = Debug.log model.oscillatorType
-        currState : String
-        currState =
-          "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
-          "#oscillator+" ++ model.oscillatorType ++
-          "#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
-          "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
-          "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
-          "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
-          "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
-      in
-      ({ model | savedState = Just currState }
-      , Cmd.none
-      )
+
+      if (floor (fetchValue (model.partialSlider)) /= 0) then
+        let
+          currState : String
+          currState =
+            "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
+            "#oscillator+" ++ model.oscillatorType ++
+            "#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
+            "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
+            "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
+            "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
+            "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
+        in
+        ({ model | savedState = Just currState }
+        , Cmd.none
+        )
+      else
+        let
+          currState : String
+          currState =
+            "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
+            "#oscillator+" ++ model.oscillatorType ++
+            --"#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
+            "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
+            "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
+            "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
+              "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
+        in
+        ({ model | savedState = Just currState }
+        , Cmd.none
+        )
+
 
 
 -- AUDIO ----------------------------------------------------------------------

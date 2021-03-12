@@ -6,12 +6,9 @@ The variable prevOscType keeps track of the previous oscillator type that
 was selected by the user. It will default to triangle if the user does
 not input anything.
 */
-var prevVolume = "50"
-var prevOscType = "triangle"
-var prevPartial = "0"
-var prevGainEnv = ""
 
-var savedStr = ""
+var prevOscType = "triangle"
+
 
 export default class PolySynthPlayer {
   // Static Methods ============================================================
@@ -175,7 +172,6 @@ export default class PolySynthPlayer {
 
       case 'volume':
         pre = cmdLst[1].split('.')[0]
-        prevVolume = pre
         if (pre == 0) {
           synth.volume.value = -100
         }
@@ -191,7 +187,6 @@ export default class PolySynthPlayer {
 
       case 'partial':
         let num = cmdLst[1].split('.')[0]
-        prevPartial = num
         let newType = ""
         newType = prevOscType.concat(num)
         synth.set({oscillator:{type:newType}})

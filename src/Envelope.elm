@@ -60,7 +60,7 @@ init str =
       SingleSlider.init
         { min = 0.0005
         , max = 0.999
-        , value = 0.3
+        , value = 0.9905
         , step = 0.01
         , onChange = SliderChange "sustain"
         }
