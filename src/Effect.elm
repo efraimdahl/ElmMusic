@@ -21,6 +21,10 @@ type alias Effect =
 type Message
   = SliderChange String String Float
 
+makeEffectMessage : String-> String-> Float->Message
+makeEffectMessage a b c =
+  SliderChange a b c
+
 buildSliders: String-> List String ->List (Float,Float)->List (Float,Float) -> List (SingleSlider.SingleSlider Message)
 buildSliders fxName lst values settings =
   case (lst,values,settings) of
@@ -46,6 +50,7 @@ buildSliders fxName lst values settings =
       slider::(buildSliders fxName tail rest moreSettings)
     _ -> Debug.todo("Error in initiating effect "++fxName)
   
+--Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size, 
 
 init : String -> Int-> List String ->List (Float,Float) -> List (Float, Float)-> Effect
 init str num parameterString parameterMinMax parameterSettings=

@@ -5284,7 +5284,7 @@ var $author$project$Envelope$init = function (str) {
 						{
 							max: 3,
 							min: 0.0005,
-							onChange: $author$project$Envelope$SliderChange('attack-'),
+							onChange: $author$project$Envelope$SliderChange('attack'),
 							step: 0.01,
 							value: 0.0005
 						})))),
@@ -5301,7 +5301,7 @@ var $author$project$Envelope$init = function (str) {
 						{
 							max: 3,
 							min: 0.0005,
-							onChange: $author$project$Envelope$SliderChange('decay-'),
+							onChange: $author$project$Envelope$SliderChange('decay'),
 							step: 0.01,
 							value: 0.0005
 						})))),
@@ -5319,7 +5319,7 @@ var $author$project$Envelope$init = function (str) {
 						{
 							max: 3,
 							min: 0.0005,
-							onChange: $author$project$Envelope$SliderChange('releaseEnv-'),
+							onChange: $author$project$Envelope$SliderChange('release'),
 							step: 0.01,
 							value: 0.0005
 						})))),
@@ -5336,7 +5336,7 @@ var $author$project$Envelope$init = function (str) {
 						{
 							max: 0.999,
 							min: 0.0005,
-							onChange: $author$project$Envelope$SliderChange('sustain-'),
+							onChange: $author$project$Envelope$SliderChange('sustain'),
 							step: 0.01,
 							value: 0.0005
 						}))))
@@ -5430,7 +5430,7 @@ var $author$project$ElmAndTone$initialModel = function () {
 						{
 							max: 100,
 							min: 0,
-							onChange: $author$project$ElmAndTone$SliderChange('partial-'),
+							onChange: $author$project$ElmAndTone$SliderChange('partial'),
 							step: 1,
 							value: 0
 						})))),
@@ -5447,7 +5447,7 @@ var $author$project$ElmAndTone$initialModel = function () {
 						{
 							max: 100,
 							min: 0,
-							onChange: $author$project$ElmAndTone$SliderChange('volume-'),
+							onChange: $author$project$ElmAndTone$SliderChange('volume'),
 							step: 1,
 							value: 50
 						}))))
@@ -6058,6 +6058,7 @@ var $author$project$ElmAndTone$subscriptions = function (model) {
 				A2($rundis$elm_bootstrap$Bootstrap$Dropdown$subscriptions, model.effectsDropdown, $author$project$ElmAndTone$FXDropdownChange)
 			]));
 };
+var $author$project$ElmAndTone$NoOp = {$: 'NoOp'};
 var $author$project$Effect$SliderChange = F3(
 	function (a, b, c) {
 		return {$: 'SliderChange', a: a, b: b, c: c};
@@ -6128,8 +6129,8 @@ var $author$project$Effect$buildSliders = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 47, column: 10},
-				end: {line: 47, column: 20}
+				start: {line: 51, column: 10},
+				end: {line: 51, column: 20}
 			})('Error in initiating effect ' + fxName);
 	});
 var $author$project$Effect$init = F5(
@@ -6270,10 +6271,21 @@ var $author$project$ElmAndTone$addEffect = function (str) {
 			return _Debug_todo(
 				'ElmAndTone',
 				{
-					start: {line: 232, column: 8},
-					end: {line: 232, column: 18}
+					start: {line: 236, column: 8},
+					end: {line: 236, column: 18}
 				})('Effect needs to be included');
 	}
+};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
+var $elm$core$List$concat = function (lists) {
+	return A3($elm$core$List$foldr, $elm$core$List$append, _List_Nil, lists);
 };
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -6302,6 +6314,34 @@ var $author$project$ElmAndTone$findKey = F2(
 			var hd = mainVal.a;
 			var tail = mainVal.b;
 			return $author$project$ElmAndTone$mtof(hd.midi);
+		}
+	});
+var $author$project$ElmAndTone$EffectMessage = function (a) {
+	return {$: 'EffectMessage', a: a};
+};
+var $author$project$Effect$makeEffectMessage = F3(
+	function (a, b, c) {
+		return A3($author$project$Effect$SliderChange, a, b, c);
+	});
+var $elm$core$String$toFloat = _String_toFloat;
+var $author$project$ElmAndTone$fourWordParse = F4(
+	function (a, b, c, d) {
+		if (a === 'changeFX') {
+			var floatd = $elm$core$String$toFloat(d);
+			if (floatd.$ === 'Nothing') {
+				return _List_fromArray(
+					[$author$project$ElmAndTone$NoOp]);
+			} else {
+				var z = floatd.a;
+				return _List_fromArray(
+					[
+						$author$project$ElmAndTone$EffectMessage(
+						A3($author$project$Effect$makeEffectMessage, b, c, z))
+					]);
+			}
+		} else {
+			return _List_fromArray(
+				[$author$project$ElmAndTone$NoOp]);
 		}
 	});
 var $elm$core$Dict$get = F2(
@@ -6383,6 +6423,33 @@ var $elm$core$Tuple$pair = F2(
 	function (a, b) {
 		return _Utils_Tuple2(a, b);
 	});
+var $author$project$ElmAndTone$EnvMessage = function (a) {
+	return {$: 'EnvMessage', a: a};
+};
+var $author$project$Envelope$makeEnvMessage = F2(
+	function (n, f) {
+		return A2($author$project$Envelope$SliderChange, n, f);
+	});
+var $author$project$ElmAndTone$threeWordParse = F3(
+	function (a, b, c) {
+		if (a === 'gainenv') {
+			var floatd = $elm$core$String$toFloat(c);
+			if (floatd.$ === 'Nothing') {
+				return _List_fromArray(
+					[$author$project$ElmAndTone$NoOp]);
+			} else {
+				var z = floatd.a;
+				return _List_fromArray(
+					[
+						$author$project$ElmAndTone$EnvMessage(
+						A2($author$project$Envelope$makeEnvMessage, b, z))
+					]);
+			}
+		} else {
+			return _List_fromArray(
+				[$author$project$ElmAndTone$NoOp]);
+		}
+	});
 var $elm$core$Debug$toString = _Debug_toString;
 var $author$project$ElmAndTone$transposeDown = function (model) {
 	return _Utils_update(
@@ -6412,6 +6479,56 @@ var $author$project$ElmAndTone$transposeUp = function (model) {
 				model.notes)
 		});
 };
+var $author$project$ElmAndTone$AddFX = function (a) {
+	return {$: 'AddFX', a: a};
+};
+var $author$project$ElmAndTone$OscillatorChange = function (a) {
+	return {$: 'OscillatorChange', a: a};
+};
+var $author$project$ElmAndTone$twoWordParse = F2(
+	function (a, b) {
+		var floatd = $elm$core$String$toFloat(b);
+		var _v0 = _Utils_Tuple2(floatd, a);
+		_v0$4:
+		while (true) {
+			switch (_v0.b) {
+				case 'oscillator':
+					return _List_fromArray(
+						[
+							$author$project$ElmAndTone$OscillatorChange(b)
+						]);
+				case 'volume':
+					if (_v0.a.$ === 'Just') {
+						var z = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($author$project$ElmAndTone$SliderChange, 'volume', z)
+							]);
+					} else {
+						break _v0$4;
+					}
+				case 'partial':
+					if (_v0.a.$ === 'Just') {
+						var z = _v0.a.a;
+						return _List_fromArray(
+							[
+								A2($author$project$ElmAndTone$SliderChange, 'partial', z)
+							]);
+					} else {
+						break _v0$4;
+					}
+				case 'addFX':
+					return _List_fromArray(
+						[
+							$author$project$ElmAndTone$AddFX(b)
+						]);
+				default:
+					break _v0$4;
+			}
+		}
+		return _List_fromArray(
+			[$author$project$ElmAndTone$NoOp]);
+	});
 var $carwow$elm_slider$SingleSlider$update = F2(
 	function (value, _v0) {
 		var slider = _v0.a;
@@ -6461,8 +6578,8 @@ var $author$project$Effect$changeParam = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 70, column: 8},
-				end: {line: 70, column: 18}
+				start: {line: 75, column: 8},
+				end: {line: 75, column: 18}
 			})('Invalid Prameter Matchup for ' + name);
 	});
 var $author$project$Effect$update = F2(
@@ -6483,25 +6600,25 @@ var $author$project$Envelope$update = F2(
 		var val = msg.b;
 		var newModel = function () {
 			switch (typ) {
-				case 'attack-':
+				case 'attack':
 					return _Utils_update(
 						env,
 						{
 							attack: A2($carwow$elm_slider$SingleSlider$update, val, env.attack)
 						});
-				case 'decay-':
+				case 'decay':
 					return _Utils_update(
 						env,
 						{
 							decay: A2($carwow$elm_slider$SingleSlider$update, val, env.decay)
 						});
-				case 'sustain-':
+				case 'sustain':
 					return _Utils_update(
 						env,
 						{
 							sustain: A2($carwow$elm_slider$SingleSlider$update, val, env.sustain)
 						});
-				case 'releaseEnv-':
+				case 'release':
 					return _Utils_update(
 						env,
 						{
@@ -6511,12 +6628,12 @@ var $author$project$Envelope$update = F2(
 					return _Debug_todo(
 						'Envelope',
 						{
-							start: {line: 94, column: 16},
-							end: {line: 94, column: 26}
-						})('undefined Slider Changed');
+							start: {line: 97, column: 16},
+							end: {line: 97, column: 26}
+						})('2undefined Slider Changed ' + typ);
 			}
 		}();
-		var message = env.effecting + ('-' + (typ + $elm$core$Debug$toString(val)));
+		var message = env.effecting + ('-' + (typ + ('-' + $elm$core$Debug$toString(val))));
 		return _Utils_Tuple2(newModel, message);
 	});
 var $author$project$ElmAndTone$update = F2(
@@ -6527,13 +6644,13 @@ var $author$project$ElmAndTone$update = F2(
 				var val = msg.b;
 				var newModel = function () {
 					switch (typ) {
-						case 'volume-':
+						case 'volume':
 							return _Utils_update(
 								model,
 								{
 									volumeSlider: A2($carwow$elm_slider$SingleSlider$update, val, model.volumeSlider)
 								});
-						case 'partial-':
+						case 'partial':
 							return _Utils_update(
 								model,
 								{
@@ -6543,14 +6660,13 @@ var $author$project$ElmAndTone$update = F2(
 							return _Debug_todo(
 								'ElmAndTone',
 								{
-									start: {line: 246, column: 18},
-									end: {line: 246, column: 28}
-								})('undefined Slider Changed');
+									start: {line: 250, column: 18},
+									end: {line: 250, column: 28}
+								})(
+								'1undefined Slider Changed ' + (typ + (',' + $elm$core$Debug$toString(msg))));
 					}
 				}();
-				var message = _Utils_ap(
-					typ,
-					$elm$core$Debug$toString(val));
+				var message = typ + ('-' + $elm$core$Debug$toString(val));
 				return _Utils_Tuple2(
 					newModel,
 					$author$project$ElmAndTone$makeAndSendAudio(message));
@@ -6580,9 +6696,9 @@ var $author$project$ElmAndTone$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'EnvMessage':
 				var envelopeMsg = msg.a;
-				var _v2 = A2($author$project$Envelope$update, envelopeMsg, model.addEnv);
-				var newEnv = _v2.a;
-				var str = _v2.b;
+				var _v10 = A2($author$project$Envelope$update, envelopeMsg, model.addEnv);
+				var newEnv = _v10.a;
+				var str = _v10.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -6599,9 +6715,9 @@ var $author$project$ElmAndTone$update = F2(
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				} else {
 					var effect = comp.a;
-					var _v4 = A2($author$project$Effect$update, fXMsg, effect);
-					var fx = _v4.a;
-					var message = _v4.b;
+					var _v12 = A2($author$project$Effect$update, fXMsg, effect);
+					var fx = _v12.a;
+					var message = _v12.b;
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -6626,9 +6742,9 @@ var $author$project$ElmAndTone$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'AddFX':
 				var effectName = msg.a;
-				var _v5 = $author$project$ElmAndTone$addEffect(effectName);
-				var newFX = _v5.a;
-				var name = _v5.b;
+				var _v13 = $author$project$ElmAndTone$addEffect(effectName);
+				var newFX = _v13.a;
+				var name = _v13.b;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -6645,23 +6761,90 @@ var $author$project$ElmAndTone$update = F2(
 						model,
 						{oscillatorType: st}),
 					$author$project$ElmAndTone$makeAndSendAudio(message));
-			default:
+			case 'TabChange':
 				var state = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{envelopeTab: state}),
 					$elm$core$Platform$Cmd$none);
+			default:
+				var str = msg.a;
+				var nModel = A2($author$project$ElmAndTone$updateModel, str, model);
+				return _Utils_Tuple2(
+					nModel,
+					$author$project$ElmAndTone$makeAndSendAudio(str));
 		}
 	});
-var $author$project$ElmAndTone$AddFX = function (a) {
-	return {$: 'AddFX', a: a};
-};
-var $author$project$ElmAndTone$EnvMessage = function (a) {
-	return {$: 'EnvMessage', a: a};
-};
-var $author$project$ElmAndTone$OscillatorChange = function (a) {
-	return {$: 'OscillatorChange', a: a};
+var $author$project$ElmAndTone$updateModel = F2(
+	function (str, model) {
+		var sList = A2(
+			$elm$core$Debug$log,
+			'String',
+			A2($elm$core$String$split, '#', str));
+		var mapfunc = function (st) {
+			var s = A2(
+				$elm$core$Debug$log,
+				'StringParse',
+				A2($elm$core$String$split, '+', st));
+			_v1$3:
+			while (true) {
+				if (s.b && s.b.b) {
+					if (s.b.b.b) {
+						if (s.b.b.b.b) {
+							if (!s.b.b.b.b.b) {
+								var a = s.a;
+								var _v2 = s.b;
+								var b = _v2.a;
+								var _v3 = _v2.b;
+								var c = _v3.a;
+								var _v4 = _v3.b;
+								var d = _v4.a;
+								return A4($author$project$ElmAndTone$fourWordParse, a, b, c, d);
+							} else {
+								break _v1$3;
+							}
+						} else {
+							var a = s.a;
+							var _v5 = s.b;
+							var b = _v5.a;
+							var _v6 = _v5.b;
+							var c = _v6.a;
+							return A3($author$project$ElmAndTone$threeWordParse, a, b, c);
+						}
+					} else {
+						var a = s.a;
+						var _v7 = s.b;
+						var b = _v7.a;
+						return A2($author$project$ElmAndTone$twoWordParse, a, b);
+					}
+				} else {
+					break _v1$3;
+				}
+			}
+			return A2(
+				$elm$core$Debug$log,
+				'No operation',
+				_List_fromArray(
+					[$author$project$ElmAndTone$NoOp]));
+		};
+		var prelis = A2($elm$core$List$map, mapfunc, sList);
+		var lis = A2(
+			$elm$core$Debug$log,
+			'Semifinal List',
+			$elm$core$List$concat(prelis));
+		var foldfunc = F2(
+			function (ms, ml) {
+				var _v0 = A2($author$project$ElmAndTone$update, ms, ml);
+				var newModel = _v0.a;
+				var backms = _v0.b;
+				return newModel;
+			});
+		var x = A3($elm$core$List$foldl, foldfunc, model, lis);
+		return x;
+	});
+var $author$project$ElmAndTone$PresetChange = function (a) {
+	return {$: 'PresetChange', a: a};
 };
 var $author$project$ElmAndTone$TabChange = function (a) {
 	return {$: 'TabChange', a: a};
@@ -7063,6 +7246,28 @@ var $rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled = function (a) {
 };
 var $rundis$elm_bootstrap$Bootstrap$Button$primary = $rundis$elm_bootstrap$Bootstrap$Internal$Button$Coloring(
 	$rundis$elm_bootstrap$Bootstrap$Internal$Button$Roled($rundis$elm_bootstrap$Bootstrap$Internal$Button$Primary));
+var $elm$core$String$cons = _String_cons;
+var $elm_community$string_extra$String$Extra$changeCase = F2(
+	function (mutator, word) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			'',
+			A2(
+				$elm$core$Maybe$map,
+				function (_v0) {
+					var head = _v0.a;
+					var tail = _v0.b;
+					return A2(
+						$elm$core$String$cons,
+						mutator(head),
+						tail);
+				},
+				$elm$core$String$uncons(word)));
+	});
+var $elm$core$Char$toUpper = _Char_toUpper;
+var $elm_community$string_extra$String$Extra$toSentenceCase = function (word) {
+	return A2($elm_community$string_extra$String$Extra$changeCase, $elm$core$Char$toUpper, word);
+};
 var $rundis$elm_bootstrap$Bootstrap$Dropdown$DropdownToggle = function (a) {
 	return {$: 'DropdownToggle', a: a};
 };
@@ -8264,7 +8469,6 @@ var $elm$html$Html$Events$targetValue = A2(
 	_List_fromArray(
 		['target', 'value']),
 	$elm$json$Json$Decode$string);
-var $elm$core$String$toFloat = _String_toFloat;
 var $carwow$elm_slider$SingleSlider$inputDecoder = A2(
 	$elm$json$Json$Decode$map,
 	function (value) {
@@ -8380,7 +8584,6 @@ var $myrho$elm_round$Round$addSign = F2(
 			(signed && isNotZero) ? '-' : '',
 			str);
 	});
-var $elm$core$String$cons = _String_cons;
 var $elm$core$Char$fromCode = _Char_fromCode;
 var $myrho$elm_round$Round$increaseNum = function (_v0) {
 	var head = _v0.a;
@@ -8885,9 +9088,6 @@ var $author$project$Envelope$view = function (env) {
 							]))
 					]))));
 };
-var $author$project$ElmAndTone$EffectMessage = function (a) {
-	return {$: 'EffectMessage', a: a};
-};
 var $author$project$Effect$sliderView = function (slider) {
 	return A2(
 		$elm$html$Html$div,
@@ -8957,7 +9157,8 @@ var $author$project$ElmAndTone$view = function (model) {
 					]),
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Oscillator selected: ' + model.oscillatorType)
+						$elm$html$Html$text(
+						'Oscillator selected: ' + $elm_community$string_extra$String$Extra$toSentenceCase(model.oscillatorType))
 					])),
 				A2(
 				$elm$html$Html$div,
@@ -9112,7 +9313,7 @@ var $author$project$ElmAndTone$view = function (model) {
 									_List_Nil,
 									_List_fromArray(
 										[
-											$elm$html$Html$text('Preset Envelopes')
+											$elm$html$Html$text('Presets')
 										])),
 								pane: A2(
 									$rundis$elm_bootstrap$Bootstrap$Tab$pane,
@@ -9126,6 +9327,30 @@ var $author$project$ElmAndTone$view = function (model) {
 											_List_fromArray(
 												[
 													$elm$html$Html$text('Choose an instrument')
+												])),
+											A2(
+											$elm$html$Html$button,
+											_List_fromArray(
+												[
+													$elm$html$Html$Events$onClick(
+													$author$project$ElmAndTone$PresetChange('loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0')),
+													$elm$html$Html$Attributes$class('bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Piano')
+												])),
+											A2(
+											$elm$html$Html$button,
+											_List_fromArray(
+												[
+													$elm$html$Html$Events$onClick(
+													$author$project$ElmAndTone$PresetChange('loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0')),
+													$elm$html$Html$Attributes$class('bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Xylophone')
 												]))
 										]))
 							}),
@@ -9137,7 +9362,7 @@ var $author$project$ElmAndTone$view = function (model) {
 									_List_Nil,
 									_List_fromArray(
 										[
-											$elm$html$Html$text('Create Envelope')
+											$elm$html$Html$text('Advanced Settings')
 										])),
 								pane: A2(
 									$rundis$elm_bootstrap$Bootstrap$Tab$pane,
@@ -9167,7 +9392,7 @@ var $author$project$ElmAndTone$view = function (model) {
 											_List_Nil,
 											_List_fromArray(
 												[
-													$elm$html$Html$text('Add/Remove Effects here')
+													$elm$html$Html$text('Add/Remove Effects')
 												])),
 											A2(
 											$elm$html$Html$div,

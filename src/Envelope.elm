@@ -20,6 +20,9 @@ type alias Envelope =
 type Message
   = SliderChange String Float
 
+makeEnvMessage: String->Float -> Message
+makeEnvMessage n f= 
+  SliderChange n f
 
 init : String -> Envelope
 init str =
@@ -37,7 +40,7 @@ init str =
         , max = 3
         , value = 0.0005
         , step = 0.01
-        , onChange = SliderChange "attack-"
+        , onChange = SliderChange "attack"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterAt
@@ -48,7 +51,7 @@ init str =
         , max = 3
         , value = 0.0005
         , step = 0.01
-        , onChange = SliderChange "decay-"
+        , onChange = SliderChange "decay"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterDe
@@ -59,7 +62,7 @@ init str =
         , max = 0.999
         , value = 0.0005
         , step = 0.01
-        , onChange = SliderChange "sustain-"
+        , onChange = SliderChange "sustain"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterSu
@@ -70,7 +73,7 @@ init str =
         , max = 3
         , value = 0.0005
         , step = 0.01
-        , onChange = SliderChange "releaseEnv-"
+        , onChange = SliderChange "release"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter valueFormatterRe
@@ -87,14 +90,14 @@ update msg env =
         newModel : Envelope
         newModel =
           case typ of
-          "attack-" -> {env | attack = (SingleSlider.update val env.attack)}
-          "decay-" -> {env | decay = (SingleSlider.update val env.decay)}
-          "sustain-" -> {env | sustain = (SingleSlider.update val env.sustain)}
-          "releaseEnv-" -> {env | release = (SingleSlider.update val env.release)}
-          _ -> Debug.todo("undefined Slider Changed")
+          "attack" -> {env | attack = (SingleSlider.update val env.attack)}
+          "decay" -> {env | decay = (SingleSlider.update val env.decay)}
+          "sustain" -> {env | sustain = (SingleSlider.update val env.sustain)}
+          "release" -> {env | release = (SingleSlider.update val env.release)}
+          _ -> Debug.todo("2undefined Slider Changed "++typ)
 
         message : String
-        message = env.effecting++"-"++typ++Debug.toString(val)
+        message = env.effecting++"-"++typ++"-"++Debug.toString(val)
       in
       ( newModel
       , message )

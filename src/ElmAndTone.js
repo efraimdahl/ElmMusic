@@ -70,7 +70,7 @@ export default class PolySynthPlayer {
       case "Distortion":
         switch (param){
           case "Distortion":
-            console.log("changing distortion to: " + String(value))
+            //console.log("changing distortion to: " + String(value))
             props.Distortion.distortion = value
             break;
         }
@@ -141,18 +141,18 @@ export default class PolySynthPlayer {
 
   // Public Methods ============================================================
   update (graph, synth, props) {
-    console.log(graph)
-    console.log(props)
+    //console.log(graph)
+    //console.log(props)
     graph = graph.replace(/[&\/\\,()$~%'":*?<>{}]/g, '');
     let cmdLst = graph.split('-');
-    console.log(cmdLst[0],cmdLst.slice(1,))
+    //console.log(cmdLst[0],cmdLst.slice(1,))
     let pre = 0
 
     switch(cmdLst[0]){
       case 'press':
         //synth.triggerAttackRelease("420", "8n");
         pre = cmdLst[1].split('.')[0]
-        console.log(props.activeVoices)
+        //console.log(props.activeVoices)
         if(props.activeVoices.find(element => element==pre)){
           break;
         }
@@ -186,25 +186,25 @@ export default class PolySynthPlayer {
           case 'attack':
             pre = parseFloat(cmdLst[2])
             props.envelope.attack=pre
-            console.log(props.envelope)
+            //console.log(props.envelope)
             synth.set({"envelope":props.envelope})
             break;
           case 'decay':
             pre = parseFloat(cmdLst[2])
             props.envelope.decay=pre
-            console.log(props.envelope)
+            //console.log(props.envelope)
             synth.set({"envelope":props.envelope})
             break;
           case 'sustain':
             pre = parseFloat(cmdLst[2])
             props.envelope.sustain=pre
-            console.log(props.envelope)
+            //console.log(props.envelope)
             synth.set({"envelope":props.envelope})
             break;
           case 'releaseEnv':
             pre = parseFloat(cmdLst[2])
             props.envelope.release=pre
-            console.log(props.envelope)
+            //console.log(props.envelope)
             synth.set({"envelope":props.envelope})
             break;
         }
@@ -220,9 +220,9 @@ export default class PolySynthPlayer {
         this.changeFX(props, cmdLst[1], cmdLst[2], cmdLst[3])
         break;
       case 'loadPreset':
-        console.log("cmdLst[1]: ", cmdLst[1])
+        //console.log("cmdLst[1]: ", cmdLst[1])
         let remakeCmds = cmdLst[1].split('+').join('-') //slice(1,).join('#')
-        console.log("remakeCmds: ", remakeCmds)
+        //console.log("remakeCmds: ", remakeCmds)
         this.load(remakeCmds, graph, synth, props)
         break;
     }

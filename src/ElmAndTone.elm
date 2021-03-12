@@ -83,7 +83,7 @@ initialModel =
         , max = 100
         , value = 50
         , step = 1
-        , onChange = SliderChange "volume-"
+        , onChange = SliderChange "volume"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter volumeValueFormatter
@@ -94,7 +94,7 @@ initialModel =
         , max = 100
         , value = 0
         , step = 1
-        , onChange = SliderChange "partial-"
+        , onChange = SliderChange "partial"
         }
         |> SingleSlider.withMinFormatter minFormatter
         |> SingleSlider.withValueFormatter partialValueFormatter
@@ -243,13 +243,13 @@ update msg model =
         newModel : Model
         newModel =
           case typ of
-            "volume-" ->
+            "volume" ->
               { model | volumeSlider = (SingleSlider.update val model.volumeSlider) }
-            "partial-" ->
+            "partial" ->
               { model | partialSlider = (SingleSlider.update val model.partialSlider) }
-            _ -> Debug.todo("undefined Slider Changed")
+            _ -> Debug.todo("1undefined Slider Changed "++typ++","++(Debug.toString msg))
         message : String
-        message = typ ++ Debug.toString(val)
+        message = typ ++ "-" ++ Debug.toString(val)
       in
       ( newModel
       , makeAndSendAudio message
@@ -339,7 +339,11 @@ update msg model =
       )
 
     PresetChange str ->
-      ( model
+      let 
+        nModel : Model
+        nModel = updateModel str model
+      in
+      ( nModel
       , makeAndSendAudio str)
 
 
@@ -361,6 +365,81 @@ getBlackOffset num clr =
         B -> style "" ""--"left" (String.fromInt (((num-1))) ++ "px")
         W -> if (num==28) then style "border-right-width" "1px"
              else style "" "" --"left" (String.fromInt (num) ++ "px")
+
+
+fourWordParse: String -> String -> String -> String -> List Msg
+fourWordParse a b c d =
+  case a of   
+   "changeFX" ->
+      let 
+        floatd : Maybe Float
+        floatd = String.toFloat d
+      in 
+      case floatd of 
+        Nothing -> [NoOp]
+        (Just z) -> [EffectMessage (Effect.makeEffectMessage b c z)]
+   _ ->[NoOp]
+
+
+threeWordParse: String -> String ->String -> List Msg
+threeWordParse a b c=
+  case a of 
+    "gainenv" ->
+      let 
+        floatd : Maybe Float
+        floatd = (String.toFloat c)
+      in 
+      case floatd of 
+        Nothing -> [NoOp]
+        Just z -> [EnvMessage (Envelope.makeEnvMessage b z)]
+    _ -> [NoOp]
+    
+
+twoWordParse: String ->String ->List Msg
+twoWordParse a b =
+  let 
+    floatd : Maybe Float 
+    floatd = String.toFloat b
+  in 
+  case (floatd,a) of 
+    (_, "oscillator") -> [OscillatorChange b]
+    (Just z,"volume") -> [SliderChange "volume" z]
+    (Just z, "partial") -> [SliderChange "partial" z]
+    (_,"addFX") -> [AddFX b]
+    _ -> [NoOp]
+
+
+--loadPreset-gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0
+updateModel: String -> Model -> Model
+updateModel str model = 
+  let 
+    sList : List String
+    sList = Debug.log "String" (String.split "#"  str)
+    mapfunc: String -> List Msg 
+    mapfunc st = 
+      let 
+        s = Debug.log "StringParse" (String.split "+" st)
+      in
+      case s of
+        [a,b,c,d] -> fourWordParse a b c d
+        [a,b,c] -> threeWordParse a b c
+        [a,b] -> twoWordParse a b 
+        _ -> Debug.log "No operation" [NoOp]
+    foldfunc: Msg -> Model -> Model
+    foldfunc ms ml =
+      let
+        (newModel,backms) = update ms ml 
+      in
+      newModel
+    prelis : List (List Msg)
+    prelis = (List.map mapfunc sList)
+    lis : List Msg
+    lis =  Debug.log "Semifinal List" (List.concat prelis)
+    x : Model
+    x = (List.foldl foldfunc model lis)
+  in
+  x
+
 
 
 -- VIEW -----------------------------------------------------------------------
@@ -433,12 +512,12 @@ view model =
                   Tab.pane [ Spacing.mt3 ]
                     [ p [] [ text "Choose an instrument" ]
                     , button [ onClick (PresetChange
-                        "loadPreset-gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
+                        "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
                         , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"]
                         [ text "Piano" ]
 
                     , button [ onClick (PresetChange
-                        "loadPreset-gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
+                        "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
                         , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
                         [ text "Xylophone" ]
                     ]
