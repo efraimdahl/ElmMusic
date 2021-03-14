@@ -26,22 +26,23 @@ type Message
 
 
 makeEffectString : String -> Float -> String
-makeEffectString name val =
-  "#addFX+" ++ name ++ "#changeFX+" ++ name ++ "+" ++ (String.fromFloat val)
+makeEffectString paramName val =
+  "#changeFX+" ++ paramName ++ "+" ++ (String.fromFloat val)
 
 
-effectToString : Effect -> List String
+effectToString : Effect -> String
 effectToString effect =
   let
     len = effect.parameterNum
-    names = effect.paramNames
+    effectName = effect.effecting
+    paramNames = effect.paramNames
     sliders = effect.parameters
     sliderValues = List.map fetchValue sliders
   in
-  if List.length(names) /= len || List.length(sliders) /= len then
+  if List.length(paramNames) /= len || List.length(sliders) /= len then
     Debug.todo "paramNames and parameters length different"
   else
-    List.map2 makeEffectString names sliderValues
+    "#addFX+" ++ effectName ++ (String.concat (List.map2 makeEffectString paramNames sliderValues))
 
 
 makeEffectMessage : String-> String-> Float->Message
