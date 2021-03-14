@@ -9,7 +9,7 @@ import Browser.Events
 import Dict
 import Effect
 import Envelope
-import Html exposing (Attribute, Html, a, button, code, div, h1, h4, main_, p, pre, text)
+import Html exposing (Attribute, Html, a, button, code, div, h1, h2, h3, h4, main_, p, pre, text)
 import Html.Attributes exposing (class, href, style)
 import Html.Events exposing (onClick)
 import Json.Decode as Decode
@@ -480,7 +480,7 @@ update msg model =
           )
 
     Save ->
-      if floor (fetchValue model.partialSlider) /= 0 then
+      if floor (fetchValue model.partialSlider) == 0 then
         let
           currState : String
           currState =
@@ -488,8 +488,6 @@ update msg model =
               ++ String.fromFloat (fetchValue model.volumeSlider)
               ++ "#oscillator+"
               ++ model.oscillatorType
-              ++ "#partial+"
-              ++ String.fromFloat (fetchValue model.partialSlider)
               ++ "#gainenv+attack+"
               ++ String.fromFloat (fetchValue model.addEnv.attack)
               ++ "#gainenv+decay+"
@@ -511,6 +509,8 @@ update msg model =
               ++ String.fromFloat (fetchValue model.volumeSlider)
               ++ "#oscillator+"
               ++ model.oscillatorType
+              ++ "#partial+"
+              ++ String.fromFloat (fetchValue model.partialSlider)
               ++ "#gainenv+attack+"
               ++ String.fromFloat (fetchValue model.addEnv.attack)
               ++ "#gainenv+decay+"
@@ -716,36 +716,20 @@ viewEffect str fx =
 
 view : Model -> Html Msg
 view model =
-  main_ [ class "m-10 body" ]
-    [ h1 [ class "text-3xl my-10" ]
+  main_ []
+    [ h1 []
       [ text "ElmSynth" ]
     , div [] [ SingleSlider.view model.volumeSlider ]
     , pre [] [ text "" ]
-    , p [ class "p-0 my-6" ]
-      [ text ("Oscillator selected: " ++ String.Extra.toSentenceCase model.oscillatorType) ]
-    , div []
-      [ Dropdown.dropdown model.oscillatorDropdown
-        { options = [ Dropdown.alignMenuRight ]
-        , toggleMsg = OSCDropdownChange
-        , toggleButton = Dropdown.toggle [ Button.primary ] [ text "Change Oscillator Type" ]
-        , items =
-          [ Dropdown.buttonItem [ onClick (OscillatorChange "sine") ] [ text "Sine" ]
-          , Dropdown.buttonItem [ onClick (OscillatorChange "square") ] [ text "Square" ]
-          , Dropdown.buttonItem [ onClick (OscillatorChange "triangle") ] [ text "Triange" ]
-          , Dropdown.buttonItem [ onClick (OscillatorChange "sawtooth") ] [ text "Sawtooth" ]
-          ]
-        }
-      ]
-    , div [] [ SingleSlider.view model.partialSlider ]
-    , pre [] [ text "" ]
-    , p [ class "p-0 my-6" ]
+    , p []
       [ text "Type on the keyboard to play notes!" ]
-    , div [ class "keaboard" ] <|
+    , div [] <|
       List.indexedMap noteView model.notes
-    , div [ class "p-2 my-6" ]
-      [ button [ onClick TransposeUp, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+    , pre [] [ text "" ]
+    , div []
+      [ Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick TransposeUp ]]
         [ text "Transpose up" ]
-      , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+      , Button.button [ Button.dark, Button.attrs [ onClick TransposeDown ]]
         [ text "Transpose down" ]
       ]
     , pre [] [ text "" ]
@@ -756,32 +740,59 @@ view model =
           , link = Tab.link [] [ text "Presets" ]
           , pane =
             Tab.pane [ Spacing.mt3 ]
-              [ p [] [ text "Choose an instrument" ]
-              , button
-                [ onClick
-                  (PresetLoad
-                    (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
-                  )
-                , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"
-                ]
+              [ p [] [ text "Choose an instrument:" ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+0.7705#oscillator+sine#partial+0"))
+              ]]
                 [ text "Piano" ]
-              , button
-                [ onClick
-                  (PresetLoad
-                    (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
-                  )
-                , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"
-                ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+1"))
+              ]]
                 [ text "Xylophone" ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+square#partial+50"))
+              ]]
+                [ text "Bright" ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+sawtooth#partial+50"))
+              ]]
+                [ text "Plucky" ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50"))
+              ]]
+                [ text "Accordion" ]
               ]
-          }
+            }
         , Tab.item
           { id = "tabItem2"
           , link = Tab.link [] [ text "Advanced Settings" ]
           , pane =
             Tab.pane [ Spacing.mt3 ]
-              [ p [] [ text "Toggle the sliders to create your own envelope" ]
+              [ p []
+                [ text ("Oscillator selected: " ++ String.Extra.toSentenceCase model.oscillatorType) ]
+              , div []
+                [ Dropdown.dropdown model.oscillatorDropdown
+                  { options = [ Dropdown.alignMenuRight ]
+                  , toggleMsg = OSCDropdownChange
+                  , toggleButton = Dropdown.toggle [ Button.primary ] [ text "Change Oscillator Type" ]
+                  , items =
+                    [ Dropdown.buttonItem [ onClick (OscillatorChange "sine") ] [ text "Sine" ]
+                    , Dropdown.buttonItem [ onClick (OscillatorChange "square") ] [ text "Square" ]
+                    , Dropdown.buttonItem [ onClick (OscillatorChange "triangle") ] [ text "Triange" ]
+                    , Dropdown.buttonItem [ onClick (OscillatorChange "sawtooth") ] [ text "Sawtooth" ]
+                    ]
+                  }
+                ]
+              , div [] [ SingleSlider.view model.partialSlider ]
+              , pre [] [ text "" ]
+              , p [] [ text "Toggle the sliders to create your own envelope:" ]
               , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+              , pre [] [ text "" ]
               , p [] [ text "Add/Remove Effects" ]
               , div [] (Dict.values (Dict.map viewEffect model.effects))
               , div []
@@ -805,13 +816,14 @@ view model =
         ]
       |> Tab.view model.envelopeTab
     , pre [] [ text "" ]
-    , pre [] [ text "" ]
-    , pre [] [ text "" ]
-    , button [ onClick Save, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+    , p [] [ text "Save your current state and load it back in:" ]
+    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick Save ]]
       [ text "Save" ]
-    , button [ onClick (PresetLoad model.savedState), class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick (PresetLoad model.savedState) ]]
       [ text "Load" ]
+    , pre [] [ text "" ]
     ]
+
 
 
 
