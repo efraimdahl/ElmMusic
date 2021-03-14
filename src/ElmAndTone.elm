@@ -45,7 +45,7 @@ port updateAudio : String -> Cmd msg
 
 
 -- MODEL ----------------------------------------------------------------------
---Differentiate between black and white keys
+-- Differentiate between black and white keys
 
 
 type Color
@@ -78,8 +78,8 @@ type alias Model =
 
 
 
---The computer-key keyboard is implemented according to common DAW practices
---AKA, type on the keyboard as if it were a piano
+-- The computer-key keyboard is implemented according to common DAW practices
+-- Type on the keyboard as if it were a piano
 
 
 initialModel : Model
@@ -258,8 +258,8 @@ findKey s m =
 
 
 
---Format Name, Number of parameters, Names of parameters, range for each
---parameter, starting value and step size,
+-- Format Name, Number of parameters, Names of parameters, range for each
+-- parameter, starting value and step size,
 
 
 addEffect : String -> ( Effect.Effect, String )
@@ -538,7 +538,7 @@ mtof midi =
 
 
 
---Helper function to make black keys look pretty
+-- Helper function to make black keys look pretty
 
 
 getBlackOffset : Int -> Color -> Attribute msg
