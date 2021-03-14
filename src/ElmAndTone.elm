@@ -1,35 +1,34 @@
 port module ElmAndTone exposing (..)
 
-import Browser
-import Browser.Events
---
-import Html exposing (Html, Attribute, a, div, pre, p, code, h1, h4, text, main_, button)
-import Html.Attributes exposing (class, href,style)
-import Html.Events exposing (onClick)
---
-import Json.Decode as Decode
-import Json.Encode as Encode
---
-import SingleSlider exposing (..)
---
 import Bootstrap.Button as Button
 import Bootstrap.Dropdown as Dropdown
 import Bootstrap.Tab as Tab
 import Bootstrap.Utilities.Spacing as Spacing
-
+import Browser
+import Browser.Events
+import Dict
+import Effect
+import Envelope
+import Html exposing (Attribute, Html, a, button, code, div, h1, h4, main_, p, pre, text)
+import Html.Attributes exposing (class, href, style)
+import Html.Events exposing (onClick)
+import Json.Decode as Decode
+import Json.Encode as Encode
+import SingleSlider exposing (..)
 import String.Extra
 
-import Dict
 
-import Envelope
-import Effect
+type alias Flags =
+  ()
 
-type alias Flags = ()
+
 
 -- MAIN -----------------------------------------------------------------------
+
+
 main : Program Flags Model Msg
 main =
-    Browser.element
+  Browser.element
     { init = init
     , update = update
     , view = view
@@ -37,18 +36,28 @@ main =
     }
 
 
+
 -- Send the JSON-encoded audio graph to JavaScript
+
+
 port updateAudio : String -> Cmd msg
+
 
 
 -- MODEL ----------------------------------------------------------------------
 --Differentiate between black and white keys
-type Color  = B | W
+
+
+type Color
+  = B
+  | W
+
+
 type alias Note =
   { key : String
   , midi : Float
   , triggered : Bool
-  , detriggered: Bool
+  , detriggered : Bool
   , clr : Color
   }
 
@@ -68,46 +77,56 @@ type alias Model =
   }
 
 
+
 --The computer-key keyboard is implemented according to common DAW practices
 --AKA, type on the keyboard as if it were a piano
+
+
 initialModel : Model
 initialModel =
   let
-    minFormatter = \value -> ""
-    maxFormatter = \value -> ""
-    volumeValueFormatter = \value not_used_value -> "Volume: " ++ (String.fromFloat value)
-    partialValueFormatter = \value not_used_value -> "Partial: " ++ (String.fromFloat value)
+    minFormatter =
+      \value -> ""
+
+    maxFormatter =
+      \value -> ""
+
+    volumeValueFormatter =
+      \value not_used_value -> "Volume: " ++ String.fromFloat value
+
+    partialValueFormatter =
+      \value not_used_value -> "Partial: " ++ String.fromFloat value
   in
   { volumeSlider =
-      SingleSlider.init
-        { min = 0
-        , max = 100
-        , value = 50
-        , step = 1
-        , onChange = SliderChange "volume"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter volumeValueFormatter
-        |> SingleSlider.withMaxFormatter maxFormatter
+    SingleSlider.init
+      { min = 0
+      , max = 100
+      , value = 50
+      , step = 1
+      , onChange = SliderChange "volume"
+      }
+      |> SingleSlider.withMinFormatter minFormatter
+      |> SingleSlider.withValueFormatter volumeValueFormatter
+      |> SingleSlider.withMaxFormatter maxFormatter
   , partialSlider =
-      SingleSlider.init
-        { min = 0
-        , max = 100
-        , value = 0
-        , step = 1
-        , onChange = SliderChange "partial"
-        }
-        |> SingleSlider.withMinFormatter minFormatter
-        |> SingleSlider.withValueFormatter partialValueFormatter
-        |> SingleSlider.withMaxFormatter maxFormatter
+    SingleSlider.init
+      { min = 0
+      , max = 100
+      , value = 0
+      , step = 1
+      , onChange = SliderChange "partial"
+      }
+      |> SingleSlider.withMinFormatter minFormatter
+      |> SingleSlider.withValueFormatter partialValueFormatter
+      |> SingleSlider.withMaxFormatter maxFormatter
   , oscillatorDropdown =
-      Dropdown.initialState
+    Dropdown.initialState
   , effectsDropdown =
-      Dropdown.initialState
+    Dropdown.initialState
   , oscillatorType =
-      "triangle"
+    "triangle"
   , envelopeTab =
-      Tab.initialState
+    Tab.initialState
   , notes =
     [ { key = "z", midi = 48, triggered = False, detriggered = False, clr = W }
     , { key = "s", midi = 49, triggered = False, detriggered = False, clr = B }
@@ -139,37 +158,36 @@ initialModel =
     , { key = "0", midi = 75, triggered = False, detriggered = False, clr = B }
     , { key = "p", midi = 76, triggered = False, detriggered = False, clr = W }
     ]
-    , addEnv = Envelope.init "gainenv"
-    , effects=Dict.empty
-    , effectNum = 0
-    , savedState = Nothing
+  , addEnv = Envelope.init "gainenv"
+  , effects = Dict.empty
+  , effectNum = 0
+  , savedState = Nothing
   }
 
-init : () -> (Model, Cmd Msg)
+
+init : () -> ( Model, Cmd Msg )
 init _ =
   ( initialModel, Cmd.none )
 
+
+
 -- UPDATE ---------------------------------------------------------------------
+
+
 type Msg
   = NoOp
-  --
   | NoteOn String
   | NoteOff String
-  --
   | TransposeUp
   | TransposeDown
-  --
   | SliderChange String Float
   | EnvMessage Envelope.Message
   | EffectMessage Effect.Message
-  --
   | OSCDropdownChange Dropdown.State
   | FXDropdownChange Dropdown.State
   | OscillatorChange String
   | AddFX String
-  --
   | TabChange Tab.State
-  --
   | PresetLoad (Maybe String)
   | Save
 
@@ -177,70 +195,144 @@ type Msg
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
-  | notes = List.map
-    (\note ->
-      if note.key == key then
-        { note | triggered = True }
-      else note
-    )
-  model.notes
+    | notes =
+      List.map
+        (\note ->
+          if note.key == key then
+            { note | triggered = True }
+
+          else
+            note
+        )
+        model.notes
   }
 
 
 noteOff : String -> Model -> Model
 noteOff key model =
   { model
-  | notes = List.map
-    (\note ->
-      if note.key == key then
-        { note | triggered = False }
-      else note
-    )
-  model.notes
+    | notes =
+      List.map
+        (\note ->
+          if note.key == key then
+            { note | triggered = False }
+
+          else
+            note
+        )
+        model.notes
   }
 
 
 transposeUp : Model -> Model
 transposeUp model =
   { model
-  | notes = List.map (\note -> { note | midi = note.midi + 1 }) model.notes
+    | notes = List.map (\note -> { note | midi = note.midi + 1 }) model.notes
   }
 
 
 transposeDown : Model -> Model
 transposeDown model =
   { model
-  | notes = List.map (\note -> { note | midi = note.midi - 1 }) model.notes
+    | notes = List.map (\note -> { note | midi = note.midi - 1 }) model.notes
   }
 
 
-findKey: String -> Model -> Float
+findKey : String -> Model -> Float
 findKey s m =
   let
     test : Note -> Bool
-    test n = (n.key==s)
+    test n =
+      n.key == s
+
     mainVal : List Note
-    mainVal =  List.filter test m.notes
+    mainVal =
+      List.filter test m.notes
   in
   case mainVal of
-    [] -> 0
-    hd::tail -> mtof (hd.midi)
+    [] ->
+      0
 
---Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size,
-addEffect: String -> (Effect.Effect,String)
+    hd :: tail ->
+      mtof hd.midi
+
+
+
+--Format Name, Number of parameters, Names of parameters, range for each
+--parameter, starting value and step size,
+
+
+addEffect : String -> ( Effect.Effect, String )
 addEffect str =
   case str of
-  "Distortion" -> (Effect.init "Distortion" 1 ["Distortion"] [(0,1)] [(0,0.01)],"Distortion")
-  "FeedbackDelay" -> (Effect.init "FeedbackDelay" 2 ["Delay","Feedback"] [(0,1),(0,1)] [(0,0.01),(0,0.01)],"FeedbackDelay")
-  "FrequencyShifter" ->(Effect.init "FrequencyShifter" 1 ["FrequencyShifter"] [(0,1000)] [(0,2)],"FrequencyShifter")
-  "BitCrusher" ->(Effect.init "BitCrusher" 1 ["BitCrusher"] [(1,16)] [(1,1)],"BitCrusher")
-  "Chebyshev" ->(Effect.init "Chebyshev" 1 ["Chebyshev"] [(2,100)] [(2,1)],"Chebyshev")
-  "HPFilter" ->(Effect.init "HPFilter" 1 ["HPFrequency"] [(1,18000)] [(18000,2)],"HPFilter")
-  "LPFilter" ->(Effect.init "LPFilter" 1 ["LPFrequency"] [(1,18000)] [(1,2)],"LPFilter")
-  _ -> Debug.todo("Effect needs to be included")
+    "Distortion" ->
+      ( Effect.init "Distortion"
+        1
+        [ "Distortion" ]
+        [ ( 0, 1 ) ]
+        [ ( 0, 0.01 ) ]
+      , "Distortion"
+      )
+
+    "FeedbackDelay" ->
+      ( Effect.init "FeedbackDelay"
+        2
+        [ "Delay", "Feedback" ]
+        [ ( 0, 1 ), ( 0, 1 ) ]
+        [ ( 0, 0.01 ), ( 0, 0.01 ) ]
+      , "FeedbackDelay"
+      )
+
+    "FrequencyShifter" ->
+      ( Effect.init "FrequencyShifter"
+        1
+        [ "FrequencyShifter" ]
+        [ ( 0, 1000 ) ]
+        [ ( 0, 2 ) ]
+      , "FrequencyShifter"
+      )
+
+    "BitCrusher" ->
+      ( Effect.init "BitCrusher"
+        1
+        [ "BitCrusher" ]
+        [ ( 1, 16 ) ]
+        [ ( 1, 1 ) ]
+      , "BitCrusher"
+      )
+
+    "Chebyshev" ->
+      ( Effect.init "Chebyshev"
+        1
+        [ "Chebyshev" ]
+        [ ( 2, 100 ) ]
+        [ ( 2, 1 ) ]
+      , "Chebyshev"
+      )
+
+    "HPFilter" ->
+      ( Effect.init "HPFilter"
+        1
+        [ "HPFrequency" ]
+        [ ( 1, 18000 ) ]
+        [ ( 18000, 2 ) ]
+      , "HPFilter"
+      )
+
+    "LPFilter" ->
+      ( Effect.init "LPFilter"
+        1
+        [ "LPFrequency" ]
+        [ ( 1, 18000 ) ]
+        [ ( 1, 2 ) ]
+      , "LPFilter"
+      )
+
+    _ ->
+      Debug.todo "Effect needs to be included"
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
     SliderChange typ val ->
@@ -249,12 +341,17 @@ update msg model =
         newModel =
           case typ of
             "volume" ->
-              { model | volumeSlider = (SingleSlider.update val model.volumeSlider) }
+              { model | volumeSlider = SingleSlider.update val model.volumeSlider }
+
             "partial" ->
-              { model | partialSlider = (SingleSlider.update val model.partialSlider) }
-            _ -> Debug.todo("1undefined Slider Changed "++typ++","++(Debug.toString msg))
+              { model | partialSlider = SingleSlider.update val model.partialSlider }
+
+            _ ->
+              Debug.todo ("1undefined Slider Changed " ++ typ ++ "," ++ Debug.toString msg)
+
         message : String
-        message = typ ++ "-" ++ Debug.toString(val)
+        message =
+          typ ++ "-" ++ Debug.toString val
       in
       ( newModel
       , makeAndSendAudio message
@@ -265,9 +362,12 @@ update msg model =
 
     NoteOn key ->
       let
-        val = findKey key model
+        val =
+          findKey key model
+
         message : String
-        message = "press-" ++ Debug.toString(val)
+        message =
+          "press-" ++ Debug.toString val
       in
       ( noteOn key model
       , makeAndSendAudio message
@@ -275,9 +375,12 @@ update msg model =
 
     NoteOff key ->
       let
-        val = findKey key model
+        val =
+          findKey key model
+
         message : String
-        message = "release-" ++ Debug.toString(val)
+        message =
+          "release-" ++ Debug.toString val
       in
       ( noteOff key model
       , makeAndSendAudio message
@@ -293,57 +396,69 @@ update msg model =
       , Cmd.none
       )
 
-    EnvMessage envelopeMsg->
+    EnvMessage envelopeMsg ->
       let
-        (newEnv,str) = Envelope.update envelopeMsg model.addEnv
+        ( newEnv, str ) =
+          Envelope.update envelopeMsg model.addEnv
       in
-      ({ model | addEnv = newEnv }
+      ( { model | addEnv = newEnv }
       , makeAndSendAudio str
       )
 
-    EffectMessage fXMsg->
+    EffectMessage fXMsg ->
       let
         name : String
-        name = (Debug.log "Effect Name" (Effect.getChangedName fXMsg))
+        name =
+          Debug.log "Effect Name" (Effect.getChangedName fXMsg)
+
         comp : Maybe Effect.Effect
-        comp = Dict.get name model.effects
+        comp =
+          Dict.get name model.effects
       in
       case comp of
-        Nothing -> (model, Cmd.none)
+        Nothing ->
+          ( model, Cmd.none )
+
         Just effect ->
           let
-            (fx, message) = Effect.update fXMsg effect
+            ( fx, message ) =
+              Effect.update fXMsg effect
           in
-          ({ model|effects = Dict.insert name fx model.effects}
-          , makeAndSendAudio ("changeFX-"++message))
+          ( { model | effects = Dict.insert name fx model.effects }
+          , makeAndSendAudio ("changeFX-" ++ message)
+          )
 
     OSCDropdownChange state ->
-      ({ model | oscillatorDropdown = state }
+      ( { model | oscillatorDropdown = state }
       , Cmd.none
       )
 
     FXDropdownChange state ->
-      ({ model | effectsDropdown = state }
+      ( { model | effectsDropdown = state }
       , Cmd.none
       )
 
     AddFX effectName ->
       let
-        (newFX,name)  = addEffect effectName
+        ( newFX, name ) =
+          addEffect effectName
       in
-      ({ model | effects = (Dict.insert name newFX model.effects), effectNum = (model.effectNum+1)}
-      , makeAndSendAudio ("addFX-"++effectName))
+      ( { model | effects = Dict.insert name newFX model.effects, effectNum = model.effectNum + 1 }
+      , makeAndSendAudio ("addFX-" ++ effectName)
+      )
 
     OscillatorChange st ->
       let
         message : String
-        message = "oscillator-"++st
+        message =
+          "oscillator-" ++ st
       in
-      ({ model | oscillatorType = st}
-      , makeAndSendAudio message)
+      ( { model | oscillatorType = st }
+      , makeAndSendAudio message
+      )
 
     TabChange state ->
-      ({ model | envelopeTab = state }
+      ( { model | envelopeTab = state }
       , Cmd.none
       )
 
@@ -353,45 +468,59 @@ update msg model =
           ( model
           , Cmd.none
           )
+
         Just loadString ->
           let
             nModel : Model
-            nModel = updateModel str model
+            nModel =
+              updateModel str model
           in
           ( nModel
           , makeAndSendAudio loadString
           )
 
     Save ->
-
-      if (floor (fetchValue (model.partialSlider)) /= 0) then
+      if floor (fetchValue model.partialSlider) /= 0 then
         let
           currState : String
           currState =
-            "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
-            "#oscillator+" ++ model.oscillatorType ++
-            "#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
-            "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
-            "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
-            "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
-            "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
+            "loadPreset-#volume+"
+              ++ String.fromFloat (fetchValue model.volumeSlider)
+              ++ "#oscillator+"
+              ++ model.oscillatorType
+              ++ "#partial+"
+              ++ String.fromFloat (fetchValue model.partialSlider)
+              ++ "#gainenv+attack+"
+              ++ String.fromFloat (fetchValue model.addEnv.attack)
+              ++ "#gainenv+decay+"
+              ++ String.fromFloat (fetchValue model.addEnv.decay)
+              ++ "#gainenv+sustain+"
+              ++ String.fromFloat (fetchValue model.addEnv.sustain)
+              ++ "#gainenv+release+"
+              ++ String.fromFloat (fetchValue model.addEnv.release)
         in
-        ({ model | savedState = Just currState }
+        ( { model | savedState = Just currState }
         , Cmd.none
         )
+
       else
         let
           currState : String
           currState =
-            "loadPreset-#volume+" ++ String.fromFloat(fetchValue (model.volumeSlider)) ++
-            "#oscillator+" ++ model.oscillatorType ++
-            --"#partial+" ++ String.fromFloat(fetchValue (model.partialSlider)) ++
-            "#gainenv+attack+" ++ String.fromFloat(fetchValue (model.addEnv.attack)) ++
-            "#gainenv+decay+" ++ String.fromFloat(fetchValue (model.addEnv.decay)) ++
-            "#gainenv+sustain+" ++ String.fromFloat(fetchValue (model.addEnv.sustain)) ++
-              "#gainenv+release+" ++ String.fromFloat(fetchValue (model.addEnv.release))
+            "loadPreset-#volume+"
+              ++ String.fromFloat (fetchValue model.volumeSlider)
+              ++ "#oscillator+"
+              ++ model.oscillatorType
+              ++ "#gainenv+attack+"
+              ++ String.fromFloat (fetchValue model.addEnv.attack)
+              ++ "#gainenv+decay+"
+              ++ String.fromFloat (fetchValue model.addEnv.decay)
+              ++ "#gainenv+sustain+"
+              ++ String.fromFloat (fetchValue model.addEnv.sustain)
+              ++ "#gainenv+release+"
+              ++ String.fromFloat (fetchValue model.addEnv.release)
         in
-        ({ model | savedState = Just currState }
+        ( { model | savedState = Just currState }
         , Cmd.none
         )
 
@@ -401,94 +530,145 @@ update msg model =
 -- Super simple utility function that takes a MIDI note number like 60 and
 -- converts it to the corresponding frequency in Hertz. We use Float for the
 -- MIDI number to allow for detuning, and we assume A4 is MIDI note number 69.
+
+
 mtof : Float -> Float
 mtof midi =
   440 * 2 ^ ((midi - 69) / 12)
 
 
---Math.floor(((white_key_width + 1) * (key.noteNumber + 1)) - (black_key_width / 2)) + 'px';*/
+
 --Helper function to make black keys look pretty
-getBlackOffset: Int -> Color -> Attribute msg
+
+
+getBlackOffset : Int -> Color -> Attribute msg
 getBlackOffset num clr =
-    case clr of
-        B -> style "" ""--"left" (String.fromInt (((num-1))) ++ "px")
-        W -> if (num==28) then style "border-right-width" "1px"
-             else style "" "" --"left" (String.fromInt (num) ++ "px")
+  case clr of
+    B ->
+      style "" ""
+
+    W ->
+      if num == 28 then
+        style "border-right-width" "1px"
+
+      else
+        style "" ""
 
 
-fourWordParse: String -> String -> String -> String -> List Msg
+fourWordParse : String -> String -> String -> String -> List Msg
 fourWordParse a b c d =
   case a of
-   "changeFX" ->
+    "changeFX" ->
       let
         floatd : Maybe Float
-        floatd = String.toFloat d
+        floatd =
+          String.toFloat d
       in
       case floatd of
-        Nothing -> [NoOp]
-        (Just z) -> [EffectMessage (Effect.makeEffectMessage b c z)]
-   _ ->[NoOp]
+        Nothing ->
+          [ NoOp ]
+
+        Just z ->
+          [ EffectMessage (Effect.makeEffectMessage b c z) ]
+
+    _ ->
+      [ NoOp ]
 
 
-threeWordParse: String -> String ->String -> List Msg
-threeWordParse a b c=
+threeWordParse : String -> String -> String -> List Msg
+threeWordParse a b c =
   case a of
     "gainenv" ->
       let
         floatd : Maybe Float
-        floatd = (String.toFloat c)
+        floatd =
+          String.toFloat c
       in
       case floatd of
-        Nothing -> [NoOp]
-        Just z -> [EnvMessage (Envelope.makeEnvMessage b z)]
-    _ -> [NoOp]
+        Nothing ->
+          [ NoOp ]
+
+        Just z ->
+          [ EnvMessage (Envelope.makeEnvMessage b z) ]
+
+    _ ->
+      [ NoOp ]
 
 
-twoWordParse: String -> String ->List Msg
+twoWordParse : String -> String -> List Msg
 twoWordParse a b =
   let
     floatd : Maybe Float
-    floatd = String.toFloat b
+    floatd =
+      String.toFloat b
   in
-  case (floatd,a) of
-    (_, "oscillator") -> [OscillatorChange b]
-    (Just z,"volume") -> [SliderChange "volume" z]
-    (Just z, "partial") -> [SliderChange "partial" z]
-    (_,"addFX") -> [AddFX b]
-    _ -> [NoOp]
+  case ( floatd, a ) of
+    ( _, "oscillator" ) ->
+      [ OscillatorChange b ]
+
+    ( Just z, "volume" ) ->
+      [ SliderChange "volume" z ]
+
+    ( Just z, "partial" ) ->
+      [ SliderChange "partial" z ]
+
+    ( _, "addFX" ) ->
+      [ AddFX b ]
+
+    _ ->
+      [ NoOp ]
 
 
-updateModel: Maybe String -> Model -> Model
+updateModel : Maybe String -> Model -> Model
 updateModel str model =
   case str of
     Nothing ->
       model
+
     Just updateString ->
       let
         sList : List String
-        sList = Debug.log "String" (String.split "#" updateString)
-        mapfunc: String -> List Msg
+        sList =
+          Debug.log "String" (String.split "#" updateString)
+
+        mapfunc : String -> List Msg
         mapfunc st =
           let
-            s = Debug.log "StringParse" (String.split "+" st)
+            s =
+              Debug.log "StringParse" (String.split "+" st)
           in
           case s of
-            [a,b,c,d] -> fourWordParse a b c d
-            [a,b,c] -> threeWordParse a b c
-            [a,b] -> twoWordParse a b
-            _ -> Debug.log "No operation" [NoOp]
-        foldfunc: Msg -> Model -> Model
+            [ a, b, c, d ] ->
+              fourWordParse a b c d
+
+            [ a, b, c ] ->
+              threeWordParse a b c
+
+            [ a, b ] ->
+              twoWordParse a b
+
+            _ ->
+              Debug.log "No operation" [ NoOp ]
+
+        foldfunc : Msg -> Model -> Model
         foldfunc ms ml =
           let
-            (newModel,backms) = update ms ml
+            ( newModel, backms ) =
+              update ms ml
           in
           newModel
+
         prelis : List (List Msg)
-        prelis = (List.map mapfunc sList)
+        prelis =
+          List.map mapfunc sList
+
         lis : List Msg
-        lis =  Debug.log "Semifinal List" (List.concat prelis)
+        lis =
+          Debug.log "Semifinal List" (List.concat prelis)
+
         x : Model
-        x = (List.foldl foldfunc model lis)
+        x =
+          List.foldl foldfunc model lis
       in
       x
 
@@ -497,123 +677,150 @@ updateModel str model =
 -- VIEW -----------------------------------------------------------------------
 -- Use this to toggle the main styling on a note based on wheter it is currently
 -- active or note. Basically just changes the background and font colour.
-noteCSS : Int-> Bool -> Color-> String
+
+
+noteCSS : Int -> Bool -> Color -> String
 noteCSS i active clr =
   case clr of
-    W -> if active then
+    W ->
+      if active then
         "WhiteKeyActive"
-        else
+
+      else
         "WhiteKey"
-    B -> if active then
+
+    B ->
+      if active then
         "BlackKeyActive "
-        else
+
+      else
         "BlackKey "
 
 
--- This takes a Note (as defined above) and converts that to some  Notice
+
+-- This takes a Note (as defined above) and converts that to some Notice
 -- how we use the data for both the `voice` function and this `noteView` function.
 -- Our audio graph should never become out of sync with our view!
+
+
 noteView : Int -> Note -> Html Msg
 noteView i note =
-  div [ class <| noteCSS i note.triggered note.clr, class "Key", (getBlackOffset i note.clr)]
+  div [ class <| noteCSS i note.triggered note.clr, class "Key", getBlackOffset i note.clr ]
     [ text note.key ]
 
-viewEffect: String ->Effect.Effect -> Html Msg
-viewEffect str fx = div [] [Effect.view fx |> Html.map EffectMessage]
+
+viewEffect : String -> Effect.Effect -> Html Msg
+viewEffect str fx =
+  div [] [ Effect.view fx |> Html.map EffectMessage ]
 
 
 view : Model -> Html Msg
 view model =
   main_ [ class "m-10 body" ]
     [ h1 [ class "text-3xl my-10" ]
-        [ text "ElmSynth" ]
+      [ text "ElmSynth" ]
     , div [] [ SingleSlider.view model.volumeSlider ]
     , pre [] [ text "" ]
     , p [ class "p-0 my-6" ]
-        [ text ("Oscillator selected: " ++ String.Extra.toSentenceCase(model.oscillatorType)) ]
-    , div [] [ Dropdown.dropdown model.oscillatorDropdown
-      { options = [ Dropdown.alignMenuRight ]
-      , toggleMsg = OSCDropdownChange
-      , toggleButton = Dropdown.toggle [ Button.primary ][ text "Change Oscillator Type" ]
-      , items =
-        [ Dropdown.buttonItem [ onClick (OscillatorChange "sine") ] [ text "Sine" ]
-        , Dropdown.buttonItem [ onClick (OscillatorChange "square") ] [ text "Square" ]
-        , Dropdown.buttonItem [ onClick (OscillatorChange "triangle") ] [ text "Triange" ]
-        , Dropdown.buttonItem [ onClick (OscillatorChange "sawtooth") ] [ text "Sawtooth" ]
-        ]
-      }]
+      [ text ("Oscillator selected: " ++ String.Extra.toSentenceCase model.oscillatorType) ]
+    , div []
+      [ Dropdown.dropdown model.oscillatorDropdown
+        { options = [ Dropdown.alignMenuRight ]
+        , toggleMsg = OSCDropdownChange
+        , toggleButton = Dropdown.toggle [ Button.primary ] [ text "Change Oscillator Type" ]
+        , items =
+          [ Dropdown.buttonItem [ onClick (OscillatorChange "sine") ] [ text "Sine" ]
+          , Dropdown.buttonItem [ onClick (OscillatorChange "square") ] [ text "Square" ]
+          , Dropdown.buttonItem [ onClick (OscillatorChange "triangle") ] [ text "Triange" ]
+          , Dropdown.buttonItem [ onClick (OscillatorChange "sawtooth") ] [ text "Sawtooth" ]
+          ]
+        }
+      ]
     , div [] [ SingleSlider.view model.partialSlider ]
     , pre [] [ text "" ]
     , p [ class "p-0 my-6" ]
-        [ text "Type on the keyboard to play notes!" ]
-    , div [ class "keaboard" ]
-        <| List.indexedMap noteView model.notes
+      [ text "Type on the keyboard to play notes!" ]
+    , div [ class "keaboard" ] <|
+      List.indexedMap noteView model.notes
     , div [ class "p-2 my-6" ]
-        [ button [ onClick TransposeUp, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
-            [ text "Transpose up" ]
-        , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
-            [ text "Transpose down" ]
-        ]
+      [ button [ onClick TransposeUp, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+        [ text "Transpose up" ]
+      , button [ onClick TransposeDown, class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+        [ text "Transpose down" ]
+      ]
     , pre [] [ text "" ]
     , Tab.config TabChange
-        |> Tab.items
-          [ Tab.item
-              { id = "tabItem1"
-              , link = Tab.link [] [ text "Presets" ]
-              , pane =
-                  Tab.pane [ Spacing.mt3 ]
-                    [ p [] [ text "Choose an instrument" ]
-                    , button [ onClick (PresetLoad
-                        (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0"))
-                        , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"]
-                        [ text "Piano" ]
+      |> Tab.items
+        [ Tab.item
+          { id = "tabItem1"
+          , link = Tab.link [] [ text "Presets" ]
+          , pane =
+            Tab.pane [ Spacing.mt3 ]
+              [ p [] [ text "Choose an instrument" ]
+              , button
+                [ onClick
+                  (PresetLoad
+                    (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+1.8705#oscillator+sine#partial+0")
+                  )
+                , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"
+                ]
+                [ text "Piano" ]
+              , button
+                [ onClick
+                  (PresetLoad
+                    (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0")
+                  )
+                , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded"
+                ]
+                [ text "Xylophone" ]
+              ]
+          }
+        , Tab.item
+          { id = "tabItem2"
+          , link = Tab.link [] [ text "Advanced Settings" ]
+          , pane =
+            Tab.pane [ Spacing.mt3 ]
+              [ p [] [ text "Toggle the sliders to create your own envelope" ]
+              , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
+              , p [] [ text "Add/Remove Effects" ]
+              , div [] (Dict.values (Dict.map viewEffect model.effects))
+              , div []
+                [ Dropdown.dropdown model.effectsDropdown
+                  { options = [ Dropdown.alignMenuRight ]
+                  , toggleMsg = FXDropdownChange
+                  , toggleButton = Dropdown.toggle [ Button.primary ] [ text "Add Effect" ]
+                  , items =
+                    [ Dropdown.buttonItem [ onClick (AddFX "Distortion") ] [ text "Distortion" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "BitCrusher") ] [ text "BitCrusher" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "Chebyshev") ] [ text "Chebyshev" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "FrequencyShifter") ] [ text "FrequencyShifter" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "LPFilter") ] [ text "Low Pass Filter" ]
+                    , Dropdown.buttonItem [ onClick (AddFX "HPFilter") ] [ text "High Pass Filter" ]
+                    ]
+                  }
+                ]
+              ]
+          }
+        ]
+      |> Tab.view model.envelopeTab
+    , pre [] [ text "" ]
+    , pre [] [ text "" ]
+    , pre [] [ text "" ]
+    , button [ onClick Save, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
+      [ text "Save" ]
+    , button [ onClick (PresetLoad model.savedState), class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
+      [ text "Load" ]
+    ]
 
-                    , button [ onClick (PresetLoad
-                        (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+0"))
-                        , class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
-                        [ text "Xylophone" ]
-                    ]
-              }
-          , Tab.item
-              { id = "tabItem2"
-              , link = Tab.link [] [ text "Advanced Settings" ]
-              , pane =
-                  Tab.pane [ Spacing.mt3 ]
-                    [ p [] [ text "Toggle the sliders to create your own envelope" ]
-                    , div [] [ Envelope.view model.addEnv |> Html.map EnvMessage ]
-                    , p [] [text "Add/Remove Effects"]
-                    , div [] (Dict.values (Dict.map viewEffect model.effects))
-                    , div [] [ Dropdown.dropdown model.effectsDropdown
-                        { options = [ Dropdown.alignMenuRight ]
-                        , toggleMsg = FXDropdownChange
-                        , toggleButton = Dropdown.toggle [ Button.primary ][ text "Add Effect" ]
-                        , items =
-                          [ Dropdown.buttonItem [ onClick (AddFX "Distortion") ] [ text "Distortion" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "BitCrusher") ] [ text "BitCrusher" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "Chebyshev") ] [ text "Chebyshev" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "FrequencyShifter") ] [ text "FrequencyShifter" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "LPFilter") ] [ text "Low Pass Filter" ]
-                          , Dropdown.buttonItem [ onClick (AddFX "HPFilter") ] [ text "High Pass Filter" ]
-                          ]
-                        }]
-                    ]
-              }
-          ]
-        |> Tab.view model.envelopeTab
-      , pre [] [ text "" ]
-      , pre [] [ text "" ]
-      , pre [] [ text "" ]
-      , button [ onClick Save, class "bg-indigo-500 text-black font-bold py-2 px-4 mr-4 rounded" ]
-          [ text "Save" ]
-      , button [ onClick (PresetLoad model.savedState), class "bg-indigo-500 text-black font-bold py-2 px-4 rounded" ]
-          [ text "Load" ]
-      ]
+
 
 -- SUBSCRIPTIONS --------------------------------------------------------------
 
-makeAndSendAudio: String -> Cmd msg
-makeAndSendAudio lst = updateAudio (Encode.encode 0 (Encode.string lst))
+
+makeAndSendAudio : String -> Cmd msg
+makeAndSendAudio lst =
+  updateAudio (Encode.encode 0 (Encode.string lst))
 
 
 keyDecoder : Decode.Decoder String
