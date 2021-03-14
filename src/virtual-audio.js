@@ -1,4 +1,4 @@
-//Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
+//Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example
 
 const defer = f => setTimeout(f, 0)
 const AudioContext = window.AudioContext || window.webkitAudioContext

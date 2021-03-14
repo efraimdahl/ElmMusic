@@ -1,7 +1,6 @@
 /* global AudioContext */
 //Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
 
-//import * as Tone from './tone'
 import PolySynthPlayer from './src/ElmAndTone.js'
 
 const audio = new PolySynthPlayer()
