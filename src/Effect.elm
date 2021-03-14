@@ -24,9 +24,30 @@ type alias Effect =
 type Message
   = SliderChange String String Float
 
+
+makeEffectString : String -> Float -> String
+makeEffectString name val =
+  "#addFX+" ++ name ++ "#changeFX+" ++ name ++ "+" ++ (String.fromFloat val)
+
+
+effectToString : Effect -> List String
+effectToString effect =
+  let
+    len = effect.parameterNum
+    names = effect.paramNames
+    sliders = effect.parameters
+    sliderValues = List.map fetchValue sliders
+  in
+  if List.length(names) /= len || List.length(sliders) /= len then
+    Debug.todo "paramNames and parameters length different"
+  else
+    List.map2 makeEffectString names sliderValues
+
+
 makeEffectMessage : String-> String-> Float->Message
 makeEffectMessage a b c =
   SliderChange a b c
+
 
 buildSliders: String-> List String ->List (Float,Float)->List (Float,Float) -> List (SingleSlider.SingleSlider Message)
 buildSliders fxName lst values settings =
@@ -52,8 +73,8 @@ buildSliders fxName lst values settings =
       in
       slider::(buildSliders fxName tail rest moreSettings)
     _ -> Debug.todo("Error in initiating effect "++fxName)
-  
---Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size, 
+
+--Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size,
 
 init : String -> Int-> List String ->List (Float,Float) -> List (Float, Float)-> Effect
 init str num parameterString parameterMinMax parameterSettings=
@@ -66,12 +87,12 @@ init str num parameterString parameterMinMax parameterSettings=
   }
 
 --change a single parameter from the list of possible parameters
-changeParam: String->Float->List String -> List (SingleSlider.SingleSlider Message) -> List (SingleSlider.SingleSlider Message) 
-changeParam name val paramNames sliders = 
-  case (paramNames,sliders) of 
+changeParam: String->Float->List String -> List (SingleSlider.SingleSlider Message) -> List (SingleSlider.SingleSlider Message)
+changeParam name val paramNames sliders =
+  case (paramNames,sliders) of
   ([],[])->[]
   (p::pNames,slider::rest)->
-    let 
+    let
       i = Debug.log "ELM Names " name ++ (Debug.toString val)
     in
     if (p==name) then (SingleSlider.update val slider)::(changeParam name val pNames rest)
@@ -80,10 +101,10 @@ changeParam name val paramNames sliders =
 
 --helper function to be called from ElmAndTone
 getChangedName: Message -> String
-getChangedName msg = 
-  case msg of 
+getChangedName msg =
+  case msg of
     SliderChange name _ _ -> name
-  
+
 --updates the
 update : Message -> Effect -> (Effect,String)
 update msg env =
@@ -91,8 +112,8 @@ update msg env =
     SliderChange name typ val ->
       let
         newList : List (SingleSlider.SingleSlider Message)
-        newList = changeParam typ val env.paramNames env.parameters 
-        newModel : Effect 
+        newList = changeParam typ val env.paramNames env.parameters
+        newModel : Effect
         newModel = {env | parameters = newList}
         message : String
         message = name++"-"++typ++"-"++Debug.toString(val)
@@ -107,8 +128,8 @@ sliderView slider =
 
 
 view : Effect -> Html Message
-view env = 
-  Card.config [ Card.attrs [ style "width" "20rem" ] ] 
+view env =
+  Card.config [ Card.attrs [ style "width" "20rem" ] ]
   |> Card.header [ class "text-center" ] [Html.h5 [] [ text env.effecting ]]
   |> Card.listGroup (List.map sliderView env.parameters)
   |> Card.view
