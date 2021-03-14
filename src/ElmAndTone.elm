@@ -3,15 +3,19 @@ port module ElmAndTone exposing (..)
 import Bootstrap.Button as Button
 import Bootstrap.Dropdown as Dropdown
 import Bootstrap.Tab as Tab
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
+import Bootstrap.Accordion as Accordion
+import Bootstrap.Card.Block as Block
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Browser.Events
 import Dict
 import Effect
 import Envelope
-import Html exposing (Attribute, Html, a, button, code, div, h1, h2, h3, h4, main_, p, pre, text)
-import Html.Attributes exposing (class, href, style)
-import Html.Events exposing (onClick)
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode
 import Json.Encode as Encode
 import SingleSlider exposing (..)
@@ -74,8 +78,9 @@ type alias Model =
   , notes : List Note
   , effectNum : Int
   , savedState : Maybe String
+  , formContent : String
+  , accordionState : Accordion.State
   }
-
 
 
 -- The computer-key keyboard is implemented according to common DAW practices
@@ -162,6 +167,8 @@ initialModel =
   , effects = Dict.empty
   , effectNum = 0
   , savedState = Nothing
+  , formContent = ""
+  , accordionState = Accordion.initialState
   }
 
 
@@ -190,6 +197,8 @@ type Msg
   | TabChange Tab.State
   | PresetLoad (Maybe String)
   | Save
+  | UpdateContent String
+  | AccordionMsg Accordion.State
 
 
 noteOn : String -> Model -> Model
@@ -524,7 +533,15 @@ update msg model =
         , Cmd.none
         )
 
+    UpdateContent str ->
+      ({ model | formContent = str }
+      , Cmd.none
+      )
 
+    AccordionMsg state ->
+      ({ model | accordionState = state }
+      , Cmd.none
+      )
 
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
@@ -714,6 +731,13 @@ viewEffect str fx =
   div [] [ Effect.view fx |> Html.map EffectMessage ]
 
 
+maybeStringToString : Maybe String -> String
+maybeStringToString s =
+  case s of
+    Nothing -> "Nothing saved."
+    Just str -> str
+
+
 view : Model -> Html Msg
 view model =
   main_ []
@@ -822,8 +846,32 @@ view model =
     , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick (PresetLoad model.savedState) ]]
       [ text "Load" ]
     , pre [] [ text "" ]
+    , Accordion.config AccordionMsg
+      |> Accordion.withAnimation
+      |> Accordion.cards
+        [ Accordion.card
+          { id = "card1"
+          , options = []
+          , header =
+              Accordion.header [] <| Accordion.toggle [] [ text "Manual Save/Load" ]
+          , blocks =
+              [ Accordion.block []
+                [ Block.text []
+                  [ pre [] [ text "Saved state: " ]
+                  , p [] [ text (maybeStringToString(model.savedState)) ]
+                  , pre [] [ text "Manual load: " ]
+                  , input [ type_ "text", placeholder "loadPreset-#", value model.formContent, onInput UpdateContent ] []
+                  , Button.button [ Button.primary, Button.attrs [ onClick (PresetLoad (Just model.formContent)) ]] [ text "Load" ]
+                  ]
+                ]
+              ]
+            }
+          ]
+      |> Accordion.view model.accordionState
+    , pre [] [ text "" ]
     ]
 
+--viewForm : String -> String -> String -> (String -> msg) -> Html msg
 
 
 
