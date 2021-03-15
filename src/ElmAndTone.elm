@@ -1,12 +1,12 @@
 port module ElmAndTone exposing (..)
 
+import Bootstrap.Accordion as Accordion
 import Bootstrap.Button as Button
+import Bootstrap.Card.Block as Block
 import Bootstrap.Dropdown as Dropdown
-import Bootstrap.Tab as Tab
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
-import Bootstrap.Accordion as Accordion
-import Bootstrap.Card.Block as Block
+import Bootstrap.Tab as Tab
 import Bootstrap.Utilities.Spacing as Spacing
 import Browser
 import Browser.Events
@@ -81,6 +81,7 @@ type alias Model =
   , formContent : String
   , accordionState : Accordion.State
   }
+
 
 
 -- The computer-key keyboard is implemented according to common DAW practices
@@ -286,9 +287,9 @@ addEffect str =
     "FeedbackDelay" ->
       ( Effect.init "FeedbackDelay"
         2
-        [ "Delay", "Feedback","Wet"]
-        [ ( 0, 1 ), ( 0, 1 ),(0,1) ]
-        [ ( 0, 0.01 ), ( 0, 0.01 ),(1,0.01)]
+        [ "Delay", "Feedback", "Wet" ]
+        [ ( 0, 1 ), ( 0, 1 ), ( 0, 1 ) ]
+        [ ( 0, 0.01 ), ( 0, 0.01 ), ( 1, 0.01 ) ]
       , "FeedbackDelay"
       )
 
@@ -432,11 +433,16 @@ update msg model =
           let
             ( fx, message ) =
               Effect.update fXMsg effect
-            rm: Bool
-            rm = Effect.isRmMessage fXMsg
+
+            rm : Bool
+            rm =
+              Effect.isRmMessage fXMsg
           in
-          if rm then ({model | effects = Dict.remove name model.effects }, makeAndSendAudio ("removeFX-"++name))
-          else ( { model | effects = Dict.insert name fx model.effects }, makeAndSendAudio ("changeFX-" ++ message))
+          if rm then
+            ( { model | effects = Dict.remove name model.effects }, makeAndSendAudio ("removeFX-" ++ name) )
+
+          else
+            ( { model | effects = Dict.insert name fx model.effects }, makeAndSendAudio ("changeFX-" ++ message) )
 
     OSCDropdownChange state ->
       ( { model | oscillatorDropdown = state }
@@ -494,19 +500,21 @@ update msg model =
         let
           currState : String
           currState =
-            "loadPreset-#volume+"
-              ++ String.fromFloat (fetchValue model.volumeSlider)
-              ++ "#oscillator+"
-              ++ model.oscillatorType
-              ++ "#gainenv+attack+"
-              ++ String.fromFloat (fetchValue model.addEnv.attack)
-              ++ "#gainenv+decay+"
-              ++ String.fromFloat (fetchValue model.addEnv.decay)
-              ++ "#gainenv+sustain+"
-              ++ String.fromFloat (fetchValue model.addEnv.sustain)
-              ++ "#gainenv+release+"
-              ++ String.fromFloat (fetchValue model.addEnv.release)
-              ++ (List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects)))
+            Debug.log "Saved String"
+              ("loadPreset-#volume+"
+                ++ String.fromFloat (fetchValue model.volumeSlider)
+                ++ "#oscillator+"
+                ++ model.oscillatorType
+                ++ "#gainenv+attack+"
+                ++ String.fromFloat (fetchValue model.addEnv.attack)
+                ++ "#gainenv+decay+"
+                ++ String.fromFloat (fetchValue model.addEnv.decay)
+                ++ "#gainenv+sustain+"
+                ++ String.fromFloat (fetchValue model.addEnv.sustain)
+                ++ "#gainenv+release+"
+                ++ String.fromFloat (fetchValue model.addEnv.release)
+                ++ List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects))
+              )
         in
         ( { model | savedState = Just currState }
         , Cmd.none
@@ -516,36 +524,39 @@ update msg model =
         let
           currState : String
           currState =
-            "loadPreset-#volume+"
-              ++ String.fromFloat (fetchValue model.volumeSlider)
-              ++ "#oscillator+"
-              ++ model.oscillatorType
-              ++ "#partial+"
-              ++ String.fromFloat (fetchValue model.partialSlider)
-              ++ "#gainenv+attack+"
-              ++ String.fromFloat (fetchValue model.addEnv.attack)
-              ++ "#gainenv+decay+"
-              ++ String.fromFloat (fetchValue model.addEnv.decay)
-              ++ "#gainenv+sustain+"
-              ++ String.fromFloat (fetchValue model.addEnv.sustain)
-              ++ "#gainenv+release+"
-              ++ String.fromFloat (fetchValue model.addEnv.release)
-              ++ (List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects)))
-
+            Debug.log "Saved String1"
+              ("loadPreset-#volume+"
+                ++ String.fromFloat (fetchValue model.volumeSlider)
+                ++ "#oscillator+"
+                ++ model.oscillatorType
+                ++ "#partial+"
+                ++ String.fromFloat (fetchValue model.partialSlider)
+                ++ "#gainenv+attack+"
+                ++ String.fromFloat (fetchValue model.addEnv.attack)
+                ++ "#gainenv+decay+"
+                ++ String.fromFloat (fetchValue model.addEnv.decay)
+                ++ "#gainenv+sustain+"
+                ++ String.fromFloat (fetchValue model.addEnv.sustain)
+                ++ "#gainenv+release+"
+                ++ String.fromFloat (fetchValue model.addEnv.release)
+                ++ List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects))
+              )
         in
         ( { model | savedState = Just currState }
         , Cmd.none
         )
 
     UpdateContent str ->
-      ({ model | formContent = str }
+      ( { model | formContent = str }
       , Cmd.none
       )
 
     AccordionMsg state ->
-      ({ model | accordionState = state }
+      ( { model | accordionState = state }
       , Cmd.none
       )
+
+
 
 -- AUDIO ----------------------------------------------------------------------
 -- Super simple utility function that takes a MIDI note number like 60 and
@@ -686,8 +697,11 @@ updateModel str model =
         lis : List Msg
         lis =
           Debug.log "Semifinal List" (List.concat prelis)
-        defModel: Model
-        defModel = initialModel
+
+        defModel : Model
+        defModel =
+          initialModel
+
         x : Model
         x =
           List.foldl foldfunc defModel lis
@@ -739,8 +753,11 @@ viewEffect str fx =
 maybeStringToString : Maybe String -> String
 maybeStringToString s =
   case s of
-    Nothing -> "Nothing saved."
-    Just str -> str
+    Nothing ->
+      "Nothing saved."
+
+    Just str ->
+      str
 
 
 view : Model -> Html Msg
@@ -756,9 +773,9 @@ view model =
       List.indexedMap noteView model.notes
     , pre [] [ text "" ]
     , div []
-      [ Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick TransposeUp ]]
+      [ Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick TransposeUp ] ]
         [ text "Transpose up" ]
-      , Button.button [ Button.dark, Button.attrs [ onClick TransposeDown ]]
+      , Button.button [ Button.dark, Button.attrs [ onClick TransposeDown ] ]
         [ text "Transpose down" ]
       ]
     , pre [] [ text "" ]
@@ -770,38 +787,56 @@ view model =
           , pane =
             Tab.pane [ Spacing.mt3 ]
               [ p [] [ text "Choose an instrument:" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+0.7705#oscillator+sine#partial+0"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.0005#gainenv+sustain+1#gainenv+release+0.7705#oscillator+sine#partial+0"))
+                  ]
+                ]
                 [ text "Piano" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+1"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#oscillator+sine#partial+1"))
+                  ]
+                ]
                 [ text "Xylophone" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+square#partial+50"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+square#partial+50"))
+                  ]
+                ]
                 [ text "Bright" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+sawtooth#partial+50"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+sawtooth#partial+50"))
+                  ]
+                ]
                 [ text "Plucky" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#volume+50#oscillator+sine#partial+1#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#addFX+FrequencyShifter#changeFX+FrequencyShifter+FrequencyShifter+760#addFX+Chebyshev#changeFX+Chebyshev+Chebyshev+41"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#volume+50#oscillator+sine#partial+1#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#addFX+FrequencyShifter#changeFX+FrequencyShifter+FrequencyShifter+760#addFX+Chebyshev#changeFX+Chebyshev+Chebyshev+41"))
+                  ]
+                ]
                 [ text "Disaster" ]
-              , Button.button [ Button.primary, Button.attrs
-              [ Spacing.mr3
-              , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50"))
-              ]]
+              , Button.button
+                [ Button.primary
+                , Button.attrs
+                  [ Spacing.mr3
+                  , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50"))
+                  ]
+                ]
                 [ text "Accordion" ]
               ]
-            }
+          }
         , Tab.item
           { id = "tabItem2"
           , link = Tab.link [] [ text "Advanced Settings" ]
@@ -851,9 +886,9 @@ view model =
       |> Tab.view model.envelopeTab
     , pre [] [ text "" ]
     , p [] [ text "Save your current state and load it back in:" ]
-    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick Save ]]
+    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick Save ] ]
       [ text "Save" ]
-    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick (PresetLoad model.savedState) ]]
+    , Button.button [ Button.dark, Button.attrs [ Spacing.mr3, onClick (PresetLoad model.savedState) ] ]
       [ text "Load" ]
     , pre [] [ text "" ]
     , Accordion.config AccordionMsg
@@ -863,25 +898,23 @@ view model =
           { id = "card1"
           , options = []
           , header =
-              Accordion.header [] <| Accordion.toggle [] [ text "Manual Save/Load" ]
+            Accordion.header [] <| Accordion.toggle [] [ text "Manual Save/Load" ]
           , blocks =
-              [ Accordion.block []
-                [ Block.text []
-                  [ pre [] [ text "Saved state: " ]
-                  , p [] [ text (maybeStringToString(model.savedState)) ]
-                  , pre [] [ text "Manual load: " ]
-                  , input [ type_ "text", placeholder "loadPreset-#", value model.formContent, onInput UpdateContent ] []
-                  , Button.button [ Button.primary, Button.attrs [ onClick (PresetLoad (Just model.formContent)) ]] [ text "Load" ]
-                  ]
+            [ Accordion.block []
+              [ Block.text []
+                [ pre [] [ text "Saved state: " ]
+                , p [] [ text (maybeStringToString model.savedState) ]
+                , pre [] [ text "Manual load: " ]
+                , input [ type_ "text", placeholder "loadPreset-#", value model.formContent, onInput UpdateContent ] []
+                , Button.button [ Button.primary, Button.attrs [ onClick (PresetLoad (Just model.formContent)) ] ] [ text "Load" ]
                 ]
               ]
-            }
-          ]
+            ]
+          }
+        ]
       |> Accordion.view model.accordionState
     , pre [] [ text "" ]
     ]
-
---viewForm : String -> String -> String -> (String -> msg) -> Html msg
 
 
 
