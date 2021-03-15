@@ -20,51 +20,90 @@ export default class PolySynthPlayer {
   constructor () {
   }
 
+  getAssoc(props,str){
+    switch(str){
+      case "Distortion":
+        return props.Distortion
+      case "Chebyshev":
+        return props.Chebyshev
+      case "BitCrusher":
+        return props.BitCrusher
+      case "FeedbackDelay":
+        return props.FeedbackDelay
+      case "FrequencyShifter":
+        return props.FrequencyShifter
+     case "LPFilter":
+        return props.LPFilter
+     case "HPFilter":
+        return props.HPFilter
+    }
+  }
 
   addFX(synth, props, type){
+    let dex = props.last.length-1
     switch(type){
       case "Distortion":
         props.Distortion = new Tone.Distortion(0).toDestination()
-        props.last.disconnect()
-        props.last.connect(props.Distortion)
-        props.last=props.Distortion
+        props.last.push(props.Distortion)
+        props.last[dex].disconnect()
+        props.Distortion.wet.value = 1
+        props.last[dex].connect(props.Distortion)
         break;
       case "Chebyshev":
         props.Chebyshev = new Tone.Chebyshev(1).toDestination()
-        props.last.disconnect()
-        props.last.connect(props.Chebyshev)
-        props.last=props.Chebyshev
+        props.Chebyshev.wet.value = 1
+        props.last[dex].disconnect()
+        props.last[dex].connect(props.Chebyshev)
+        props.last.push(props.Chebyshev)
         break;
       case "BitCrusher":
-        props.last.disconnect()
+        props.last[dex].disconnect()
         props.BitCrusher = new Tone.BitCrusher(1).toDestination()
-        props.last.connect(props.BitCrusher)
-        props.last=props.BitCrusher
+        props.BitCrusher.wet.value = 1
+        props.last[dex].connect(props.BitCrusher)
+        props.last.push(props.BitCrusher)
         break;
       case "FeedbackDelay":
-        props.last.disconnect()
+        props.last[dex].disconnect()
         props.FeedbackDelay = new Tone.FeedbackDelay(0, 0).toDestination()
-        props.last.connect(props.FeedbackDelay)
-        props.last=props.FeedbackDelay
+        props.FeedbackDelay.wet.value = 1
+        props.last[dex].connect(props.FeedbackDelay)
+        props.last.push(props.FeedbackDelay)
         break;
       case "FrequencyShifter":
-        props.last.disconnect()
+        props.last[dex].disconnect()
         props.FrequencyShifter = new Tone.FrequencyShifter(0).toDestination()
-        props.last.connect(props.FrequencyShifter)
-        props.last=props.FrequencyShifter
+        props.FrequencyShifter.wet.value = 1
+        props.last[dex].connect(props.FrequencyShifter)
+        props.last.push(props.FrequencyShifter)
         break;
      case "LPFilter":
-        props.last.disconnect()
+        props.last[dex].disconnect()
         props.LPFilter = new Tone.Filter(100, "lowpass").toDestination();
-        props.last.connect(props.LPFilter)
-        props.last=props.LPFilter
+        props.last[dex].connect(props.LPFilter)
+        props.last.push(props.LPFilter)
         break;
      case "HPFilter":
-        props.last.disconnect()
+        props.last[dex].disconnect()
         props.HPFilter =new Tone.Filter(100, "highpass").toDestination();
-        props.last.connect(props.HPFilter)
-        props.last=props.HPFilter
+        props.last[dex].connect(props.HPFilter)
+        props.last.push(props.HPFilter)
         break;
+    }
+  }
+  //not a real disconnect, more of a turning of.
+  removeFX(synth, props, type){
+    this.getAssoc(props,type).dispose();
+    delete(this.getAssoc(props,type));
+    for(let i = 0;i<props.last.length;i++){
+      if(props.last[i].name==type){
+        if(i=props.last.length-1)
+          props.last[i-1].connect(Tone.Destination)
+        else{
+          props.last[i-1].connect(props.last[i+1])
+        }
+        props.last.splice(i, 1);
+      }
     }
   }
   changeFX(props, name, param, value){
@@ -85,6 +124,9 @@ export default class PolySynthPlayer {
           case "Feedback":
             props.FeedbackDelay.set({feedback:value})
             break;
+          case "Wet":
+            props.FeedbackDelay.wet.value=value
+            break
         }
         break;
       case "FrequencyShifter":
@@ -144,7 +186,7 @@ export default class PolySynthPlayer {
   // Public Methods ============================================================
   update (graph, synth, props) {
     //console.log(graph)
-    //console.log(props)
+    console.log(props)
     graph = graph.replace(/[&\/\\,()$~%'":*?<>{}]/g, '');
     let cmdLst = graph.split('-');
     //console.log(cmdLst[0],cmdLst.slice(1,))
@@ -224,12 +266,33 @@ export default class PolySynthPlayer {
       case 'addFX':
         this.addFX(synth, props, cmdLst[1])
         break;
-
+      case 'removeFX':
+        this.removeFX(synth,props,cmdLst[1])
+        break;
       case 'changeFX':
         this.changeFX(props, cmdLst[1], cmdLst[2], cmdLst[3])
         break;
 
       case 'loadPreset':
+        //remove all effects:
+        console.log(props)
+        for(let i = 1;i < props.last.length;i++){
+          this.getAssoc(props,props.last[i].name).dispose()
+          delete(this.getAssoc(props,props.last[i].name))
+          props.last.splice(i, 1);  
+        }
+        let env = {
+	        "attack" : 0.0005,
+	        "decay" : 0.2,
+	        "sustain" : 1,
+	        "release" : 0.8,
+          };
+        synth.set({"envelope":env})
+        let newRay = [synth]
+        let nprops = {activeVoices : [],envelope : env,last:newRay}
+        props=nprops
+        props.last=newRay
+        synth.connect(Tone.Destination)
         //console.log("cmdLst[1]: ", cmdLst[1])
         let remakeCmds = cmdLst[1].split('+').join('-') //slice(1,).join('#')
         //console.log("remakeCmds: ", remakeCmds)

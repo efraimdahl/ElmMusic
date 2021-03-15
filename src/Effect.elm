@@ -4,9 +4,10 @@ import Browser
 import Browser.Events
 import Html exposing (Html, div, text)
 import Html.Attributes exposing (class,style)
-import Html.Events
+import Html.Events exposing (onClick, onInput)
 
-
+import Bootstrap.Button as Button
+import Bootstrap.Card.Block as Block
 import SingleSlider exposing (..)
 import Bootstrap.Card as Card
 import Bootstrap.ListGroup as ListGroup
@@ -23,11 +24,17 @@ type alias Effect =
 
 type Message
   = SliderChange String String Float
+  | RemoveEffect String
 
+isRmMessage : Message -> Bool
+isRmMessage ms = 
+  case ms of 
+    RemoveEffect str -> True
+    _ -> False 
 
-makeEffectString : String -> Float -> String
-makeEffectString paramName val =
-  "#changeFX+" ++ paramName ++ "+" ++ (String.fromFloat val)
+makeEffectString :String-> String -> Float -> String
+makeEffectString effectName paramName val =
+  "#changeFX+"++ effectName ++"+"++ paramName ++ "+" ++ (String.fromFloat val)
 
 
 effectToString : Effect -> String
@@ -42,7 +49,7 @@ effectToString effect =
   if List.length(paramNames) /= len || List.length(sliders) /= len then
     Debug.todo "paramNames and parameters length different"
   else
-    "#addFX+" ++ effectName ++ (String.concat (List.map2 makeEffectString paramNames sliderValues))
+    "#addFX+" ++ effectName ++ (String.concat (List.map2 (makeEffectString effectName) paramNames sliderValues))
 
 
 makeEffectMessage : String-> String-> Float->Message
@@ -105,6 +112,7 @@ getChangedName: Message -> String
 getChangedName msg =
   case msg of
     SliderChange name _ _ -> name
+    RemoveEffect name -> name
 
 --updates the
 update : Message -> Effect -> (Effect,String)
@@ -121,16 +129,21 @@ update msg env =
       in
       ( newModel
       , message )
+    RemoveEffect str ->
+      (env,str)
 
 sliderView : SingleSlider.SingleSlider Message -> ListGroup.Item Message
 sliderView slider =
   ListGroup.li [] [ SingleSlider.view slider]
 
 
-
 view : Effect -> Html Message
 view env =
   Card.config [ Card.attrs [ style "width" "20rem" ] ]
   |> Card.header [ class "text-center" ] [Html.h5 [] [ text env.effecting ]]
-  |> Card.listGroup (List.map sliderView env.parameters)
+  |> Card.listGroup ((List.map sliderView env.parameters)
+    ++[ListGroup.li[][
+          Button.button [ Button.dark, Button.attrs [ onClick (RemoveEffect env.effecting)]][ text ("Remove"++env.effecting)]
+  ]])
+    
   |> Card.view

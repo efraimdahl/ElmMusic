@@ -286,9 +286,9 @@ addEffect str =
     "FeedbackDelay" ->
       ( Effect.init "FeedbackDelay"
         2
-        [ "Delay", "Feedback" ]
-        [ ( 0, 1 ), ( 0, 1 ) ]
-        [ ( 0, 0.01 ), ( 0, 0.01 ) ]
+        [ "Delay", "Feedback","Wet"]
+        [ ( 0, 1 ), ( 0, 1 ),(0,1) ]
+        [ ( 0, 0.01 ), ( 0, 0.01 ),(1,0.01)]
       , "FeedbackDelay"
       )
 
@@ -432,10 +432,11 @@ update msg model =
           let
             ( fx, message ) =
               Effect.update fXMsg effect
+            rm: Bool
+            rm = Effect.isRmMessage fXMsg
           in
-          ( { model | effects = Dict.insert name fx model.effects }
-          , makeAndSendAudio ("changeFX-" ++ message)
-          )
+          if rm then ({model | effects = Dict.remove name model.effects }, makeAndSendAudio ("removeFX-"++name))
+          else ( { model | effects = Dict.insert name fx model.effects }, makeAndSendAudio ("changeFX-" ++ message))
 
     OSCDropdownChange state ->
       ( { model | oscillatorDropdown = state }
@@ -505,6 +506,7 @@ update msg model =
               ++ String.fromFloat (fetchValue model.addEnv.sustain)
               ++ "#gainenv+release+"
               ++ String.fromFloat (fetchValue model.addEnv.release)
+              ++ (List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects)))
         in
         ( { model | savedState = Just currState }
         , Cmd.none
@@ -528,6 +530,8 @@ update msg model =
               ++ String.fromFloat (fetchValue model.addEnv.sustain)
               ++ "#gainenv+release+"
               ++ String.fromFloat (fetchValue model.addEnv.release)
+              ++ (List.foldl (++) "" (List.map Effect.effectToString (Dict.values model.effects)))
+
         in
         ( { model | savedState = Just currState }
         , Cmd.none
@@ -682,10 +686,11 @@ updateModel str model =
         lis : List Msg
         lis =
           Debug.log "Semifinal List" (List.concat prelis)
-
+        defModel: Model
+        defModel = initialModel
         x : Model
         x =
-          List.foldl foldfunc model lis
+          List.foldl foldfunc defModel lis
       in
       x
 
@@ -785,6 +790,11 @@ view model =
               , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0005#gainenv+decay+0.5905#gainenv+sustain+0.1705#gainenv+release+0.0005#oscillator+sawtooth#partial+50"))
               ]]
                 [ text "Plucky" ]
+              , Button.button [ Button.primary, Button.attrs
+              [ Spacing.mr3
+              , onClick (PresetLoad (Just "loadPreset-#volume+50#oscillator+sine#partial+1#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#addFX+FrequencyShifter#changeFX+FrequencyShifter+FrequencyShifter+760#addFX+Chebyshev#changeFX+Chebyshev+Chebyshev+41"))
+              ]]
+                [ text "Disaster" ]
               , Button.button [ Button.primary, Button.attrs
               [ Spacing.mr3
               , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50"))

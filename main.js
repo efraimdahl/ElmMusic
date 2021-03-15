@@ -26,9 +26,8 @@ synth.set({"envelope":env})
 const App = Elm.ElmAndTone.init({
   node: document.querySelector('#app')
 })
-let props={activeVoices : [],envelope : env,last:Tone.Destination}
-synth.connect(props.last)
-props.last=synth
+let props={activeVoices : [],envelope : env,last:[synth]}
+synth.connect(Tone.Destination)
 App.ports.updateAudio.subscribe(function(graph){
   audio.update(graph,synth,props)
 })
