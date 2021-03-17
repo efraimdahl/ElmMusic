@@ -32,11 +32,14 @@ export default class PolySynthPlayer {
         return props.FeedbackDelay
       case "FrequencyShifter":
         return props.FrequencyShifter
-     case "LPFilter":
-        return props.LPFilter
-     case "HPFilter":
+     case "Filter":
+       if(props.LPFilter!=null){
+          return props.LPFilter
+       }
+      else{
         return props.HPFilter
-    }
+      }
+  }
   }
 
   addFX(synth, props, type){

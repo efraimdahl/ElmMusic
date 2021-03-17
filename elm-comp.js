@@ -6136,8 +6136,8 @@ var $author$project$Effect$buildSliders = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 83, column: 10},
-				end: {line: 83, column: 20}
+				start: {line: 104, column: 7},
+				end: {line: 104, column: 17}
 			})('Error in initiating effect ' + fxName);
 	});
 var $author$project$Effect$init = F5(
@@ -6280,8 +6280,8 @@ var $author$project$ElmAndTone$addEffect = function (str) {
 			return _Debug_todo(
 				'ElmAndTone',
 				{
-					start: {line: 341, column: 7},
-					end: {line: 341, column: 17}
+					start: {line: 342, column: 7},
+					end: {line: 342, column: 17}
 				})('Effect needs to be included');
 	}
 };
@@ -6307,28 +6307,18 @@ var $author$project$Effect$makeEffectString = F3(
 	function (effectName, paramName, val) {
 		return '#changeFX+' + (effectName + ('+' + (paramName + ('+' + $elm$core$String$fromFloat(val)))));
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Effect$effectToString = function (effect) {
 	var sliders = effect.parameters;
 	var sliderValues = A2($elm$core$List$map, $carwow$elm_slider$SingleSlider$fetchValue, sliders);
 	var paramNames = effect.paramNames;
 	var len = effect.parameterNum;
 	var effectName = effect.effecting;
-	return ((!_Utils_eq(
-		$elm$core$List$length(paramNames),
-		len)) || (!_Utils_eq(
-		$elm$core$List$length(sliders),
-		len))) ? _Debug_todo(
-		'Effect',
-		{
-			start: {line: 50, column: 5},
-			end: {line: 50, column: 15}
-		})('paramNames and parameters length different') : ('#addFX+' + (effectName + $elm$core$String$concat(
+	return '#addFX+' + (effectName + $elm$core$String$concat(
 		A3(
 			$elm$core$List$map2,
 			$author$project$Effect$makeEffectString(effectName),
 			paramNames,
-			sliderValues))));
+			sliderValues)));
 };
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -6996,8 +6986,8 @@ var $author$project$Effect$changeParam = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 108, column: 8},
-				end: {line: 108, column: 18}
+				start: {line: 144, column: 7},
+				end: {line: 144, column: 17}
 			})('Invalid Prameter Matchup for ' + name);
 	});
 var $author$project$Effect$update = F2(
@@ -7093,8 +7083,8 @@ var $author$project$ElmAndTone$update = F2(
 							return _Debug_todo(
 								'ElmAndTone',
 								{
-									start: {line: 359, column: 15},
-									end: {line: 359, column: 25}
+									start: {line: 360, column: 15},
+									end: {line: 360, column: 25}
 								})(
 								'1undefined Slider Changed ' + (typ + (',' + $elm$core$Debug$toString(msg))));
 					}
@@ -7222,19 +7212,22 @@ var $author$project$ElmAndTone$update = F2(
 			case 'Save':
 				if (!$elm$core$Basics$floor(
 					$carwow$elm_slider$SingleSlider$fetchValue(model.partialSlider))) {
-					var currState = 'loadPreset-#volume+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.volumeSlider)) + ('#oscillator+' + (model.oscillatorType + ('#gainenv+attack+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.attack)) + ('#gainenv+decay+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.decay)) + ('#gainenv+sustain+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.sustain)) + ('#gainenv+release+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.release)) + A3(
-						$elm$core$List$foldl,
-						$elm$core$Basics$append,
-						'',
-						A2(
-							$elm$core$List$map,
-							$author$project$Effect$effectToString,
-							$elm$core$Dict$values(model.effects))))))))))))));
+					var currState = A2(
+						$elm$core$Debug$log,
+						'Saved String',
+						'loadPreset-#volume+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.volumeSlider)) + ('#oscillator+' + (model.oscillatorType + ('#gainenv+attack+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.attack)) + ('#gainenv+decay+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.decay)) + ('#gainenv+sustain+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.sustain)) + ('#gainenv+release+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.release)) + A3(
+							$elm$core$List$foldl,
+							$elm$core$Basics$append,
+							'',
+							A2(
+								$elm$core$List$map,
+								$author$project$Effect$effectToString,
+								$elm$core$Dict$values(model.effects)))))))))))))));
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -7243,20 +7236,23 @@ var $author$project$ElmAndTone$update = F2(
 							}),
 						$elm$core$Platform$Cmd$none);
 				} else {
-					var currState = 'loadPreset-#volume+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.volumeSlider)) + ('#oscillator+' + (model.oscillatorType + ('#partial+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.partialSlider)) + ('#gainenv+attack+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.attack)) + ('#gainenv+decay+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.decay)) + ('#gainenv+sustain+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.sustain)) + ('#gainenv+release+' + ($elm$core$String$fromFloat(
-						$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.release)) + A3(
-						$elm$core$List$foldl,
-						$elm$core$Basics$append,
-						'',
-						A2(
-							$elm$core$List$map,
-							$author$project$Effect$effectToString,
-							$elm$core$Dict$values(model.effects))))))))))))))));
+					var currState = A2(
+						$elm$core$Debug$log,
+						'Saved String1',
+						'loadPreset-#volume+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.volumeSlider)) + ('#oscillator+' + (model.oscillatorType + ('#partial+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.partialSlider)) + ('#gainenv+attack+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.attack)) + ('#gainenv+decay+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.decay)) + ('#gainenv+sustain+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.sustain)) + ('#gainenv+release+' + ($elm$core$String$fromFloat(
+							$carwow$elm_slider$SingleSlider$fetchValue(model.addEnv.release)) + A3(
+							$elm$core$List$foldl,
+							$elm$core$Basics$append,
+							'',
+							A2(
+								$elm$core$List$map,
+								$author$project$Effect$effectToString,
+								$elm$core$Dict$values(model.effects)))))))))))))))));
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
@@ -7796,6 +7792,7 @@ var $rundis$elm_bootstrap$Bootstrap$Dropdown$dropDir = function (maybeDir) {
 		_List_Nil,
 		A2($elm$core$Maybe$map, toAttrs, maybeDir));
 };
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $rundis$elm_bootstrap$Bootstrap$Dropdown$dropdownAttributes = F2(
 	function (status, config) {
 		return _Utils_ap(
