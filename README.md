@@ -22,12 +22,4 @@ Start the server:
 
 `http-server` 
 
-and visit the site provided.
-
-You may also need to install the following:
-
-`npm install tone`
-
-`elm install carwow/elm-slider`
-
-`elm install rundis/elm-bootstrap`
+and visit the local link provided.
