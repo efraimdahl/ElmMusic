@@ -22,4 +22,4 @@ Start the server:
 
 `http-server` 
 
-and visit the local link provided.
+and visit the local link provided. We recommend using Firefox or Chrome.
