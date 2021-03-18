@@ -8,11 +8,10 @@ import Html.Attributes exposing (class)
 import Html.Events
 import SingleSlider exposing (..)
 
+-- This file provides the implementation for the envelope in ElmAndTone.elm.
 
--- An envelope with have sliders for attack, decay,
--- sustain, and release.
--- effecting is 'gainenv', the string that we use to identify
--- an envelope
+-- An envelope with have sliders for attack, decay, sustain, and release.
+-- effecting is 'gainenv', the string that we use to identify an envelope
 type alias Envelope =
   { attack : SingleSlider.SingleSlider Message
   , decay : SingleSlider.SingleSlider Message
