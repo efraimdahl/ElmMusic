@@ -9,6 +9,10 @@ import Html.Events
 import SingleSlider exposing (..)
 
 
+-- An envelope with have sliders for attack, decay,
+-- sustain, and release.
+-- effecting is 'gainenv', the string that we use to identify
+-- an envelope
 type alias Envelope =
   { attack : SingleSlider.SingleSlider Message
   , decay : SingleSlider.SingleSlider Message
@@ -27,6 +31,7 @@ makeEnvMessage n f =
   SliderChange n f
 
 
+-- Initialize the sliders
 init : String -> Envelope
 init str =
   let
@@ -96,6 +101,7 @@ init str =
   }
 
 
+-- Update the sliders when the user interacts with them
 update : Message -> Envelope -> ( Envelope, String )
 update msg env =
   case msg of
@@ -128,6 +134,7 @@ update msg env =
       )
 
 
+-- Display the sliders in a table
 view : Envelope -> Html Message
 view env =
   Table.simpleTable

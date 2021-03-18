@@ -28,7 +28,7 @@ type alias Flags =
   ()
 
 
--- This file is basically our Main.elm file.
+-- This file replaced our Main.elm file.
 
 
 -- MAIN -----------------------------------------------------------------------

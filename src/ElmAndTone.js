@@ -20,8 +20,9 @@ export default class PolySynthPlayer {
   constructor () {
   }
 
-  getAssoc(props,str){
-    switch(str){
+  // Used to load/update the effects values
+  getAssoc (props,str) {
+    switch (str) {
       case "Distortion":
         return props.Distortion
       case "Chebyshev":
@@ -33,18 +34,19 @@ export default class PolySynthPlayer {
       case "FrequencyShifter":
         return props.FrequencyShifter
      case "Filter":
-       if(props.LPFilter!=null){
+       if (props.LPFilter!=null) {
           return props.LPFilter
        }
-      else{
+      else {
         return props.HPFilter
       }
-  }
+    }
   }
 
-  addFX(synth, props, type){
-    let dex = props.last.length-1
-    switch(type){
+  // Add an effect
+  addFX (synth, props, type) {
+    let dex = props.last.length - 1
+    switch (type) {
       case "Distortion":
         props.Distortion = new Tone.Distortion(0).toDestination()
         props.last.push(props.Distortion)
@@ -94,25 +96,28 @@ export default class PolySynthPlayer {
         break;
     }
   }
-  //not a real disconnect, more of a turning of.
+
+  // not a real disconnect, more of a turning off
   removeFX(synth, props, type){
-    this.getAssoc(props,type).dispose();
-    delete(this.getAssoc(props,type));
-    for(let i = 0;i<props.last.length;i++){
-      if(props.last[i].name==type){
-        if(i=props.last.length-1)
+    this.getAssoc(props, type).dispose();
+    delete (this.getAssoc(props,type));
+    for (let i = 0;i<props.last.length;i++) {
+      if (props.last[i].name == type) {
+        if (i=props.last.length - 1)
           props.last[i-1].connect(Tone.Destination)
-        else{
+        else {
           props.last[i-1].connect(props.last[i+1])
         }
         props.last.splice(i, 1);
       }
     }
   }
-  changeFX(props, name, param, value){
-    switch(name){
+
+  // Change an effect value
+  changeFX (props, name, param, value) {
+    switch (name) {
       case "Distortion":
-        switch (param){
+        switch (param) {
           case "Distortion":
             //console.log("changing distortion to: " + String(value))
             props.Distortion.distortion = value
@@ -120,7 +125,7 @@ export default class PolySynthPlayer {
         }
         break;
       case "FeedbackDelay":
-        switch (param){
+        switch (param) {
           case "Delay":
             props.FeedbackDelay.set({delayTime: value})
             break;
@@ -133,7 +138,7 @@ export default class PolySynthPlayer {
         }
         break;
       case "FrequencyShifter":
-        switch (param){
+        switch (param) {
           case "FrequencyShifter":
             props.FrequencyShifter.set({
               frequency: value,
@@ -142,7 +147,7 @@ export default class PolySynthPlayer {
         }
         break;
       case "BitCrusher":
-        switch (param){
+        switch (param) {
           case "BitCrusher":
             props.BitCrusher.set({
               bits:value
@@ -151,14 +156,14 @@ export default class PolySynthPlayer {
         }
         break;
       case "Chebyshev":
-        switch (param){
+        switch (param) {
           case "Chebyshev":
             console.log("changing Chebyshev to: " + String(value))
             props.Chebyshev.order = value
         }
         break;
       case "LPFilter":
-        switch (param){
+        switch (param) {
           case "LPFrequency":
             props.LPFilter.set({
               frequency: value,
@@ -166,7 +171,7 @@ export default class PolySynthPlayer {
         }
         break;
       case "HPFilter":
-        switch(param){
+        switch(param) {
           case "HPFrequency":
             props.HPFilter.set({
               frequency: value,
@@ -177,7 +182,8 @@ export default class PolySynthPlayer {
       }
   }
 
-
+  // Load in the saved string by calling update on the string
+  // Parse the newly created string appropriately using '#'
   load (cmds, graph, synth, props) {
     let cmdAll = cmds.split('#');
     for (let i = 0; i < cmdAll.length; i++) {
@@ -195,12 +201,12 @@ export default class PolySynthPlayer {
     //console.log(cmdLst[0],cmdLst.slice(1,))
     let pre = 0
 
-    switch(cmdLst[0]){
+    switch (cmdLst[0]) {
       case 'press':
         //synth.triggerAttackRelease("420", "8n");
         pre = cmdLst[1].split('.')[0]
         //console.log(props.activeVoices)
-        if (props.activeVoices.find(element => element==pre)){
+        if (props.activeVoices.find(element => element==pre)) {
           break;
         }
         else {
@@ -279,10 +285,10 @@ export default class PolySynthPlayer {
       case 'loadPreset':
         //remove all effects:
         console.log(props)
-        for(let i = 1;i < props.last.length;i++){
+        for(let i = 1; i < props.last.length; i++) {
           this.getAssoc(props,props.last[i].name).dispose()
           delete(this.getAssoc(props,props.last[i].name))
-          props.last.splice(i, 1);  
+          props.last.splice(i, 1);
         }
         let env = {
 	        "attack" : 0.0005,
@@ -296,9 +302,7 @@ export default class PolySynthPlayer {
         props=nprops
         props.last=newRay
         synth.connect(Tone.Destination)
-        //console.log("cmdLst[1]: ", cmdLst[1])
-        let remakeCmds = cmdLst[1].split('+').join('-') //slice(1,).join('#')
-        //console.log("remakeCmds: ", remakeCmds)
+        let remakeCmds = cmdLst[1].split('+').join('-')
         this.load(remakeCmds, graph, synth, props)
         break;
 
