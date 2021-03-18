@@ -1,5 +1,8 @@
 //Adopted from https://github.com/pd-andy/elm-web-audio/tree/master/example-->
 
+// This JS file uses Tone.js to change the audio state. We parse strings that are
+// sent over from Elm, and apply changes here to change the volume, oscillator,
+// envelope, and effects.
 
 /*
 The variable prevOscType keeps track of the previous oscillator type that
