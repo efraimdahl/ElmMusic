@@ -1,5 +1,7 @@
 Efraim Dahl and Ellyn Liu
-17 March 2021
+
+18 March 2021
+
 ElmSynth Report
 
 In this project, we created an online synthesizer using Elm, Tone.js, Elm-Web-Audio, and Elm-Bootstrap. There are several features to explore on the website, including the ability to:
