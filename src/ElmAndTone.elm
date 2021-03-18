@@ -1,5 +1,11 @@
 port module ElmAndTone exposing (..)
 
+import Effect
+import Envelope
+
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onClick, onInput)
 import Bootstrap.Accordion as Accordion
 import Bootstrap.Button as Button
 import Bootstrap.Card.Block as Block
@@ -8,23 +14,21 @@ import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
 import Bootstrap.Tab as Tab
 import Bootstrap.Utilities.Spacing as Spacing
+import SingleSlider exposing (..)
+import String.Extra
 import Browser
 import Browser.Events
 import Dict
-import Effect
-import Envelope
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode
 import Json.Encode as Encode
-import SingleSlider exposing (..)
-import String.Extra
+
 
 
 type alias Flags =
   ()
 
+
+-- This file is basically our Main.elm file.
 
 
 -- MAIN -----------------------------------------------------------------------
@@ -42,16 +46,12 @@ main =
 
 
 -- Send the JSON-encoded audio graph to JavaScript
-
-
 port updateAudio : String -> Cmd msg
 
 
 
 -- MODEL ----------------------------------------------------------------------
 -- Differentiate between black and white keys
-
-
 type Color
   = B
   | W
@@ -66,28 +66,39 @@ type alias Note =
   }
 
 
+-- notes is a list of notes corresponding to the computer keyboard
+-- volumeSlider is a slider for volume
+-- oscillatorType is a string to keep track of the current oscillator type
+-- oscillatorDropdown is a Bootstrap dropdown menu to change the oscillator type
+-- partialSlider is a slider for the oscillator partial
+-- addEnv is an ADSR envelope, see Envelope.elm
+-- effectNum is the number of effects that have been added
+-- effects is a dictionary of effects, see Effect.elm
+-- effectsDropdown is a Bootstrap dropdown menu to add effects
+-- envelopeTab is a Bootstrap tab interface for basic and advanced settings
+-- accordionState is a Bootstrap accordion for manual save/load
+-- formContent is a string that updates when a user types a load string
+-- savedState is a string that stores the current settings, for save/load
 type alias Model =
-  { volumeSlider : SingleSlider.SingleSlider Msg
+  { notes : List Note
+  , volumeSlider : SingleSlider.SingleSlider Msg
+  , oscillatorType : String
+  , oscillatorDropdown : Dropdown.State
   , partialSlider : SingleSlider.SingleSlider Msg
   , addEnv : Envelope.Envelope
-  , effects : Dict.Dict String Effect.Effect
-  , oscillatorDropdown : Dropdown.State
-  , effectsDropdown : Dropdown.State
-  , oscillatorType : String
-  , envelopeTab : Tab.State
-  , notes : List Note
   , effectNum : Int
-  , savedState : Maybe String
-  , formContent : String
+  , effects : Dict.Dict String Effect.Effect
+  , effectsDropdown : Dropdown.State
+  , envelopeTab : Tab.State
   , accordionState : Accordion.State
+  , formContent : String
+  , savedState : Maybe String
   }
 
 
 
 -- The computer-key keyboard is implemented according to common DAW practices
 -- Type on the keyboard as if it were a piano
-
-
 initialModel : Model
 initialModel =
   let
@@ -202,6 +213,7 @@ type Msg
   | AccordionMsg Accordion.State
 
 
+-- Activate a note when the user types on the keyboard
 noteOn : String -> Model -> Model
 noteOn key model =
   { model
@@ -218,6 +230,7 @@ noteOn key model =
   }
 
 
+-- Deactivate a note when the user lets go of the keyboard
 noteOff : String -> Model -> Model
 noteOff key model =
   { model
@@ -234,6 +247,7 @@ noteOff key model =
   }
 
 
+-- Transpose up one half-step
 transposeUp : Model -> Model
 transposeUp model =
   { model
@@ -241,6 +255,7 @@ transposeUp model =
   }
 
 
+-- Transpose down one half-step
 transposeDown : Model -> Model
 transposeDown model =
   { model
@@ -248,6 +263,7 @@ transposeDown model =
   }
 
 
+-- Calculate the frequency of the note that needs to be played
 findKey : String -> Model -> Float
 findKey s m =
   let
@@ -267,11 +283,7 @@ findKey s m =
       mtof hd.midi
 
 
-
--- Format Name, Number of parameters, Names of parameters, range for each
--- parameter, starting value and step size,
-
-
+-- Add an effect
 addEffect : String -> ( Effect.Effect, String )
 addEffect str =
   case str of
@@ -342,6 +354,7 @@ addEffect str =
       Debug.todo "Effect needs to be included"
 
 
+-- Takes messages and updates the model
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
   case msg of
@@ -559,20 +572,16 @@ update msg model =
 
 
 -- AUDIO ----------------------------------------------------------------------
+
 -- Super simple utility function that takes a MIDI note number like 60 and
 -- converts it to the corresponding frequency in Hertz. We use Float for the
 -- MIDI number to allow for detuning, and we assume A4 is MIDI note number 69.
-
-
 mtof : Float -> Float
 mtof midi =
   440 * 2 ^ ((midi - 69) / 12)
 
 
-
 -- Helper function to make black keys look pretty
-
-
 getBlackOffset : Int -> Color -> Attribute msg
 getBlackOffset num clr =
   case clr of
@@ -587,6 +596,8 @@ getBlackOffset num clr =
         style "" ""
 
 
+-- Used to load a saved string
+-- Helper function for updateModel
 fourWordParse : String -> String -> String -> String -> List Msg
 fourWordParse a b c d =
   case a of
@@ -607,6 +618,8 @@ fourWordParse a b c d =
       [ NoOp ]
 
 
+-- Used to load a saved string
+-- Helper function for updateModel
 threeWordParse : String -> String -> String -> List Msg
 threeWordParse a b c =
   case a of
@@ -627,6 +640,8 @@ threeWordParse a b c =
       [ NoOp ]
 
 
+-- Used to load a saved string
+-- Helper function for updateModel
 twoWordParse : String -> String -> List Msg
 twoWordParse a b =
   let
@@ -651,6 +666,8 @@ twoWordParse a b =
       [ NoOp ]
 
 
+-- Update the model so that the front-end displays the
+-- changes that have occured in JS
 updateModel : Maybe String -> Model -> Model
 updateModel str model =
   case str of
@@ -711,10 +728,10 @@ updateModel str model =
 
 
 -- VIEW -----------------------------------------------------------------------
+
+
 -- Use this to toggle the main styling on a note based on wheter it is currently
 -- active or note. Basically just changes the background and font colour.
-
-
 noteCSS : Int -> Bool -> Color -> String
 noteCSS i active clr =
   case clr of
@@ -737,19 +754,19 @@ noteCSS i active clr =
 -- This takes a Note (as defined above) and converts that to some Notice
 -- how we use the data for both the `voice` function and this `noteView` function.
 -- Our audio graph should never become out of sync with our view!
-
-
 noteView : Int -> Note -> Html Msg
 noteView i note =
   div [ class <| noteCSS i note.triggered note.clr, class "Key", getBlackOffset i note.clr ]
     [ text note.key ]
 
 
+-- Shows a card for an effect
 viewEffect : String -> Effect.Effect -> Html Msg
 viewEffect str fx =
   div [] [ Effect.view fx |> Html.map EffectMessage ]
 
 
+-- Helper funciton for view to display a saved string, if there is one
 maybeStringToString : Maybe String -> String
 maybeStringToString s =
   case s of
@@ -760,6 +777,7 @@ maybeStringToString s =
       str
 
 
+-- The home page
 view : Model -> Html Msg
 view model =
   main_ []
@@ -921,16 +939,19 @@ view model =
 -- SUBSCRIPTIONS --------------------------------------------------------------
 
 
+-- Send a string to JS to change the audio state
 makeAndSendAudio : String -> Cmd msg
 makeAndSendAudio lst =
   updateAudio (Encode.encode 0 (Encode.string lst))
 
 
+-- Recognize what a user is typing on the keyboard
 keyDecoder : Decode.Decoder String
 keyDecoder =
   Decode.field "key" Decode.string
 
 
+-- Respond to changes on the page
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch

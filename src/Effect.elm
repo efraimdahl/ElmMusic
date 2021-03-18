@@ -12,6 +12,17 @@ import Html.Events exposing (onClick, onInput)
 import SingleSlider exposing (..)
 
 
+-- This file contains the implementation for an effect.
+-- Currently, we support distortion, BitCrusher, Chebyshev,
+-- frequency shifter, feedback delay, low-pass filter, and
+-- high-pass filter.
+
+
+-- parameters contains a list of sliders, that are adjustable
+-- parameterNum is the number of parameters
+-- paramNames is a list of the names of the parameters
+-- effecting is the name of the effect
+-- parameterMinMax contains the min/max values of each param
 type alias Effect =
   { parameters : List (SingleSlider.SingleSlider Message)
   , parameterNum : Int
@@ -22,6 +33,7 @@ type alias Effect =
   }
 
 
+-- Allow a slider to be changed or for an effect to be removed
 type Message
   = SliderChange String String Float
   | RemoveEffect String
@@ -37,11 +49,13 @@ isRmMessage ms =
       False
 
 
+-- Helper function for effectToString
 makeEffectString : String -> String -> Float -> String
 makeEffectString effectName paramName val =
   "#changeFX+" ++ effectName ++ "+" ++ paramName ++ "+" ++ String.fromFloat val
 
 
+-- Create a string that is sent to JS to load an effect
 effectToString : Effect -> String
 effectToString effect =
   let
@@ -63,11 +77,13 @@ effectToString effect =
   "#addFX+" ++ effectName ++ String.concat (List.map2 (makeEffectString effectName) paramNames sliderValues)
 
 
+-- Send a message to Elm to change a slider
 makeEffectMessage : String -> String -> Float -> Message
 makeEffectMessage a b c =
   SliderChange a b c
 
 
+-- Initialize the sliders
 buildSliders : String -> List String -> List ( Float, Float ) -> List ( Float, Float ) -> List (SingleSlider.SingleSlider Message)
 buildSliders fxName lst values settings =
   case ( lst, values, settings ) of
@@ -105,9 +121,8 @@ buildSliders fxName lst values settings =
 
 
 
---Format Name, Number of parameters, Names of parameters, range for each parameter, starting value and step size,
-
-
+-- Format the name, number of parameters, names of parameters,
+-- range for each parameter, starting value and step size
 init : String -> Int -> List String -> List ( Float, Float ) -> List ( Float, Float ) -> Effect
 init str num parameterString parameterMinMax parameterSettings =
   { parameters = buildSliders str parameterString parameterMinMax parameterSettings
@@ -120,9 +135,7 @@ init str num parameterString parameterMinMax parameterSettings =
 
 
 
---change a single parameter from the list of possible parameters
-
-
+-- Change a single parameter from the list of possible parameters
 changeParam : String -> Float -> List String -> List (SingleSlider.SingleSlider Message) -> List (SingleSlider.SingleSlider Message)
 changeParam name val paramNames sliders =
   case ( paramNames, sliders ) of
@@ -145,9 +158,7 @@ changeParam name val paramNames sliders =
 
 
 
---helper function to be called from ElmAndTone
-
-
+-- Helper function that is called in ElmAndTone
 getChangedName : Message -> String
 getChangedName msg =
   case msg of
@@ -159,9 +170,7 @@ getChangedName msg =
 
 
 
---updates the
-
-
+-- Updates the effect
 update : Message -> Effect -> ( Effect, String )
 update msg env =
   case msg of
@@ -187,11 +196,13 @@ update msg env =
       ( env, str )
 
 
+-- Display a slider
 sliderView : SingleSlider.SingleSlider Message -> ListGroup.Item Message
 sliderView slider =
   ListGroup.li [] [ SingleSlider.view slider ]
 
 
+-- Show cards with sliders on them when an effect is chosen
 view : Effect -> Html Message
 view env =
   Card.config [ Card.attrs [ style "width" "20rem" ] ]
