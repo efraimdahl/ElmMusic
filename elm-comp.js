@@ -6136,8 +6136,8 @@ var $author$project$Effect$buildSliders = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 104, column: 7},
-				end: {line: 104, column: 17}
+				start: {line: 120, column: 7},
+				end: {line: 120, column: 17}
 			})('Error in initiating effect ' + fxName);
 	});
 var $author$project$Effect$init = F5(
@@ -6280,8 +6280,8 @@ var $author$project$ElmAndTone$addEffect = function (str) {
 			return _Debug_todo(
 				'ElmAndTone',
 				{
-					start: {line: 342, column: 7},
-					end: {line: 342, column: 17}
+					start: {line: 354, column: 7},
+					end: {line: 354, column: 17}
 				})('Effect needs to be included');
 	}
 };
@@ -6986,8 +6986,8 @@ var $author$project$Effect$changeParam = F4(
 		return _Debug_todo(
 			'Effect',
 			{
-				start: {line: 144, column: 7},
-				end: {line: 144, column: 17}
+				start: {line: 157, column: 7},
+				end: {line: 157, column: 17}
 			})('Invalid Prameter Matchup for ' + name);
 	});
 var $author$project$Effect$update = F2(
@@ -7041,8 +7041,8 @@ var $author$project$Envelope$update = F2(
 					return _Debug_todo(
 						'Envelope',
 						{
-							start: {line: 120, column: 15},
-							end: {line: 120, column: 25}
+							start: {line: 125, column: 15},
+							end: {line: 125, column: 25}
 						})('2undefined Slider Changed ' + typ);
 			}
 		}();
@@ -7083,8 +7083,8 @@ var $author$project$ElmAndTone$update = F2(
 							return _Debug_todo(
 								'ElmAndTone',
 								{
-									start: {line: 360, column: 15},
-									end: {line: 360, column: 25}
+									start: {line: 373, column: 15},
+									end: {line: 373, column: 25}
 								})(
 								'1undefined Slider Changed ' + (typ + (',' + $elm$core$Debug$toString(msg))));
 					}
@@ -10668,24 +10668,6 @@ var $author$project$ElmAndTone$view = function (model) {
 															$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr3,
 															$elm$html$Html$Events$onClick(
 															$author$project$ElmAndTone$PresetLoad(
-																$elm$core$Maybe$Just('loadPreset-#volume+50#oscillator+sine#partial+1#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#addFX+FrequencyShifter#changeFX+FrequencyShifter+FrequencyShifter+760#addFX+Chebyshev#changeFX+Chebyshev+Chebyshev+41')))
-														]))
-												]),
-											_List_fromArray(
-												[
-													$elm$html$Html$text('Disaster')
-												])),
-											A2(
-											$rundis$elm_bootstrap$Bootstrap$Button$button,
-											_List_fromArray(
-												[
-													$rundis$elm_bootstrap$Bootstrap$Button$primary,
-													$rundis$elm_bootstrap$Bootstrap$Button$attrs(
-													_List_fromArray(
-														[
-															$rundis$elm_bootstrap$Bootstrap$Utilities$Spacing$mr3,
-															$elm$html$Html$Events$onClick(
-															$author$project$ElmAndTone$PresetLoad(
 																$elm$core$Maybe$Just('loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50')))
 														]))
 												]),
@@ -10859,17 +10841,6 @@ var $author$project$ElmAndTone$view = function (model) {
 																_List_fromArray(
 																	[
 																		$elm$html$Html$text('Distortion')
-																	])),
-																A2(
-																$rundis$elm_bootstrap$Bootstrap$Dropdown$buttonItem,
-																_List_fromArray(
-																	[
-																		$elm$html$Html$Events$onClick(
-																		$author$project$ElmAndTone$AddFX('BitCrusher'))
-																	]),
-																_List_fromArray(
-																	[
-																		$elm$html$Html$text('BitCrusher')
 																	])),
 																A2(
 																$rundis$elm_bootstrap$Bootstrap$Dropdown$buttonItem,

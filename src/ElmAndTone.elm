@@ -841,14 +841,6 @@ view model =
                 [ Button.primary
                 , Button.attrs
                   [ Spacing.mr3
-                  , onClick (PresetLoad (Just "loadPreset-#volume+50#oscillator+sine#partial+1#gainenv+attack+0.0005#gainenv+decay+0.4905#gainenv+sustain+0.2405#gainenv+release+1.8705#addFX+FrequencyShifter#changeFX+FrequencyShifter+FrequencyShifter+760#addFX+Chebyshev#changeFX+Chebyshev+Chebyshev+41"))
-                  ]
-                ]
-                [ text "Disaster" ]
-              , Button.button
-                [ Button.primary
-                , Button.attrs
-                  [ Spacing.mr3
                   , onClick (PresetLoad (Just "loadPreset-#gainenv+attack+0.0505#gainenv+decay+0.3705#gainenv+sustain+0.1405#gainenv+release+0.8905#oscillator+square#partial+50"))
                   ]
                 ]
@@ -889,7 +881,6 @@ view model =
                   , toggleButton = Dropdown.toggle [ Button.primary ] [ text "Add Effect" ]
                   , items =
                     [ Dropdown.buttonItem [ onClick (AddFX "Distortion") ] [ text "Distortion" ]
-                    , Dropdown.buttonItem [ onClick (AddFX "BitCrusher") ] [ text "BitCrusher" ]
                     , Dropdown.buttonItem [ onClick (AddFX "Chebyshev") ] [ text "Chebyshev" ]
                     , Dropdown.buttonItem [ onClick (AddFX "FrequencyShifter") ] [ text "FrequencyShifter" ]
                     , Dropdown.buttonItem [ onClick (AddFX "FeedbackDelay") ] [ text "FeedbackDelay" ]
