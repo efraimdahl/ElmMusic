@@ -1,6 +1,11 @@
 # ElmMusic
 A Synthesizer implemented in Elm using Tone.js.
 
+Check it out here: https://efraimdahl.github.io/ElmMusic/
+
+To run locally: 
+
+
 The following steps are performed in the command line.
 First, clone the directory and install npm:
 
